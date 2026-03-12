@@ -1,0 +1,70 @@
+TABLAS
+
+CREATE TABLE parqueo_parqueaderos(
+    id VARCHAR(15) NOT NULL,
+	nombre VARCHAR(255) NOT NULL,
+	empresa VARCHAR(255) NOT NULL,
+	capacidad VARCHAR(255) NOT NULL,
+	latitud VARCHAR(255) NOT NULL,
+	longitud VARCHAR(255) NOT NULL,
+	direccion VARCHAR(255) NOT NULL,
+	ciudad VARCHAR(255) NOT NULL,
+	estado VARCHAR(45) NOT NULL,
+	PRIMARY KEY(id)
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE parqueo_lugar(
+    id VARCHAR(15) NOT NULL,
+	numero VARCHAR(255) NOT NULL,
+	parqueadero VARCHAR(255) NOT NULL,
+	bluetooth VARCHAR(255) NOT NULL,
+	qr VARCHAR(255) NOT NULL,
+    clave VARCHAR(255) NOT NULL,
+	estado VARCHAR(45) NOT NULL,
+	PRIMARY KEY(id),
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE parqueo_renta(
+    id VARCHAR(255) NOT NULL,
+	usuario VARCHAR(255) NOT NULL,
+	parqueadero VARCHAR(255) NOT NULL,
+	lugar_parqueo VARCHAR(255) NOT NULL,
+	vehiculo VARCHAR(255) NOT NULL,
+	fecha VARCHAR(255) NOT NULL,
+	inicio VARCHAR(255) NOT NULL,
+	fin VARCHAR(255) NOT NULL,
+    duracion VARCHAR(255) NOT NULL,
+    dispositivo VARCHAR(255) NOT NULL,
+	estado VARCHAR(45) NOT NULL,
+	PRIMARY KEY(id)
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE parqueo_Feedback(
+    id VARCHAR(255) NOT NULL,
+	usuario VARCHAR(255) NOT NULL,
+	renta_parqueo VARCHAR(255) NOT NULL,
+	fecha VARCHAR(255) NOT NULL,
+	comentario VARCHAR(255) NOT NULL,
+	calificacion VARCHAR(255) NOT NULL,
+	PRIMARY KEY(id)
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE parqueo_tyc(
+    usuario VARCHAR(255) NOT NULL,
+	fechaInscripcion VARCHAR(255) NOT NULL,
+	PRIMARY KEY(usuario)
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE parqueo_horarios (
+  id int NOT NULL AUTO_INCREMENT,
+  parqueadero varchar(20) NOT NULL,
+  hor_mon VARCHAR(255) NOT NULL,
+  hor_tue VARCHAR(255) NOT NULL,
+  hor_wed VARCHAR(255) NOT NULL,
+  hor_thu VARCHAR(255) NOT NULL,
+  hor_fri VARCHAR(255) NOT NULL,
+  hor_sat VARCHAR(255) NOT NULL,
+  hor_sun VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+

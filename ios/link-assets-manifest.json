@@ -1,0 +1,181 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "App/Resources/fonts/Aldo-SemiBold.ttf",
+      "sha1": "837199504a445eecb9c37686403ac7bfea03e8f5"
+    },
+    {
+      "path": "App/Resources/fonts/Montserrat-ExtraBold.ttf",
+      "sha1": "4b5c27dcf59df165606efa247190c0bfa3c02ff0"
+    },
+    {
+      "path": "App/Resources/fonts/Montserrat-Light.ttf",
+      "sha1": "83879cec4c934d446eca63aa5cfedcebfd60d610"
+    },
+    {
+      "path": "App/Resources/fonts/Montserrat-Medium.ttf",
+      "sha1": "65a98832079c4d2c67f3acc4f4ce2de630fe6cb0"
+    },
+    {
+      "path": "App/Resources/fonts/Montserrat-Regular.ttf",
+      "sha1": "d25b35242deb1c6ff888b8162ca2aacc356d3899"
+    },
+    {
+      "path": "App/Resources/fonts/Poppins-Light.ttf",
+      "sha1": "e247a92158e112f8bf7b638c8d95381d66b00dbb"
+    },
+    {
+      "path": "App/Resources/fonts/Poppins-Regular.ttf",
+      "sha1": "fdd3002e7d814ee47c1c1b8487c72c6bbb3a2d00"
+    },
+    {
+      "path": "App/Resources/fonts/PoppinsMedium.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
+    },
+    {
+      "path": "App/Resources/Lotties/Confetti.json",
+      "sha1": "8b49ea8b8c8fff6b1e2773d8656c816f1541a3f5"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_01.json",
+      "sha1": "a1deb398b6ea69de1769a41b2e956c55df5aa622"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_02.json",
+      "sha1": "294b08e9b6d477f2caaa9ca979f3a00cb17d1768"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_03.json",
+      "sha1": "f7eeda126b6c9a7b0bfa9544c3644cc43fd50f36"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_04.json",
+      "sha1": "8177149803535194a74925724764831055237ad2"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_bluetooth.json",
+      "sha1": "4d2cdb921713bf8fd3f32e5a9a8b858c7f23d69a"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_casco.json",
+      "sha1": "2685fc1113037d47ed04aee2fc282bd60fada1ec"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_clima.json",
+      "sha1": "2d1230cefae71542bba1c145ff4b71e7fab38863"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_confetti.json",
+      "sha1": "219c5fcfb10c3e8efd54ed115931b374fba4fafa"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_cong.json",
+      "sha1": "621b58bf13e66b01d838a9be5587940f22c1d227"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_error.json",
+      "sha1": "43b4c07939b44fd1e47cce171f993c9e3453125b"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_feliz_viaje.json",
+      "sha1": "a696fe52751ce86625c5f82fe96d6d77b3a906e4"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_inicio.json",
+      "sha1": "274e4b20a4959d4ada6dd4f61f0c8d3cbdb9dfa3"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_loader.json",
+      "sha1": "a20168ab83a0bdb97ae0d73dad5820dd7af82608"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_lock.json",
+      "sha1": "816b177d2ed95e99487685c1defd8640c950e658"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_lock2.json",
+      "sha1": "2022af5f1037d91a9c85d275003d094509cfc963"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_mapa.json",
+      "sha1": "bbf0e5a16524c28e29262f62e5ec1ae0cd3158ef"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_meta.json",
+      "sha1": "274e4b20a4959d4ada6dd4f61f0c8d3cbdb9dfa3"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_meta2.json",
+      "sha1": "f9e0953c16d0caa4027d9b6d6abc0382f5efeb73"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_onOff.json",
+      "sha1": "4062c10a3c8511e7681eeae7655526b7c610a923"
+    },
+    {
+      "path": "App/Resources/Lotties/bicy_qr.json",
+      "sha1": "ad89efe31a61c1d8d49cef691c2b651ecab6b0d3"
+    },
+    {
+      "path": "App/Resources/Lotties/bicycle.json",
+      "sha1": "4efea763af4c6c9e55c9d6ab409b9aae68ecc56e"
+    },
+    {
+      "path": "App/Resources/Lotties/bluetooth-lottie.json",
+      "sha1": "db784191167791c8a552661ccfa9d5542de22ec8"
+    },
+    {
+      "path": "App/Resources/Lotties/car.json",
+      "sha1": "7e87159cdf73a3a1dbd12f2aab6a0199c9b5c8c9"
+    },
+    {
+      "path": "App/Resources/Lotties/car_circulo.json",
+      "sha1": "61b391cee6a97f5ac2966d34f62b362fdde14795"
+    },
+    {
+      "path": "App/Resources/Lotties/carga.json",
+      "sha1": "61b391cee6a97f5ac2966d34f62b362fdde14795"
+    },
+    {
+      "path": "App/Resources/Lotties/davivienda.json",
+      "sha1": "c64196b06381bd685d80a9857bbc98a380d39b6c"
+    },
+    {
+      "path": "App/Resources/Lotties/finish.json",
+      "sha1": "b252c469ea1e4ca2e696d60f8a2a06c979cf72de"
+    },
+    {
+      "path": "App/Resources/Lotties/loadingCar.json",
+      "sha1": "dd26322f4e0f574c470d701580b0d4b3fa1a92bf"
+    },
+    {
+      "path": "App/Resources/Lotties/loadingbici.json",
+      "sha1": "5f288ef0fde147a4f1c03fb8987bc987a8423803"
+    },
+    {
+      "path": "App/Resources/Lotties/lock.json",
+      "sha1": "c36bde379549d871594e7222107e658a6ac37092"
+    },
+    {
+      "path": "App/Resources/Lotties/logoDavi.json",
+      "sha1": "9d89f8f6b35778ad7754f2083149aa6a31c3086f"
+    },
+    {
+      "path": "App/Resources/Lotties/parqueo_loader.json",
+      "sha1": "134872be41e11f7d9ddfe2d0b921e6b58c035f2f"
+    },
+    {
+      "path": "App/Resources/Lotties/pinmapa.json",
+      "sha1": "2d8e138b2b12e3a0e8c9285f9218eddd97ce36ed"
+    },
+    {
+      "path": "App/Resources/Lotties/qrcode.json",
+      "sha1": "ce2a035dc71d0bb10561e2acb9038ceb486e5f1d"
+    },
+    {
+      "path": "App/Resources/Lotties/stop1713473758.json",
+      "sha1": "d7d9e3c3ba8fa323e72290cfd9d27e15cfd3f3b2"
+    }
+  ]
+}

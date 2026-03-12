@@ -1,0 +1,739 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		001CDD718C8749668F53814C /* bicy_error.json in Resources */ = {isa = PBXBuildFile; fileRef = 6206BC40A7304915ACDDB8D4 /* bicy_error.json */; };
+		019AB05C5ADF4F8BB8174D84 /* bicy_mapa.json in Resources */ = {isa = PBXBuildFile; fileRef = 78B1639661024412B508E85A /* bicy_mapa.json */; };
+		071363C68E8B41F19DB2684A /* qrcode.json in Resources */ = {isa = PBXBuildFile; fileRef = D24E93B3757540B0A6395707 /* qrcode.json */; };
+		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		15D0BE74F36647D1B9EA4E39 /* bicy_confetti.json in Resources */ = {isa = PBXBuildFile; fileRef = CC40C35FCA5D497BA783B43F /* bicy_confetti.json */; };
+		194BCF6E3F174D57AD0E96C1 /* bicy_lock.json in Resources */ = {isa = PBXBuildFile; fileRef = A4B08FF42AED415C8559C88A /* bicy_lock.json */; };
+		19DA7B8CB4811768B82CCFC0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DA040B75615C7B4DA4C5A726 /* GoogleService-Info.plist */; };
+		1AD29F7887994EA693E0F1B4 /* lock.json in Resources */ = {isa = PBXBuildFile; fileRef = 30F47E7A8FE24ED9939BF116 /* lock.json */; };
+		2236299C96D9483D93F5A04E /* bicy_lock2.json in Resources */ = {isa = PBXBuildFile; fileRef = FE5BB2D67B4C41BCB16436AC /* bicy_lock2.json */; };
+		28F7D03CDF42463A89B13067 /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 94D35178818242E0B55A27A4 /* Montserrat-Medium.ttf */; };
+		2AAB7612F7074FCAA717BE17 /* bluetooth-lottie.json in Resources */ = {isa = PBXBuildFile; fileRef = E84ADE00812F44569206257B /* bluetooth-lottie.json */; };
+		2D8AEDDB9B634D678ED00F7F /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3B45D65E10374A5D98AA258A /* Poppins-Regular.ttf */; };
+		2F19BF6578A8413BB8D5D25D /* Confetti.json in Resources */ = {isa = PBXBuildFile; fileRef = 93FB10699A75414EBE7E043D /* Confetti.json */; };
+		316DD2BFB3ADCD289469DCA6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		444BB624F4B341368C0AAB84 /* pinmapa.json in Resources */ = {isa = PBXBuildFile; fileRef = 437C4ECA5751423496713854 /* pinmapa.json */; };
+		4B1680533DBA474BA5098D7A /* Aldo-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CEDF3A916CE54B1D99DF55F9 /* Aldo-SemiBold.ttf */; };
+		528E7158175D42AB8FC94451 /* finish.json in Resources */ = {isa = PBXBuildFile; fileRef = B4B1FB347EAA4D76A5E40616 /* finish.json */; };
+		71937C72B7CB401F99DA97F9 /* bicy_onOff.json in Resources */ = {isa = PBXBuildFile; fileRef = 19DA8ABA1A1D445B9E19A46A /* bicy_onOff.json */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		77FEBE19AC2C46F69AC27566 /* loadingCar.json in Resources */ = {isa = PBXBuildFile; fileRef = 15C58095114E4FC0A7484FA4 /* loadingCar.json */; };
+		7A32A8ECAC9448B1AFC79B3E /* car.json in Resources */ = {isa = PBXBuildFile; fileRef = AB57673808C446D3AA51DAEE /* car.json */; };
+		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		821EA28C80EE4F3A8E108841 /* loadingbici.json in Resources */ = {isa = PBXBuildFile; fileRef = 4C496040DBAB47F2AF4878A1 /* loadingbici.json */; };
+		86064577BC864BD2A36C355F /* bicy_meta2.json in Resources */ = {isa = PBXBuildFile; fileRef = 0D1D3B211E454EDA95240BEA /* bicy_meta2.json */; };
+		8D1597A2E0C643A397177FAE /* bicy_03.json in Resources */ = {isa = PBXBuildFile; fileRef = B57B02CDB168456F816E58D7 /* bicy_03.json */; };
+		9A6D461E6E774B8F88B115F3 /* logoDavi.json in Resources */ = {isa = PBXBuildFile; fileRef = B9AA857AC1AE46AB99ACED97 /* logoDavi.json */; };
+		9B41AA7DDFC5467D8E6B2617 /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70279C5639AA4D4795223313 /* Montserrat-Light.ttf */; };
+		9F30F45162094CE9904EF24E /* car_circulo.json in Resources */ = {isa = PBXBuildFile; fileRef = 2544738B2EBE4371B5E87D4C /* car_circulo.json */; };
+		A1F2F844E57F405CB5BD5112 /* stop1713473758.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F1E8B496A64451AAEA022C8 /* stop1713473758.json */; };
+		A344E1C16FA88F6DBCDEE071 /* Pods_mejorenbici.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D29D94EC23E17D215C08F64D /* Pods_mejorenbici.framework */; };
+		A69AC1E272774A0C908A81DF /* PoppinsMedium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B0FF3113C0D6445D9216E460 /* PoppinsMedium.ttf */; };
+		AE6AA79449A64D37AB0923A4 /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BAF921FF23764A4F8305F04A /* Montserrat-Regular.ttf */; };
+		AEBB04FE7ED64A349CC96005 /* bicycle.json in Resources */ = {isa = PBXBuildFile; fileRef = 43F327D8E7634725817A2C1A /* bicycle.json */; };
+		AECD49FEB00748E19F0E5088 /* carga.json in Resources */ = {isa = PBXBuildFile; fileRef = 64E6DE5AAEE34F8AABA42C8C /* carga.json */; };
+		B50DF9877D094723986A7DCA /* bicy_inicio.json in Resources */ = {isa = PBXBuildFile; fileRef = 91CFA81F410A4D3F8CFBC683 /* bicy_inicio.json */; };
+		B81F1DF1706D4004A295B41C /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DB6818A941D44C5192D3E070 /* Poppins-Light.ttf */; };
+		BD2E978039334604B146E5E5 /* bicy_meta.json in Resources */ = {isa = PBXBuildFile; fileRef = 98ED236D4D0642E18452CC77 /* bicy_meta.json */; };
+		CD00ED15DD4F4C448276A78B /* bicy_04.json in Resources */ = {isa = PBXBuildFile; fileRef = 08844509EEDA4E2A8BDF3018 /* bicy_04.json */; };
+		D127ED5C22A4416FA264ECA6 /* parqueo_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = BD733AD7E5954BFEB62774DD /* parqueo_loader.json */; };
+		D7E24907D6FF4A8A99E5C89B /* davivienda.json in Resources */ = {isa = PBXBuildFile; fileRef = 2A7D1741B11049EE87BDF180 /* davivienda.json */; };
+		D8E1195D958140F6912A95D2 /* bicy_qr.json in Resources */ = {isa = PBXBuildFile; fileRef = 404B2038841346C29A110496 /* bicy_qr.json */; };
+		E4C0BC7750754AD189B085BB /* bicy_casco.json in Resources */ = {isa = PBXBuildFile; fileRef = 1742449F055E4902B798D202 /* bicy_casco.json */; };
+		E99B1C474FF8416BBE01A417 /* bicy_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = 85970BF7CDB94C84BD00D507 /* bicy_loader.json */; };
+		EA97204705DF4B289B74095F /* bicy_01.json in Resources */ = {isa = PBXBuildFile; fileRef = D4CC1E5DE55E4FA5B706C83A /* bicy_01.json */; };
+		F0FD52BD04314D6B94677474 /* bicy_clima.json in Resources */ = {isa = PBXBuildFile; fileRef = C4670E70EB5046A493449EAA /* bicy_clima.json */; };
+		F45143AD4CD34AABB620F94D /* bicy_bluetooth.json in Resources */ = {isa = PBXBuildFile; fileRef = 44DA31A1965D4FFC8F31626A /* bicy_bluetooth.json */; };
+		F48D5EE6012B43C59A0184D3 /* bicy_cong.json in Resources */ = {isa = PBXBuildFile; fileRef = F42575B2E0374BDB92A16B06 /* bicy_cong.json */; };
+		F5FEDBC8902949F2ACA9010B /* bicy_feliz_viaje.json in Resources */ = {isa = PBXBuildFile; fileRef = 6445F4F6C5AB4B3A8B08CCD5 /* bicy_feliz_viaje.json */; };
+		F7BEFA52881145BF94B2A24C /* Montserrat-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4C6ECAAB02044A390CC2199 /* Montserrat-ExtraBold.ttf */; };
+		FDFC3524EEDD47AA9E6D71C7 /* bicy_02.json in Resources */ = {isa = PBXBuildFile; fileRef = 1BAFB3340EFE4B7E979FC8B4 /* bicy_02.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		08844509EEDA4E2A8BDF3018 /* bicy_04.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_04.json; path = ../App/Resources/Lotties/bicy_04.json; sourceTree = "<group>"; };
+		0D1D3B211E454EDA95240BEA /* bicy_meta2.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_meta2.json; path = ../App/Resources/Lotties/bicy_meta2.json; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* mejorenbici.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mejorenbici.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = mejorenbici/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = mejorenbici/Info.plist; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = mejorenbici/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		15C58095114E4FC0A7484FA4 /* loadingCar.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = loadingCar.json; path = ../App/Resources/Lotties/loadingCar.json; sourceTree = "<group>"; };
+		1742449F055E4902B798D202 /* bicy_casco.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_casco.json; path = ../App/Resources/Lotties/bicy_casco.json; sourceTree = "<group>"; };
+		19DA8ABA1A1D445B9E19A46A /* bicy_onOff.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_onOff.json; path = ../App/Resources/Lotties/bicy_onOff.json; sourceTree = "<group>"; };
+		1BAFB3340EFE4B7E979FC8B4 /* bicy_02.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_02.json; path = ../App/Resources/Lotties/bicy_02.json; sourceTree = "<group>"; };
+		2544738B2EBE4371B5E87D4C /* car_circulo.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = car_circulo.json; path = ../App/Resources/Lotties/car_circulo.json; sourceTree = "<group>"; };
+		2A7D1741B11049EE87BDF180 /* davivienda.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = davivienda.json; path = ../App/Resources/Lotties/davivienda.json; sourceTree = "<group>"; };
+		30F47E7A8FE24ED9939BF116 /* lock.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = lock.json; path = ../App/Resources/Lotties/lock.json; sourceTree = "<group>"; };
+		3B45D65E10374A5D98AA258A /* Poppins-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Regular.ttf"; path = "../App/Resources/fonts/Poppins-Regular.ttf"; sourceTree = "<group>"; };
+		40320697013A229C0CBF2794 /* Pods-mejorenbici.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mejorenbici.release.xcconfig"; path = "Target Support Files/Pods-mejorenbici/Pods-mejorenbici.release.xcconfig"; sourceTree = "<group>"; };
+		404B2038841346C29A110496 /* bicy_qr.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_qr.json; path = ../App/Resources/Lotties/bicy_qr.json; sourceTree = "<group>"; };
+		437C4ECA5751423496713854 /* pinmapa.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pinmapa.json; path = ../App/Resources/Lotties/pinmapa.json; sourceTree = "<group>"; };
+		43F327D8E7634725817A2C1A /* bicycle.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicycle.json; path = ../App/Resources/Lotties/bicycle.json; sourceTree = "<group>"; };
+		44DA31A1965D4FFC8F31626A /* bicy_bluetooth.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_bluetooth.json; path = ../App/Resources/Lotties/bicy_bluetooth.json; sourceTree = "<group>"; };
+		4C496040DBAB47F2AF4878A1 /* loadingbici.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = loadingbici.json; path = ../App/Resources/Lotties/loadingbici.json; sourceTree = "<group>"; };
+		5251E5B45A23B3A6416D4F4A /* Pods-mejorenbici.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mejorenbici.debug.xcconfig"; path = "Target Support Files/Pods-mejorenbici/Pods-mejorenbici.debug.xcconfig"; sourceTree = "<group>"; };
+		6206BC40A7304915ACDDB8D4 /* bicy_error.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_error.json; path = ../App/Resources/Lotties/bicy_error.json; sourceTree = "<group>"; };
+		6445F4F6C5AB4B3A8B08CCD5 /* bicy_feliz_viaje.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_feliz_viaje.json; path = ../App/Resources/Lotties/bicy_feliz_viaje.json; sourceTree = "<group>"; };
+		64E6DE5AAEE34F8AABA42C8C /* carga.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = carga.json; path = ../App/Resources/Lotties/carga.json; sourceTree = "<group>"; };
+		70279C5639AA4D4795223313 /* Montserrat-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Light.ttf"; path = "../App/Resources/fonts/Montserrat-Light.ttf"; sourceTree = "<group>"; };
+		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = mejorenbici/AppDelegate.swift; sourceTree = "<group>"; };
+		78B1639661024412B508E85A /* bicy_mapa.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_mapa.json; path = ../App/Resources/Lotties/bicy_mapa.json; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = mejorenbici/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		85970BF7CDB94C84BD00D507 /* bicy_loader.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_loader.json; path = ../App/Resources/Lotties/bicy_loader.json; sourceTree = "<group>"; };
+		91CFA81F410A4D3F8CFBC683 /* bicy_inicio.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_inicio.json; path = ../App/Resources/Lotties/bicy_inicio.json; sourceTree = "<group>"; };
+		93FB10699A75414EBE7E043D /* Confetti.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Confetti.json; path = ../App/Resources/Lotties/Confetti.json; sourceTree = "<group>"; };
+		94D35178818242E0B55A27A4 /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Medium.ttf"; path = "../App/Resources/fonts/Montserrat-Medium.ttf"; sourceTree = "<group>"; };
+		98ED236D4D0642E18452CC77 /* bicy_meta.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_meta.json; path = ../App/Resources/Lotties/bicy_meta.json; sourceTree = "<group>"; };
+		9F1E8B496A64451AAEA022C8 /* stop1713473758.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = stop1713473758.json; path = ../App/Resources/Lotties/stop1713473758.json; sourceTree = "<group>"; };
+		A4B08FF42AED415C8559C88A /* bicy_lock.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_lock.json; path = ../App/Resources/Lotties/bicy_lock.json; sourceTree = "<group>"; };
+		AB57673808C446D3AA51DAEE /* car.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = car.json; path = ../App/Resources/Lotties/car.json; sourceTree = "<group>"; };
+		B0FF3113C0D6445D9216E460 /* PoppinsMedium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = PoppinsMedium.ttf; path = ../App/Resources/fonts/PoppinsMedium.ttf; sourceTree = "<group>"; };
+		B4B1FB347EAA4D76A5E40616 /* finish.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = finish.json; path = ../App/Resources/Lotties/finish.json; sourceTree = "<group>"; };
+		B57B02CDB168456F816E58D7 /* bicy_03.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_03.json; path = ../App/Resources/Lotties/bicy_03.json; sourceTree = "<group>"; };
+		B9AA857AC1AE46AB99ACED97 /* logoDavi.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = logoDavi.json; path = ../App/Resources/Lotties/logoDavi.json; sourceTree = "<group>"; };
+		BAF921FF23764A4F8305F04A /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../App/Resources/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
+		BD733AD7E5954BFEB62774DD /* parqueo_loader.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = parqueo_loader.json; path = ../App/Resources/Lotties/parqueo_loader.json; sourceTree = "<group>"; };
+		C4670E70EB5046A493449EAA /* bicy_clima.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_clima.json; path = ../App/Resources/Lotties/bicy_clima.json; sourceTree = "<group>"; };
+		CC40C35FCA5D497BA783B43F /* bicy_confetti.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_confetti.json; path = ../App/Resources/Lotties/bicy_confetti.json; sourceTree = "<group>"; };
+		CEDF3A916CE54B1D99DF55F9 /* Aldo-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Aldo-SemiBold.ttf"; path = "../App/Resources/fonts/Aldo-SemiBold.ttf"; sourceTree = "<group>"; };
+		D24E93B3757540B0A6395707 /* qrcode.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = qrcode.json; path = ../App/Resources/Lotties/qrcode.json; sourceTree = "<group>"; };
+		D29D94EC23E17D215C08F64D /* Pods_mejorenbici.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_mejorenbici.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4C6ECAAB02044A390CC2199 /* Montserrat-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBold.ttf"; path = "../App/Resources/fonts/Montserrat-ExtraBold.ttf"; sourceTree = "<group>"; };
+		D4CC1E5DE55E4FA5B706C83A /* bicy_01.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_01.json; path = ../App/Resources/Lotties/bicy_01.json; sourceTree = "<group>"; };
+		DA040B75615C7B4DA4C5A726 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "mejorenbici/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DB6818A941D44C5192D3E070 /* Poppins-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Light.ttf"; path = "../App/Resources/fonts/Poppins-Light.ttf"; sourceTree = "<group>"; };
+		E84ADE00812F44569206257B /* bluetooth-lottie.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "bluetooth-lottie.json"; path = "../App/Resources/Lotties/bluetooth-lottie.json"; sourceTree = "<group>"; };
+		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F42575B2E0374BDB92A16B06 /* bicy_cong.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_cong.json; path = ../App/Resources/Lotties/bicy_cong.json; sourceTree = "<group>"; };
+		FE5BB2D67B4C41BCB16436AC /* bicy_lock2.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bicy_lock2.json; path = ../App/Resources/Lotties/bicy_lock2.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A344E1C16FA88F6DBCDEE071 /* Pods_mejorenbici.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		13B07FAE1A68108700A75B9A /* mejorenbici */ = {
+			isa = PBXGroup;
+			children = (
+				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				13B07FB61A68108700A75B9A /* Info.plist */,
+				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				DA040B75615C7B4DA4C5A726 /* GoogleService-Info.plist */,
+			);
+			name = mejorenbici;
+			sourceTree = "<group>";
+		};
+		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
+				D29D94EC23E17D215C08F64D /* Pods_mejorenbici.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7A0BCDB85D5D46C5B86BF4BF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CEDF3A916CE54B1D99DF55F9 /* Aldo-SemiBold.ttf */,
+				D4C6ECAAB02044A390CC2199 /* Montserrat-ExtraBold.ttf */,
+				70279C5639AA4D4795223313 /* Montserrat-Light.ttf */,
+				94D35178818242E0B55A27A4 /* Montserrat-Medium.ttf */,
+				BAF921FF23764A4F8305F04A /* Montserrat-Regular.ttf */,
+				DB6818A941D44C5192D3E070 /* Poppins-Light.ttf */,
+				3B45D65E10374A5D98AA258A /* Poppins-Regular.ttf */,
+				B0FF3113C0D6445D9216E460 /* PoppinsMedium.ttf */,
+				93FB10699A75414EBE7E043D /* Confetti.json */,
+				D4CC1E5DE55E4FA5B706C83A /* bicy_01.json */,
+				1BAFB3340EFE4B7E979FC8B4 /* bicy_02.json */,
+				B57B02CDB168456F816E58D7 /* bicy_03.json */,
+				08844509EEDA4E2A8BDF3018 /* bicy_04.json */,
+				44DA31A1965D4FFC8F31626A /* bicy_bluetooth.json */,
+				1742449F055E4902B798D202 /* bicy_casco.json */,
+				C4670E70EB5046A493449EAA /* bicy_clima.json */,
+				CC40C35FCA5D497BA783B43F /* bicy_confetti.json */,
+				F42575B2E0374BDB92A16B06 /* bicy_cong.json */,
+				6206BC40A7304915ACDDB8D4 /* bicy_error.json */,
+				6445F4F6C5AB4B3A8B08CCD5 /* bicy_feliz_viaje.json */,
+				91CFA81F410A4D3F8CFBC683 /* bicy_inicio.json */,
+				85970BF7CDB94C84BD00D507 /* bicy_loader.json */,
+				A4B08FF42AED415C8559C88A /* bicy_lock.json */,
+				FE5BB2D67B4C41BCB16436AC /* bicy_lock2.json */,
+				78B1639661024412B508E85A /* bicy_mapa.json */,
+				98ED236D4D0642E18452CC77 /* bicy_meta.json */,
+				0D1D3B211E454EDA95240BEA /* bicy_meta2.json */,
+				19DA8ABA1A1D445B9E19A46A /* bicy_onOff.json */,
+				404B2038841346C29A110496 /* bicy_qr.json */,
+				43F327D8E7634725817A2C1A /* bicycle.json */,
+				E84ADE00812F44569206257B /* bluetooth-lottie.json */,
+				AB57673808C446D3AA51DAEE /* car.json */,
+				2544738B2EBE4371B5E87D4C /* car_circulo.json */,
+				64E6DE5AAEE34F8AABA42C8C /* carga.json */,
+				2A7D1741B11049EE87BDF180 /* davivienda.json */,
+				B4B1FB347EAA4D76A5E40616 /* finish.json */,
+				15C58095114E4FC0A7484FA4 /* loadingCar.json */,
+				4C496040DBAB47F2AF4878A1 /* loadingbici.json */,
+				30F47E7A8FE24ED9939BF116 /* lock.json */,
+				B9AA857AC1AE46AB99ACED97 /* logoDavi.json */,
+				BD733AD7E5954BFEB62774DD /* parqueo_loader.json */,
+				437C4ECA5751423496713854 /* pinmapa.json */,
+				D24E93B3757540B0A6395707 /* qrcode.json */,
+				9F1E8B496A64451AAEA022C8 /* stop1713473758.json */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		83CBB9F61A601CBA00E9B192 = {
+			isa = PBXGroup;
+			children = (
+				13B07FAE1A68108700A75B9A /* mejorenbici */,
+				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				83CBBA001A601CBA00E9B192 /* Products */,
+				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				7A0BCDB85D5D46C5B86BF4BF /* Resources */,
+			);
+			indentWidth = 2;
+			sourceTree = "<group>";
+			tabWidth = 2;
+			usesTabs = 0;
+		};
+		83CBBA001A601CBA00E9B192 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				13B07F961A680F5B00A75B9A /* mejorenbici.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				5251E5B45A23B3A6416D4F4A /* Pods-mejorenbici.debug.xcconfig */,
+				40320697013A229C0CBF2794 /* Pods-mejorenbici.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		13B07F861A680F5B00A75B9A /* mejorenbici */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "mejorenbici" */;
+			buildPhases = (
+				5C0B040C1AB63B826B31B36C /* [CP] Check Pods Manifest.lock */,
+				13B07F871A680F5B00A75B9A /* Sources */,
+				13B07F8C1A680F5B00A75B9A /* Frameworks */,
+				13B07F8E1A680F5B00A75B9A /* Resources */,
+				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				3C1CD3D4394E137F0009FF4A /* [CP] Embed Pods Frameworks */,
+				5707B7E0615A7504CF4976C3 /* [CP] Copy Pods Resources */,
+				BE4F5DAFDA47EBCA17C6F81A /* [CP-User] [RNFB] Core Configuration */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = mejorenbici;
+			productName = mejorenbici;
+			productReference = 13B07F961A680F5B00A75B9A /* mejorenbici.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		83CBB9F71A601CBA00E9B192 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1210;
+				TargetAttributes = {
+					13B07F861A680F5B00A75B9A = {
+						LastSwiftMigration = 1120;
+					};
+				};
+			};
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "mejorenbici" */;
+			compatibilityVersion = "Xcode 12.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 83CBB9F61A601CBA00E9B192;
+			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				13B07F861A680F5B00A75B9A /* mejorenbici */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		13B07F8E1A680F5B00A75B9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				316DD2BFB3ADCD289469DCA6 /* PrivacyInfo.xcprivacy in Resources */,
+				4B1680533DBA474BA5098D7A /* Aldo-SemiBold.ttf in Resources */,
+				F7BEFA52881145BF94B2A24C /* Montserrat-ExtraBold.ttf in Resources */,
+				9B41AA7DDFC5467D8E6B2617 /* Montserrat-Light.ttf in Resources */,
+				28F7D03CDF42463A89B13067 /* Montserrat-Medium.ttf in Resources */,
+				AE6AA79449A64D37AB0923A4 /* Montserrat-Regular.ttf in Resources */,
+				B81F1DF1706D4004A295B41C /* Poppins-Light.ttf in Resources */,
+				2D8AEDDB9B634D678ED00F7F /* Poppins-Regular.ttf in Resources */,
+				A69AC1E272774A0C908A81DF /* PoppinsMedium.ttf in Resources */,
+				2F19BF6578A8413BB8D5D25D /* Confetti.json in Resources */,
+				EA97204705DF4B289B74095F /* bicy_01.json in Resources */,
+				FDFC3524EEDD47AA9E6D71C7 /* bicy_02.json in Resources */,
+				8D1597A2E0C643A397177FAE /* bicy_03.json in Resources */,
+				CD00ED15DD4F4C448276A78B /* bicy_04.json in Resources */,
+				F45143AD4CD34AABB620F94D /* bicy_bluetooth.json in Resources */,
+				E4C0BC7750754AD189B085BB /* bicy_casco.json in Resources */,
+				F0FD52BD04314D6B94677474 /* bicy_clima.json in Resources */,
+				15D0BE74F36647D1B9EA4E39 /* bicy_confetti.json in Resources */,
+				F48D5EE6012B43C59A0184D3 /* bicy_cong.json in Resources */,
+				001CDD718C8749668F53814C /* bicy_error.json in Resources */,
+				F5FEDBC8902949F2ACA9010B /* bicy_feliz_viaje.json in Resources */,
+				B50DF9877D094723986A7DCA /* bicy_inicio.json in Resources */,
+				E99B1C474FF8416BBE01A417 /* bicy_loader.json in Resources */,
+				194BCF6E3F174D57AD0E96C1 /* bicy_lock.json in Resources */,
+				2236299C96D9483D93F5A04E /* bicy_lock2.json in Resources */,
+				019AB05C5ADF4F8BB8174D84 /* bicy_mapa.json in Resources */,
+				BD2E978039334604B146E5E5 /* bicy_meta.json in Resources */,
+				86064577BC864BD2A36C355F /* bicy_meta2.json in Resources */,
+				71937C72B7CB401F99DA97F9 /* bicy_onOff.json in Resources */,
+				D8E1195D958140F6912A95D2 /* bicy_qr.json in Resources */,
+				AEBB04FE7ED64A349CC96005 /* bicycle.json in Resources */,
+				2AAB7612F7074FCAA717BE17 /* bluetooth-lottie.json in Resources */,
+				7A32A8ECAC9448B1AFC79B3E /* car.json in Resources */,
+				9F30F45162094CE9904EF24E /* car_circulo.json in Resources */,
+				AECD49FEB00748E19F0E5088 /* carga.json in Resources */,
+				D7E24907D6FF4A8A99E5C89B /* davivienda.json in Resources */,
+				528E7158175D42AB8FC94451 /* finish.json in Resources */,
+				77FEBE19AC2C46F69AC27566 /* loadingCar.json in Resources */,
+				821EA28C80EE4F3A8E108841 /* loadingbici.json in Resources */,
+				1AD29F7887994EA693E0F1B4 /* lock.json in Resources */,
+				9A6D461E6E774B8F88B115F3 /* logoDavi.json in Resources */,
+				D127ED5C22A4416FA264ECA6 /* parqueo_loader.json in Resources */,
+				444BB624F4B341368C0AAB84 /* pinmapa.json in Resources */,
+				071363C68E8B41F19DB2684A /* qrcode.json in Resources */,
+				A1F2F844E57F405CB5BD5112 /* stop1713473758.json in Resources */,
+				19DA7B8CB4811768B82CCFC0 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		3C1CD3D4394E137F0009FF4A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-mejorenbici/Pods-mejorenbici-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-mejorenbici/Pods-mejorenbici-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mejorenbici/Pods-mejorenbici-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5707B7E0615A7504CF4976C3 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-mejorenbici/Pods-mejorenbici-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-mejorenbici/Pods-mejorenbici-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mejorenbici/Pods-mejorenbici-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5C0B040C1AB63B826B31B36C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-mejorenbici-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BE4F5DAFDA47EBCA17C6F81A /* [CP-User] [RNFB] Core Configuration */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "[CP-User] [RNFB] Core Configuration";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\n\n##########################################################################\n##########################################################################\n#\n#  NOTE THAT IF YOU CHANGE THIS FILE YOU MUST RUN pod install AFTERWARDS\n#\n#  This file is installed as an Xcode build script in the project file\n#  by cocoapods, and you will not see your changes until you pod install\n#\n##########################################################################\n##########################################################################\n\nset -e\n\n_MAX_LOOKUPS=2;\n_SEARCH_RESULT=''\n_RN_ROOT_EXISTS=''\n_CURRENT_LOOKUPS=1\n_JSON_ROOT=\"'react-native'\"\n_JSON_FILE_NAME='firebase.json'\n_JSON_OUTPUT_BASE64='e30=' # { }\n_CURRENT_SEARCH_DIR=${PROJECT_DIR}\n_PLIST_BUDDY=/usr/libexec/PlistBuddy\n_TARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n_DSYM_PLIST=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"\n\n# plist arrays\n_PLIST_ENTRY_KEYS=()\n_PLIST_ENTRY_TYPES=()\n_PLIST_ENTRY_VALUES=()\n\nfunction setPlistValue {\n  echo \"note:      setting plist entry '$1' of type '$2' in file '$4'\"\n  ${_PLIST_BUDDY} -c \"Add :$1 $2 '$3'\" $4 || echo \"note:      '$1' already exists\"\n}\n\nfunction getFirebaseJsonKeyValue () {\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    ruby -Ku -e \"require 'rubygems';require 'json'; output=JSON.parse('$1'); puts output[$_JSON_ROOT]['$2']\"\n  else\n    echo \"\"\n  fi;\n}\n\nfunction jsonBoolToYesNo () {\n  if [[ $1 == \"false\" ]]; then\n    echo \"NO\"\n  elif [[ $1 == \"true\" ]]; then\n    echo \"YES\"\n  else echo \"NO\"\n  fi\n}\n\necho \"note: -> RNFB build script started\"\necho \"note: 1) Locating ${_JSON_FILE_NAME} file:\"\n\nif [[ -z ${_CURRENT_SEARCH_DIR} ]]; then\n  _CURRENT_SEARCH_DIR=$(pwd)\nfi;\n\nwhile true; do\n  _CURRENT_SEARCH_DIR=$(dirname \"$_CURRENT_SEARCH_DIR\")\n  if [[ \"$_CURRENT_SEARCH_DIR\" == \"/\" ]] || [[ ${_CURRENT_LOOKUPS} -gt ${_MAX_LOOKUPS} ]]; then break; fi;\n  echo \"note:      ($_CURRENT_LOOKUPS of $_MAX_LOOKUPS) Searching in '$_CURRENT_SEARCH_DIR' for a ${_JSON_FILE_NAME} file.\"\n  _SEARCH_RESULT=$(find \"$_CURRENT_SEARCH_DIR\" -maxdepth 2 -name ${_JSON_FILE_NAME} -print | /usr/bin/head -n 1)\n  if [[ ${_SEARCH_RESULT} ]]; then\n    echo \"note:      ${_JSON_FILE_NAME} found at $_SEARCH_RESULT\"\n    break;\n  fi;\n  _CURRENT_LOOKUPS=$((_CURRENT_LOOKUPS+1))\ndone\n\nif [[ ${_SEARCH_RESULT} ]]; then\n  _JSON_OUTPUT_RAW=$(cat \"${_SEARCH_RESULT}\")\n  if ! _RN_ROOT_EXISTS=$(ruby -Ku -e \"require 'json'; output=JSON.parse('$_JSON_OUTPUT_RAW'); puts output[$_JSON_ROOT]\"); then\n    echo \"error: Failed to parse firebase.json, check for syntax errors.\"\n    exit 1\n  fi\n\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    if ! python3 --version >/dev/null 2>&1; then echo \"error: python3 not found, firebase.json file processing error.\" && exit 1; fi\n    _JSON_OUTPUT_BASE64=$(python3 -c 'import json,sys,base64;print(base64.b64encode(bytes(json.dumps(json.loads(open('\"'${_SEARCH_RESULT}'\"', '\"'rb'\"').read())['${_JSON_ROOT}']), '\"'utf-8'\"')).decode())' || echo \"e30=\")\n  fi\n\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n\n  # config.app_data_collection_default_enabled\n  _APP_DATA_COLLECTION_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_data_collection_default_enabled\")\n  if [[ $_APP_DATA_COLLECTION_ENABLED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseDataCollectionDefaultEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_DATA_COLLECTION_ENABLED\")\")\n  fi\n\n  # config.analytics_auto_collection_enabled\n  _ANALYTICS_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_auto_collection_enabled\")\n  if [[ $_ANALYTICS_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_COLLECTION\")\")\n  fi\n\n  # config.analytics_collection_deactivated\n  _ANALYTICS_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_collection_deactivated\")\n  if [[ $_ANALYTICS_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_DEACTIVATED\")\")\n  fi\n\n  # config.analytics_idfv_collection_enabled\n  _ANALYTICS_IDFV_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_idfv_collection_enabled\")\n  if [[ $_ANALYTICS_IDFV_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_IDFV_COLLECTION\")\")\n  fi\n\n  # config.analytics_default_allow_analytics_storage\n  _ANALYTICS_STORAGE=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_analytics_storage\")\n  if [[ $_ANALYTICS_STORAGE ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_STORAGE\")\")\n  fi\n\n  # config.analytics_default_allow_ad_storage\n  _ANALYTICS_AD_STORAGE=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_storage\")\n  if [[ $_ANALYTICS_AD_STORAGE ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AD_STORAGE\")\")\n  fi\n\n  # config.analytics_default_allow_ad_user_data\n  _ANALYTICS_AD_USER_DATA=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_user_data\")\n  if [[ $_ANALYTICS_AD_USER_DATA ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AD_USER_DATA\")\")\n  fi\n\n  # config.analytics_default_allow_ad_personalization_signals\n  _ANALYTICS_PERSONALIZATION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_personalization_signals\")\n  if [[ $_ANALYTICS_PERSONALIZATION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_PERSONALIZATION\")\")\n  fi\n\n  # config.analytics_registration_with_ad_network_enabled\n  _ANALYTICS_REGISTRATION_WITH_AD_NETWORK=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_registration_with_ad_network_enabled\")\n  if [[ $_ANALYTICS_REGISTRATION_WITH_AD_NETWORK ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_REGISTRATION_WITH_AD_NETWORK_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_REGISTRATION_WITH_AD_NETWORK\")\")\n  fi\n\n  # config.google_analytics_automatic_screen_reporting_enabled\n  _ANALYTICS_AUTO_SCREEN_REPORTING=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_automatic_screen_reporting_enabled\")\n  if [[ $_ANALYTICS_AUTO_SCREEN_REPORTING ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAutomaticScreenReportingEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_SCREEN_REPORTING\")\")\n  fi\n\n  # config.perf_auto_collection_enabled\n  _PERF_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_auto_collection_enabled\")\n  if [[ $_PERF_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_enabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_AUTO_COLLECTION\")\")\n  fi\n\n  # config.perf_collection_deactivated\n  _PERF_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_collection_deactivated\")\n  if [[ $_PERF_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_deactivated\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_DEACTIVATED\")\")\n  fi\n\n  # config.messaging_auto_init_enabled\n  _MESSAGING_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"messaging_auto_init_enabled\")\n  if [[ $_MESSAGING_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseMessagingAutoInitEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_MESSAGING_AUTO_INIT\")\")\n  fi\n\n  # config.in_app_messaging_auto_colllection_enabled\n  _FIAM_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"in_app_messaging_auto_collection_enabled\")\n  if [[ $_FIAM_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseInAppMessagingAutomaticDataCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_FIAM_AUTO_INIT\")\")\n  fi\n\n  # config.app_check_token_auto_refresh\n  _APP_CHECK_TOKEN_AUTO_REFRESH=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_check_token_auto_refresh\")\n  if [[ $_APP_CHECK_TOKEN_AUTO_REFRESH ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAppCheckTokenAutoRefreshEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_CHECK_TOKEN_AUTO_REFRESH\")\")\n  fi\n\n  # config.crashlytics_disable_auto_disabler - undocumented for now - mainly for debugging, document if becomes useful\n  _CRASHLYTICS_AUTO_DISABLE_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"crashlytics_disable_auto_disabler\")\n  if [[ $_CRASHLYTICS_AUTO_DISABLE_ENABLED == \"true\" ]]; then\n    echo \"Disabled Crashlytics auto disabler.\" # do nothing\n  else\n    _PLIST_ENTRY_KEYS+=(\"FirebaseCrashlyticsCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"NO\")\n  fi\nelse\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n  echo \"warning:   A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.\"\nfi;\n\necho \"note: 2) Injecting Info.plist entries: \"\n\n# Log out the keys we're adding\nfor i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n  echo \"    ->  $i) ${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\"\ndone\n\nfor plist in \"${_TARGET_PLIST}\" \"${_DSYM_PLIST}\" ; do\n  if [[ -f \"${plist}\" ]]; then\n\n    # paths with spaces break the call to setPlistValue. temporarily modify\n    # the shell internal field separator variable (IFS), which normally\n    # includes spaces, to consist only of line breaks\n    oldifs=$IFS\n    IFS=\"\n\"\n\n    for i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n      setPlistValue \"${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\" \"${plist}\"\n    done\n\n    # restore the original internal field separator value\n    IFS=$oldifs\n  else\n    echo \"warning:   A Info.plist build output file was not found (${plist})\"\n  fi\ndone\n\necho \"note: <- RNFB build script finished\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		13B07F871A680F5B00A75B9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		13B07F941A680F5B00A75B9A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5251E5B45A23B3A6416D4F4A /* Pods-mejorenbici.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = mejorenbici/mejorenbici.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KCR2HTUG5Q;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = mejorenbici/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 6.6;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.mejorEnBici-";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = "org.reactjs.native.example.mejorEnBici-";
+				PRODUCT_NAME = mejorenbici;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		13B07F951A680F5B00A75B9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 40320697013A229C0CBF2794 /* Pods-mejorenbici.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = mejorenbici/mejorenbici.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = KCR2HTUG5Q;
+				INFOPLIST_FILE = mejorenbici/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 6.6;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.mejorEnBici-";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = "org.reactjs.native.example.mejorEnBici-";
+				PRODUCT_NAME = mejorenbici;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "mejorenbici_new-distribution";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		83CBBA201A601CBA00E9B192 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SDKROOT)/usr/lib/swift\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+				);
+				OTHER_LDFLAGS = "$(inherited)  ";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
+			};
+			name = Debug;
+		};
+		83CBBA211A601CBA00E9B192 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SDKROOT)/usr/lib/swift\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+				);
+				OTHER_LDFLAGS = "$(inherited)  ";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				SDKROOT = iphoneos;
+				USE_HERMES = true;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "mejorenbici" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				13B07F941A680F5B00A75B9A /* Debug */,
+				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "mejorenbici" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				83CBBA201A601CBA00E9B192 /* Debug */,
+				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
+}

@@ -1,0 +1,174 @@
+{
+  "questions": [
+      {
+          "question": "¿Cuál actor vial tiene prelación en la vía?",
+          "options": [
+              "Motos",
+              "Transporte público.",
+              "Ciclistas",
+              "Peatón"
+          ],
+          "correctAnswer": "Peatón"
+      },
+      {
+          "question": "¿Cómo y dónde se debe parquear una bicicleta o patineta?",
+          "options": [
+              "En cualquier lugar de la calle sin preocuparse por la seguridad.",
+              "En cicloparqueaderos públicos y privados, que ofrecen seguridad y vigilancia para nuestros vehículos en áreas urbanas.",
+              "Solo en estacionamientos privados, ya que no hay opciones públicas.",
+              "En áreas donde no hay tráfico, sin importar las condiciones climáticas."
+          ],
+          "correctAnswer": "En cicloparqueaderos públicos y privados, que ofrecen seguridad y vigilancia para nuestros vehículos en áreas urbanas."
+      },
+      {
+          "question": "¿Qué distingue a las ciclovías del resto de las infraestructuras de tránsito?",
+          "options": [
+              "Son compartidas con el tráfico vehicular.",
+              "Son vías exclusivas, separadas por barreras físicas del tráfico o ubicadas paralelas a los andenes.",
+              "Permiten el tránsito de bicicletas y peatones.",
+              "Son carreteras donde ciclistas y vehículos comparten el mismo carril."
+          ],
+          "correctAnswer": "Son vías exclusivas, separadas por barreras físicas del tráfico o ubicadas paralelas a los andenes."
+      },
+      {
+          "question": "¿Cuál es la velocidad máxima recomendada para transitar en la cicloruta?",
+          "options": [
+              "10 km/h",
+              "17 km/h",
+              "25 km/h",
+              "35 km/h"
+          ],
+          "correctAnswer": "25 km/h"
+      },
+      {
+          "question": "¿Cuál es uno de los beneficios del uso adecuado del casco?",
+          "options": [
+              "Aumenta marginalmente la velocidad a la que se mueve la persona.",
+              "Reduce el riesgo de lesiones graves en la cabeza en caso de accidente.",
+              "Aumenta la visibilidad en la vía a usuarios de bicicletas y patinetas.",
+              "Evita que la policía lo pare por no usar los elementos de protección."
+          ],
+          "correctAnswer": "Reduce el riesgo de lesiones graves en la cabeza en caso de accidente."
+      },
+      {
+          "question": "¿Por qué es peligroso usar auriculares al andar en bicicleta o patineta?",
+          "options": [
+              "Puede ser riesgoso que se caigan durante el viaje y así distraer al conductor.",
+              "Reduce la capacidad de comunicación con otros actores viales en la cicloruta.",
+              "Disminuye la capacidad de escuchar el entorno, incluyendo bocinas y otros vehículos.",
+              "Dificulta la concentración durante el viaje."
+          ],
+          "correctAnswer": "Disminuye la capacidad de escuchar el entorno, incluyendo bocinas y otros vehículos."
+      },
+      {
+          "question": "¿Cómo es la movilidad sostenible?",
+          "options": [
+              "Rápida, eficaz, cómoda e inteligente.",
+              "Segura, accesible, asequible, eficiente y de bajas emisiones.",
+              "Confiable, segura, resiliente, de bajas emisiones y moderna.",
+              "Económica, cómoda, rápida y tecnológica."
+          ],
+          "correctAnswer": "Segura, accesible, asequible, eficiente y de bajas emisiones."
+      },
+      {
+          "question": "¿Qué pasa al circular en sentido contrario al tráfico?",
+          "options": [
+              "Le permite mayor visibilidad a los conductores.",
+              "Aumenta la posibilidad de encontrar otros actores viales durante el recorrido.",
+              "Puede resultar en colisiones frontales con vehículos.",
+              "Normalmente reduce el tiempo de traslado."
+          ],
+          "correctAnswer": "Puede resultar en colisiones frontales con vehículos."
+      },
+      {
+          "question": "¿Qué implica conducir bajo el efecto del alcohol o drogas?",
+          "options": [
+              "Mejora la coordinación y el tiempo de reacción.",
+              "No hay riesgos significativos para el conductor u otros actores viales.",
+              "Aumenta significativamente el riesgo de accidentes.",
+              "Reduce el tiempo de reacción."
+          ],
+          "correctAnswer": "Aumenta significativamente el riesgo de accidentes."
+      },
+      {
+          "question": "¿Qué conducta no pueden realizar los ciclistas según la Ley 769 de 2002?",
+          "options": [
+              "Utilizar carriles exclusivos del Transporte Público Masivo.",
+              "Sujetarse de otros vehículos o viajar cerca de ellos.",
+              "Transitar por aceras y lugares destinados al tránsito de peatones.",
+              "Todas las anteriores."
+          ],
+          "correctAnswer": "Todas las anteriores."
+      },
+      {
+          "question": "¿Qué conducta es considerada peligrosa según el Código Nacional de Tránsito?",
+          "options": [
+              "No usar casco mientras se conduce.",
+              "Hacer señales manuales antes de cambiar de dirección.",
+              "Hacer maniobras peligrosas que generen riesgos en la vía.",
+              "Mantener una velocidad mayor a los carros según las condiciones de la vía."
+          ],
+          "correctAnswer": "Hacer maniobras peligrosas que generen riesgos en la vía."
+      },
+      {
+          "question": "¿Qué señal manual indica que vas a girar a la izquierda mientras andas en bicicleta?",
+          "options": [
+              "Extender el brazo derecho recto hacia afuera.",
+              "Doblar el brazo izquierdo en un ángulo de 90 grados hacia arriba.",
+              "Doblar el brazo izquierdo hacia abajo en un ángulo de 90 grados.",
+              "Voltear la cabeza hacia el costado izquierdo."
+          ],
+          "correctAnswer": "Doblar el brazo izquierdo en un ángulo de 90 grados hacia arriba."
+      },
+      {
+          "question": "¿Qué deben hacer los usuarios de bicicletas y patinetas al acercarse a una intersección para mejorar su seguridad?",
+          "options": [
+              "Aumentar la velocidad para cruzar rápidamente y así evitar perder tiempo.",
+              "Reducir la velocidad y observar el entorno.",
+              "Usar el teléfono móvil para revisar mensajes mientras puede.",
+              "Tratar de adelantarse lo más rápido posible para quedar de primero en el arranque."
+          ],
+          "correctAnswer": "Reducir la velocidad y observar el entorno."
+      },
+      {
+          "question": "¿Cuáles son los elementos de protección más importantes?",
+          "options": [
+              "Luces y casco.",
+              "Candado y casco.",
+              "Buff y guantes.",
+              "Gafas y luces."
+          ],
+          "correctAnswer": "Luces y casco."
+      },
+      {
+          "question": "¿Qué debe hacer un ciclista para evitar accidentes al cambiar de dirección?",
+          "options": [
+              "No usar señales para mantener la sorpresa.",
+              "Usar señales claras y anticipadas.",
+              "Ignorar la presencia de otros usuarios de la vía.",
+              "Nunca cambiar de dirección."
+          ],
+          "correctAnswer": "Usar señales claras y anticipadas."
+      },
+      {
+          "question": "¿Por dónde puede transitar una bicicleta o patineta?",
+          "options": [
+              "Por cualquier carril de carro o exclusivo para transporte público, cicloruta y andén.",
+              "Ciclorutas y andenes.",
+              "Carriles de carro y ciclorutas.",
+              "En cualquier lugar siempre y cuando esté pendiente de otros actores viales."
+          ],
+          "correctAnswer": "Carriles de carro y ciclorutas."
+      },
+      {
+          "question": "¿Cómo se debe asegurar una bicicleta o una patineta al parquear?",
+          "options": [
+              "Con un candado robusto y asegurando el marco con un objeto fijo, no importa el lugar.",
+              "Dejando en un lugar bajo vigilancia o recomendado.",
+              "Asegurando el marco a un objeto fijo con un candado robusto, en un lugar vigilado.",
+              "No hay necesidad, siempre y cuando alguien esté pendiente."
+          ],
+          "correctAnswer": "Asegurando el marco a un objeto fijo con un candado robusto, en un lugar vigilado."
+      }
+  ]
+}

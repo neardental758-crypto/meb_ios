@@ -1,0 +1,290 @@
+[
+    {
+      "value": "Aguachica",
+      "label": "Aguachica"
+    },
+    {
+      "value": "Apartado",
+      "label": "Apartadó"
+    },
+    {
+      "value": "Arauca",
+      "label": "Arauca"
+    },
+    {
+      "value": "Armenia",
+      "label": "Armenia"
+    },
+    {
+      "value": "Barrancabermeja",
+      "label": "Barrancabermeja"
+    },
+    {
+      "value": "Barranquilla",
+      "label": "Barranquilla"
+    },
+    {
+      "value": "Bello",
+      "label": "Bello"
+    },
+    {
+      "value": "BOGOTA",
+      "label": "Bogotá D.C."
+    },
+    {
+      "value": "Bucaramanga",
+      "label": "Bucaramanga"
+    },
+    {
+      "value": "Buenaventura",
+      "label": "Buenaventura"
+    },
+    {
+      "value": "Buga",
+      "label": "Buga"
+    },
+    {
+      "value": "CALI",
+      "label": "Cali"
+    },
+    {
+      "value": "Cartago",
+      "label": "Cartago"
+    },
+    {
+      "value": "Cartagena",
+      "label": "Cartagena"
+    },
+    {
+      "value": "Caucasia",
+      "label": "Caucasia"
+    },
+    {
+      "value": "Cerete",
+      "label": "Cereté"
+    },
+    {
+      "value": "Chia",
+      "label": "Chia"
+    },
+    {
+      "value": "Cienaga",
+      "label": "Ciénaga"
+    },
+    {
+      "value": "Cucuta",
+      "label": "Cúcuta"
+    },
+    {
+      "value": "Dosquebradas",
+      "label": "Dosquebradas"
+    },
+    {
+      "value": "Duitama",
+      "label": "Duitama"
+    },
+    {
+      "value": "Envigado",
+      "label": "Envigado"
+    },
+    {
+      "value": "Facatativa",
+      "label": "Facatativá"
+    },
+    {
+      "value": "Florencia",
+      "label": "Florencia"
+    },
+    {
+      "value": "Floridablanca",
+      "label": "Floridablanca"
+    },
+    {
+      "value": "Fusagasuga",
+      "label": "Fusagasugá"
+    },
+    {
+      "value": "Girardot",
+      "label": "Girardot"
+    },
+    {
+      "value": "Giron",
+      "label": "Girón"
+    },
+    {
+      "value": "Ibague",
+      "label": "Ibagué"
+    },
+    {
+      "value": "Ipiales",
+      "label": "Ipiales"
+    },
+    {
+      "value": "Itagui",
+      "label": "Itagüí"
+    },
+    {
+      "value": "Jamundi",
+      "label": "Jamundí"
+    },
+    {
+      "value": "Lorica",
+      "label": "Lorica"
+    },
+    {
+      "value": "Los Patios",
+      "label": "Los Patios"
+    },
+    {
+      "value": "Magangue",
+      "label": "Magangué"
+    },
+    {
+      "value": "Maicao",
+      "label": "Maicao"
+    },
+    {
+      "value": "Malambo",
+      "label": "Malambo"
+    },
+    {
+      "value": "Manizales",
+      "label": "Manizales"
+    },
+    {
+      "value": "MEDELLIN",
+      "label": "Medellín"
+    },
+    {
+      "value": "Melgar",
+      "label": "Melgar"
+    },
+    {
+      "value": "Monteria",
+      "label": "Montería"
+    },
+    {
+      "value": "Neiva",
+      "label": "Neiva"
+    },
+    {
+      "value": "Ocana",
+      "label": "Ocaña"
+    },
+    {
+      "value": "Paipa",
+      "label": "Paipa"
+    },
+    {
+      "value": "Palmira",
+      "label": "Palmira"
+    },
+    {
+      "value": "Pamplona",
+      "label": "Pamplona"
+    },
+    {
+      "value": "Pasto",
+      "label": "Pasto"
+    },
+    {
+      "value": "Pereira",
+      "label": "Pereira"
+    },
+    {
+      "value": "Piedecuesta",
+      "label": "Piedecuesta"
+    },
+    {
+      "value": "Pitalito",
+      "label": "Pitalito"
+    },
+    {
+      "value": "Popayan",
+      "label": "Popayán"
+    },
+    {
+      "value": "Quibdo",
+      "label": "Quibdó"
+    },
+    {
+      "value": "Riohacha",
+      "label": "Riohacha"
+    },
+    {
+      "value": "Rionegro",
+      "label": "Rionegro"
+    },
+    {
+      "value": "Sabanalarga",
+      "label": "Sabanalarga"
+    },
+    {
+      "value": "Sahagun",
+      "label": "Sahagún"
+    },
+    {
+      "value": "Santa Marta",
+      "label": "Santa Marta"
+    },
+    {
+      "value": "Sincelejo",
+      "label": "Sincelejo"
+    },
+    {
+      "value": "Soacha",
+      "label": "Soacha"
+    },
+    {
+      "value": "Sogamoso",
+      "label": "Sogamoso"
+    },
+    {
+      "value": "Soledad",
+      "label": "Soledad"
+    },
+    {
+      "value": "Tibu",
+      "label": "Tibú"
+    },
+    {
+      "value": "Tulua",
+      "label": "Tuluá"
+    },
+    {
+      "value": "Tumaco",
+      "label": "Tumaco"
+    },
+    {
+      "value": "Tunja",
+      "label": "Tunja"
+    },
+    {
+      "value": "Turbo",
+      "label": "Turbo"
+    },
+    {
+      "value": "Valledupar",
+      "label": "Valledupar"
+    },
+    {
+      "value": "Villa de Leyva",
+      "label": "Villa de leyva"
+    },
+    {
+      "value": "Villa del Rosario",
+      "label": "Villa del Rosario"
+    },
+    {
+      "value": "Villavicencio",
+      "label": "Villavicencio"
+    },
+    {
+      "value": "Yopal",
+      "label": "Yopal"
+    },
+    {
+      "value": "Zipaquira",
+      "label": "Zipaquirá"
+    }
+  ]

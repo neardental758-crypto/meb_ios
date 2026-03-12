@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="icono_inclinacion" width="15.596" height="10.763" data-name="icono inclinacion" viewBox="0 0 15.596 10.763">
+    <defs>
+        <style>
+            .cls-1{fill:#ff2c4b}
+        </style>
+    </defs>
+    <g id="Grupo_167" data-name="Grupo 167">
+        <g id="Grupo_173" data-name="Grupo 173">
+            <g id="Grupo_167-2" data-name="Grupo 167">
+                <path id="Trazado_237" d="M522.684 727.763h-15.225l.641-.635c3.839-3.8 9.633-9.565 9.977-9.968a.371.371 0 0 1 .646.357c-.036.085-.1.226-9.46 9.5h13.42a.371.371 0 0 1 0 .742zm-4.642-10.539zm0 0z" class="cls-1" data-name="Trazado 237" transform="translate(-507.459 -717)"/>
+            </g>
+            <path id="Trazado_238" d="M566.75 739.779a.371.371 0 0 1-.368-.329 7.08 7.08 0 0 0-2.545-4.677.371.371 0 0 1 .472-.573 7.82 7.82 0 0 1 2.81 5.165.371.371 0 0 1-.327.411z" class="cls-1" data-name="Trazado 238" transform="translate(-553.266 -730.94)"/>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "237236039331",
+    "project_id": "ridebc-d6e1b",
+    "storage_bucket": "ridebc-d6e1b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237236039331:android:cf4394684bb1138b201916",
+        "android_client_info": {
+          "package_name": "com.mejorenbici"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdEHFbqIhuivQHl2QCfDbOe3vHwoludME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
