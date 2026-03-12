@@ -50,11 +50,20 @@ function CarpoolingEndRide(props){
     const pagar = async () => {
         RootNavigation.navigate('CarpoolingTripInProcessPasajero');
     }
+    const finalizarViaje = async () => {
+        try {
+            // Eliminar el viaje del AsyncStorage
+            await AsyncStorage.removeItem('viajePasajero');
+        } catch (error) {
+            console.error('Error al finalizar viaje:', error);
+        }
+    };
 
     const finalizar = async () => {
         await setLoadedTrips(true);
         setTimeout(function(){
             setLoadedTrips(false);
+            finalizarViaje();
             RootNavigation.navigate('CarpoolingDriverTrips');
         }, 1000);   
     }
@@ -104,13 +113,13 @@ if(loadedTrips){
                 <Text style={estilos.title}>¡Estás a punto de finalizar el viaje!</Text>                            
             </View>
 
-            <Text style={{
+            {/*<Text style={{
                 fontSize: 16, 
                 marginBottom: 20, 
                 marginTop: 20,
                 width: '70%',
                 textAlign: 'center'
-            }}>Por favor, realiza el pago para poder realizar otro viaje.</Text>
+            }}>Por favor, realiza el pago para poder realizar otro viaje.</Text>*/}
 
             <View style={estilos.contenerod2}>                     
                 <Pressable  

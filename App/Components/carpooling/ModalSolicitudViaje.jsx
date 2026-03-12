@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  React,{ useState, useEffect, useContext } from 'react';
 import {
     Image,
     ImageBackground,
@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { 
   sendApplication,
-  sendNotification
+  sendNotification,
+  logro_progreso_solicitud_viaje
 } from '../../actions/actionCarpooling';
 import { useDispatch } from 'react-redux';
 import Images from '../../Themes/Images';
@@ -20,9 +21,11 @@ import Fonts from '../../Themes/Fonts';
 import * as RootNavigation from '../../RootNavigation';
 import { Estrellas } from '../../Components/carpooling/Estrellas';
 import ModalSolicitudEnviada from './ModalSolicitudEnviada';
+import { AuthContext } from '../../AuthContext';
 
-export default function ModalSolicitudViaje({ onClose ,refresh ,data }){
+export default function ModalSolicitudViaje({ onClose ,refresh ,data, pago }){
   const dispatch = useDispatch();
+  const { infoUser } = useContext( AuthContext )
   const [isChecked, setIsChecked] = useState(false);
   const [confirmTrip, setConfirmTrip] = useState(false);
 
@@ -38,18 +41,23 @@ export default function ModalSolicitudViaje({ onClose ,refresh ,data }){
     onClose();
   };
 
-  const formatearFecha =  (fecha) => {
-    let fechaF = new Date(fecha);
+  const formatearFecha =  (fecha) => { 
+    let fechaF = new Date(fecha); 
     const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', timeZone: 'UTC' };
-    const fechaFormateada = fechaF.toLocaleDateString('es-CO', opciones);      
+    const fechaFormateada = fechaF.toLocaleDateString('es-CO', opciones); 
     return(fechaFormateada);
   }
 
 
   const handleConfirm = (data) => {
-    let mensaje = 'Se creo una solicitud para el viaje con fecha ' + (data.fecha);
+    console.log('data al solicitar',data)
+    let fecha = data.fecha
+    let solicitante = infoUser.DataUser.name;
+    let mensaje = "¡Genial! 🎉 " + solicitante + " quiere compartir contigo el viaje del " + fecha;
+    console.log('Mensaje: ', mensaje);
+    //dispatch(logro_progreso_solicitud_viaje()); // Descomentar al actuvar puntos
     if (isChecked) {
-      dispatch(sendApplication(data._id));
+      dispatch(sendApplication(data._id, pago));
       dispatch(sendNotification(data.conductor, mensaje));
       setConfirmTrip(!confirmTrip);
       refresh();
@@ -65,7 +73,7 @@ export default function ModalSolicitudViaje({ onClose ,refresh ,data }){
       flexDirection: "column", 
       flex: 1, 
       position : 'absolute', 
-      zIndex : 5 
+      zIndex : 5
     }}>
         <ImageBackground 
           source={Images.fondoMapa} 
@@ -156,17 +164,14 @@ export default function ModalSolicitudViaje({ onClose ,refresh ,data }){
                 <View style={{display : 'flex', flexDirection : 'row', alignItems : 'center'}}>
                   <View style={{width : '50%'}}>
                     <Text style={{marginLeft:20, marginTop:5}} >
-                      {new Intl.DateTimeFormat('es-CO', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      }).format(new Date(data.fecha))}
+                      {formatearFecha(data.fecha)}
                     </Text>
                     <Text style={{marginLeft:20, marginTop:5}}>{data.llegada}</Text>
-                    <Text style={estilos.textPrecio}>${data.precio} (Opcional)</Text>
+                    { pago === 'ACTIVO+PAGOS' ?
+                      <Text style={estilos.textPrecio}>${data.precio} (Opcional)</Text>:null
+                    }
                   </View>
+                  { pago === 'ACTIVO+PAGOS' ?
                   <View style={{width : '50%', flexDirection : 'column', alignItems : 'center'}}>
                     <Text style={{fontSize:14, marginBottom : 10}}>Método aceptado</Text>
                     <View style={{flexDirection : 'row', justifyContent : 'space-between'}}>
@@ -174,7 +179,7 @@ export default function ModalSolicitudViaje({ onClose ,refresh ,data }){
                       { data.pagoAceptado && data.pagoAceptado.includes("Efectivo") ? <Image source={Images.iconobillete} style={{width : 40, height : 40, borderRadius: 10}}/> : <></> }
                       { data.pagoAceptado && data.pagoAceptado.includes("Nequi") ? <Image source={Images.logonequi} resizeMode='contain' style={{width : 40, height : 40, borderRadius: 10}}/> : <></> }
                     </View>
-                  </View> 
+                  </View>:null }
                 </View>
                 
                 <View style={estilos.CajaHorCenter}>

@@ -25,7 +25,7 @@ import {
     Platform
 } from 'react-native';
 import Hyperlink from 'react-native-hyperlink'
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 import HeaderNavComponent from '../../Components/HeaderNavComponent'
 import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metrics';
 import Colors from '../../Themes/Colors';

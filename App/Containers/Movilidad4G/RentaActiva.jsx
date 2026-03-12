@@ -37,7 +37,7 @@ import {
     reseteoCambioVehiculo,
     saveStateBicicletero,
 } from '../../actions/actions3g';
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 import URL_mysql from './functions/url';
 import { apimysql } from './functions/funciones'
 import estilos from './styles/rentas.style';

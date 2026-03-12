@@ -266,6 +266,25 @@ const get_tabla_documento = async (tabla, cc) => {
     }
 }
 
+const get_tabla_email = async (tabla, email) => {
+    const token = await getItem('token')
+    let url = URLMysql + tabla + '/email/' + email;
+    try {
+        const request = {
+            method: 'GET',
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                Authorization: `Bearer ${token}`
+            }
+        };
+        let res = await fetch(url, request);
+        return res.body;
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
 const post__ = async (tabla, data) => {
     let url = URLMysql + tabla;
     console.log('data conductos tyc', data)
@@ -361,6 +380,7 @@ export const api = {
     getActiveTrip,
     getActiveTripRider,
     get_tabla_documento,
+    get_tabla_email,
     get_id,
     get_id_with_page,
     get_id_filtered_with_page,

@@ -16,3 +16,4 @@ const configure = configureStore({
 sagaMiddleware.run(rootSaga);
 
 export default configure;
+

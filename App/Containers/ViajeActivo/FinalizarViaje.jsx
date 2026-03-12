@@ -161,7 +161,7 @@ function FinalizarViaje(props) {
             }}>
                 <Modal transparent={true} animationType="slide">
                     <View style={{ backgroundColor: Colors.$texto80, flexDirection: "column", flex: 1 }}>
-                        <View style={{ flex: 3, borderRadius: 20, marginVertical: 150, marginHorizontal: 25, justifyContent: "space-between", alignItems: "center", paddingHorizontal: 25, position: "relative", backgroundColor: Colors.$blanco, padding: 20 }}>
+                        <View style={{ flex: 3, borderRadius: 20, marginVertical: 150, marginHorizontal: 25, justifyContent: "space-between", alignItems: "center", paddingHorizontal: 25, position: "relative", backgroundColor: Colors.$blanco, padding: 20, }}>
 
                             <Text style={{
                                 textAlign: "center",
@@ -179,7 +179,7 @@ function FinalizarViaje(props) {
                                 width: 200,
                                 minHeight: 200,
                             }}>
-                                <LottieView source={require('../../Resources/Lotties/bicy_cong.json')} autoPlay loop
+                                <LottieView source={require('../../Resources/Lotties/bicy_feliz_viaje.json')} autoPlay loop
                                     style={{
                                         width: Dimensions.get('window').width,
                                         height: Dimensions.get('window').width * .7

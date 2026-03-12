@@ -32,7 +32,7 @@ const clearToken = async () => {
 
 
 //Do a fetch with token
-const fetchJSONWithToken = async ( url, options = {}) => {
+const fetchJSONWithToken = async (url, options = {}) => {
   const token = await get('token');
   let optionsWithToken = options;
   if (token != null || token != "") {
@@ -43,13 +43,13 @@ const fetchJSONWithToken = async ( url, options = {}) => {
     })
   }
   let response = await fetchJSON(url, optionsWithToken).catch(err => {
-    return { error: err };
- });
+    return { error: err.message || 'Unknown error', body: { error: err.message || 'Unknown error' } };
+  });
   return response;
 }
 
 
-const fetchJSONWithtokenOut = async ( url, options = {}) => {
+const fetchJSONWithtokenOut = async (url, options = {}) => {
   const tokenOut = await get('tokenOut');
   let optionsWithToken = options;
   if (tokenOut != null || tokenOut != "") {
@@ -60,83 +60,53 @@ const fetchJSONWithtokenOut = async ( url, options = {}) => {
     })
   }
   let response = await fetchJSON(url, optionsWithToken).catch(err => {
-   console.log("errorfetch", err); 
- });
+    console.log("errorfetch", err);
+    return { error: err.message || 'Unknown error', body: { error: err.message || 'Unknown error' } };
+  });
   return response;
 }
 
-//Login to get the token
+//Login to get the token - MySQL endpoint
 const login = async (email, password, tokenName) => {
-  if (tokenName === 'token') {
-    const token = await getItem('token')
-    const getUser = await getItem('user');
+  const URLMysql = Env.apiUrlMysql;
+
+  try {
     var headers = new Headers();
-    let user = {
-      user: email,
-      password: password,
-    }
     headers.append("Content-Type", "application/json");
-    return fetchJSONWithToken( URL + "/users/login", {
+
+    const response = await global.fetch(URLMysql + "bc_usuarios/login_app", {
       method: 'POST',
-      body: JSON.stringify(user),
       headers: headers,
-    })
-    .then(resp => {
-      let body = {
-        token: resp ? resp.body.token : token,
-        id_user: resp ? resp.body.id_user : getUser ? getUser.id : null
-      }
-      if (body.token) {
-        let result = {
-          email: email,
-          password: password,
-          type: 'correo',
-        }
-        setItems([['refresh', JSON.stringify(result)]]);
-        saveToken(body.token);        
-        return body;
-      } else {
-        restartApp();
-        return false;
-      }
-    }).catch((error) => {
-      restartApp();
+      body: JSON.stringify({ email, password }),
     });
-  }else if (tokenName === 'tokenOut'){
-    const token = await getItem('tokenOut')
-    const getUser = await getItem('user2');
-    var headers = new Headers();
-    let user = {
-      user: email,
-      password: password,
+
+    if (!response.ok) {
+      console.log('[LOGIN] Error response:', response.status);
+      return false;
     }
-    headers.append("Content-Type", "application/json");
-    return fetchJSONWithtokenOut( URL + "/users/login", {
-      method: 'POST',
-      body: JSON.stringify(user),
-      headers: headers,
-    })
-      .then(resp => {
-        let body = {
-          token: resp ? resp.body.token : token,
-          id_user: resp ? resp.body.id_user : getUser ? getUser.id : null
-        }
-        if (body.token) {
-          let result = {
-            email: email,
-            password: password,
-            type: 'correo'
-          }
-          setItems([['refresh2', JSON.stringify(result)]]);
-          saveToken(body.token);        
-          return body;
-        } else {
-          restartApp();
-          return false;
-        }
-      }).catch((error) => {
-        restartApp();
-      });
+
+    const data = await response.json();
+
+    if (data.token) {
+      // Guardar token en storage
+      if (tokenName === 'token') {
+        saveToken(data.token);
+        setItems([['refresh', JSON.stringify({ email, password, type: 'correo' })]]);
+      } else if (tokenName === 'tokenOut') {
+        saveToken2(data.token);
+        setItems([['refresh2', JSON.stringify({ email, password, type: 'correo' })]]);
+      }
+
+      return {
+        token: data.token,
+        user: data.user,
+      };
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('[LOGIN] Error:', error);
+    return false;
   }
 }
 

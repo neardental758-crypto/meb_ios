@@ -5,46 +5,47 @@ import Colors from '../../Themes/Colors';
 import HomeScreen from './HomeScreen'
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { routingIfHasTrip } from '../../actions/actions'; 
+import { routingIfHasTrip } from '../../actions/actions';
+import LottieView from 'lottie-react-native';
 
 function DrawerHomeScreen(props) {
     let backHandler;
     const [isLoading, setIsLoading] = useState(true);
-    const [ state , setState ] = useState({
+    const [state, setState] = useState({
         dataCargada: false,
     });
     useEffect(() => {
-        props.routingIfHasTrip();
+        //props.routingIfHasTrip(); // Deshabilitado porque falla sin MongoDB
         backHandler = BackHandler.addEventListener(
             "hardwareBackPress",
             () => { return true; }
         );
-        return () => { 
-           backHandler.remove();
+        return () => {
+            backHandler.remove();
         }
-    },[]);
+    }, []);
 
     useEffect(() => {
         validarUserClaro();
-    },[state.dataCargada === true]);
+    }, [state.dataCargada === true]);
 
     useEffect(() => {
         AsyncStorage.getItem('user')
-        .then((data) => {
-            setState({ 
-                dataCargada: true,  
-                DataUser: JSON.parse(data) 
+            .then((data) => {
+                setState({
+                    dataCargada: true,
+                    DataUser: JSON.parse(data)
+                });
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
             });
-            setIsLoading(false);
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-      }, []);
+    }, []);
 
 
     const validarUserClaro = async () => {
-        if(!!state.DataUser){
+        if (!!state.DataUser) {
             console.log('EMAIL menu lateral::', state.DataUser.email)
 
             const correo = state.DataUser.email;
@@ -52,8 +53,8 @@ function DrawerHomeScreen(props) {
             const indice = correo.indexOf(busqueda);
 
             if (indice !== -1) {
-                console.log(`La cadena '${busqueda}' se encontró en el índice ${indice} de '${correo}'.`);      
-                await setState({ 
+                console.log(`La cadena '${busqueda}' se encontró en el índice ${indice} de '${correo}'.`);
+                await setState({
                     ...state,
                     userClaro: true,
                 });
@@ -65,15 +66,19 @@ function DrawerHomeScreen(props) {
     if (isLoading) {
         return (
             <Modal transparent={true}>
-            <View style={{ backgroundColor: Colors.$primario, flexDirection: "column", flex: 1 }}>
-                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <Image source={require('../../Resources/gif/loading.gif')} style={{
-                width: Dimensions.get('window').width*.8,
-                height: 250, 
-              }} />
+                <View style={{ backgroundColor: Colors.$primario, flexDirection: "column", flex: 1 }}>
+                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        <LottieView
+                            source={require('../../Resources/Lotties/loading_carpooling.json')} autoPlay loop
+                            style={{
+                                width: Dimensions.get('window').width,
+                                height: Dimensions.get('window').height,
+                                backgroundColor: Colors.$blanco
+                            }}
+                        />
+                    </View>
                 </View>
-            </View>
-        </Modal>
+            </Modal>
         );
     }
 
@@ -83,8 +88,8 @@ function DrawerHomeScreen(props) {
             <Drawer.Screen name="HomeScreen" component={HomeScreen} />
         </Drawer.Navigator>
     );
-    
-} 
+
+}
 
 function mapStateToProps(state) {
     return {

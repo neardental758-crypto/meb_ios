@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
-import { 
+import {
   Text,
   View,
   Pressable,
@@ -26,7 +26,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Constantes para los módulos
 const MODULES = {
   '3g': 'Movilidad 3g',
-  '4g': 'Movilidad 4g', 
+  '4g': 'Movilidad 4g',
   '5g': 'Movilidad 5g',
   'carpooling': 'Carro Compartido',
   'vp': 'Vehículo particular',
@@ -49,7 +49,7 @@ const VEHICLE_STATES = {
 const useActiveModules = (dataempresa) => {
   return useMemo(() => {
     if (!dataempresa?.[0]) return {};
-    
+
     const empresa = dataempresa[0];
     return {
       '3g': ['ACTIVO', 'ACTIVO+RESERVAS', 'ACTIVO-RESERVAS'].includes(empresa._3G),
@@ -91,7 +91,7 @@ const TripItem = ({ data, modulo, onPress, formatearFecha, getVehicleIcon, getVe
             </View>
           </>
         );
-      
+
       case 'vp':
         return (
           <>
@@ -104,28 +104,28 @@ const TripItem = ({ data, modulo, onPress, formatearFecha, getVehicleIcon, getVe
             </View>
           </>
         );
-      
+
       case '5g':
         return (
           <>
             <View style={estilos.qrContainer}>
               <Image source={Images.qr_} style={estilos.qrIcon} />
-              <Text style={estilos.qrNumber}>{data.qrNumber}</Text>
+              <Text style={estilos.qrNumber}>{data.pre_bicicleta}</Text>
             </View>
             <View style={estilos.dateContainer}>
               <Text style={estilos.dateLabel}>Fecha</Text>
-              <Text style={estilos.dateText}>{formatearFecha(data.startDate)}</Text>
+              <Text style={estilos.dateText}>{formatearFecha(data.pre_retiro_fecha)}</Text>
             </View>
           </>
         );
-      
+
       case 'carpooling':
         return (
           <>
             <View style={estilos.vehicleImageContainer}>
-              <Image 
-                source={data.compartidoVehiculo.tipo === 'Carro' ? Images.carrorojo : Images.moto} 
-                style={estilos.vehicleImage} 
+              <Image
+                source={data.compartidoVehiculo.tipo === 'Carro' ? Images.carrorojo : Images.moto}
+                style={estilos.vehicleImage}
               />
             </View>
             <View style={estilos.dateContainer}>
@@ -134,7 +134,7 @@ const TripItem = ({ data, modulo, onPress, formatearFecha, getVehicleIcon, getVe
             </View>
           </>
         );
-      
+
       default:
         return null;
     }
@@ -152,7 +152,7 @@ const TripItem = ({ data, modulo, onPress, formatearFecha, getVehicleIcon, getVe
       <View style={estilos.tripContent}>
         {renderVehicleInfo()}
       </View>
-      
+
       {shouldShowArrow() && (
         <Pressable onPress={() => onPress(data)} style={estilos.arrowButton}>
           <Image source={Images.flecha_icon} style={estilos.arrowIcon} />
@@ -165,7 +165,7 @@ const TripItem = ({ data, modulo, onPress, formatearFecha, getVehicleIcon, getVe
 function MisViajes(props) {
   const { isLogin, token, infoUser } = useContext(AuthContext);
   const dispatch = useDispatch();
-  
+
   // Estados
   const [modulo, setModulo] = useState('');
   const [modalDetalle, setModalDetalle] = useState(false);
@@ -173,7 +173,7 @@ function MisViajes(props) {
   const [calificacionViaje, setCalificacionViaje] = useState(0);
   const [calificacionCantidad, setCalificacionCantidad] = useState(0);
   const [loading, setLoading] = useState(false);
-  
+
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -185,53 +185,47 @@ function MisViajes(props) {
   // Obtener datos filtrados y ordenados según el módulo
   const getFilteredData = useCallback(() => {
     if (!modulo) return [];
-    
+
     let data = [];
-    
+
     switch (modulo) {
       case '3g':
-        data = props.dataRent.viajes3G?.filter(item => 
-          item.bc_bicicletero.bro_bluetooth === 'null'
-        ) || [];
-        // Ordenar por fecha más reciente primero
+        // Viajes 3G: desde bc_prestamos con pre_modulo='3g'
+        data = props.dataRent.viajes3G || [];
         data.sort((a, b) => new Date(b.pre_retiro_fecha) - new Date(a.pre_retiro_fecha));
         break;
-      
+
       case '4g':
-        data = props.dataRent.viajes3G?.filter(item => 
-          item.bc_bicicletero.bro_bluetooth !== 'null'
-        ) || [];
-        // Ordenar por fecha más reciente primero
+        // Viajes 4G: desde bc_prestamos con pre_modulo='4g'
+        data = props.dataRent.viajes4G || [];
         data.sort((a, b) => new Date(b.pre_retiro_fecha) - new Date(a.pre_retiro_fecha));
         break;
-      
+
       case 'vp':
         data = props.dataRent.viajesVP || [];
-        // Ordenar por fecha más reciente primero
         data.sort((a, b) => new Date(b.via_fecha_creacion) - new Date(a.via_fecha_creacion));
         break;
-      
+
       case '5g':
+        // Viajes 5G: desde bc_prestamos con pre_modulo='5g'
         data = props.dataRent.viajes5G || [];
-        // Ordenar por fecha más reciente primero
-        data.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+        data.sort((a, b) => new Date(b.pre_retiro_fecha) - new Date(a.pre_retiro_fecha));
         break;
-      
+
       case 'carpooling':
         data = props.dataRent.viajesCarpooling || [];
-        // Ordenar por fecha más reciente primero
         data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
         break;
-      
+
       default:
         return [];
     }
-    
+
     return data;
   }, [modulo, props.dataRent]);
 
   const allFilteredData = useMemo(() => getFilteredData(), [getFilteredData]);
-  
+
   // Datos paginados
   const paginatedData = useMemo(() => {
     const endIndex = currentPage * itemsPerPage;
@@ -255,14 +249,14 @@ function MisViajes(props) {
   // Utilidades
   const formatearFecha = useCallback((fecha) => {
     const fechaF = new Date(fecha);
-    const opciones = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric', 
-      hour: 'numeric', 
-      minute: 'numeric', 
-      timeZone: 'UTC' 
+    const opciones = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      timeZone: 'UTC'
     };
     return fechaF.toLocaleDateString('es-CO', opciones);
   }, []);
@@ -278,7 +272,7 @@ function MisViajes(props) {
       'patineta': Images.patin_Icon,
       'mecanica': Images.cycle_Icon
     };
-    
+
     const iconSource = iconMap[tipo];
     return iconSource ? (
       <Image source={iconSource} style={[estilos.vehicleIcon, { tintColor: Colors.$inactiva }]} />
@@ -295,15 +289,15 @@ function MisViajes(props) {
     try {
       setDataDetalle(data);
       setModalDetalle(true);
-      
+
       // Reset calificaciones
       setCalificacionViaje(0);
       setCalificacionCantidad(0);
-      
+
       if (modulo === '3g' || modulo === '4g') {
         await dispatch(get_indicadores_trip(data.pre_id));
       } else if (modulo === '5g') {
-        await dispatch(get_indicadores_trip(data.id));
+        await dispatch(get_indicadores_trip(data.pre_id));
       } else if (modulo === 'carpooling') {
         data.compartidoComentarios?.forEach((comentario) => {
           setCalificacionViaje(prev => prev + Number(comentario.calificacion));
@@ -333,7 +327,7 @@ function MisViajes(props) {
   const loadMoreItems = useCallback(() => {
     if (hasMoreData && !isLoadingMore) {
       setIsLoadingMore(true);
-      
+
       // Simular delay de red para una mejor UX
       setTimeout(() => {
         setCurrentPage(prev => prev + 1);
@@ -349,9 +343,9 @@ function MisViajes(props) {
 
   // Render del modal
   const renderModal = () => (
-    <Modal 
-      transparent={true} 
-      animationType="slide" 
+    <Modal
+      transparent={true}
+      animationType="slide"
       visible={modalDetalle}
       onRequestClose={closeModal}
     >
@@ -375,7 +369,7 @@ function MisViajes(props) {
               data={[{ key: 'content' }]}
               renderItem={() => (
                 <View style={estilos.modalBody}>
-                  
+
                   {/* Indicadores para módulos 3g, 4g, 5g */}
                   {(modulo === '3g' || modulo === '4g' || modulo === '5g') && props.perfil.cargado_indicadores_trip && (
                     <View style={estilos.indicatorsContainer}>
@@ -433,17 +427,17 @@ function MisViajes(props) {
                     <View style={estilos.sectionContainer}>
                       <Tarjeta
                         icono={Images.qr_}
-                        titulo={'QR'}
-                        texto1={dataDetalle.qrNumber}
-                        texto2={''}
+                        titulo={'Viaje 5G'}
+                        texto1={dataDetalle.pre_bicicleta}
+                        texto2={dataDetalle.pre_estado}
                         elcolor={Colors.$adicional}
                       />
                       <View style={estilos.infoGroup}>
                         <Text style={estilos.infoText}>Fecha inicio</Text>
-                        <Text style={estilos.infoText}>{formatearFecha(dataDetalle.startDate)}</Text>
+                        <Text style={estilos.infoText}>{formatearFecha(dataDetalle.pre_retiro_fecha)}</Text>
                         <Text style={estilos.infoText}>Fecha Entrega</Text>
-                        <Text style={estilos.infoText}>{formatearFecha(dataDetalle.endDate)}</Text>
-                        <Text style={estilos.infoText}>Estado: {dataDetalle.state}</Text>
+                        <Text style={estilos.infoText}>{formatearFecha(dataDetalle.pre_devolucion_fecha)}</Text>
+                        <Text style={estilos.infoText}>Estado: {dataDetalle.pre_estado}</Text>
                       </View>
                     </View>
                   )}
@@ -536,13 +530,13 @@ function MisViajes(props) {
   return (
     <View style={estilos.contenedor}>
       {renderModal()}
-      
+
       {/* Header */}
       <View style={estilos.header}>
         <Pressable onPress={goBack} style={estilos.backButton}>
           <Image source={Images.atras_Icon} style={estilos.backIcon} />
         </Pressable>
-        
+
         <RNPickerSelect
           style={pickerSelectStyles}
           placeholder={{ label: 'Selecciona un módulo', value: '' }}
@@ -551,9 +545,9 @@ function MisViajes(props) {
           onValueChange={onModuleChange}
           items={pickerItems}
           Icon={() => (
-            <Image 
-              source={Images.iconPickerYellow} 
-              style={estilos.pickerIcon} 
+            <Image
+              source={Images.iconPickerYellow}
+              style={estilos.pickerIcon}
             />
           )}
         />
@@ -569,7 +563,7 @@ function MisViajes(props) {
             <Text style={estilos.totalCount}> ({allFilteredData.length} total{allFilteredData.length !== 1 ? 'es' : ''})</Text>
           )}
         </Text>
-        
+
         {!modulo ? (
           <EmptyState message="Selecciona un módulo para ver tus viajes" />
         ) : allFilteredData.length === 0 ? (
@@ -587,7 +581,7 @@ function MisViajes(props) {
                 case 'vp':
                   return `vp-${item.via_id}`;
                 case '5g':
-                  return `5g-${item.id}`;
+                  return `5g-${item.pre_id}`;
                 case 'carpooling':
                   return `carpooling-${item._id}`;
                 default:

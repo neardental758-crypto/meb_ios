@@ -264,11 +264,17 @@ return (
                     top: 0,
                     zIndex: -10
                   }}>
-                    <LottieView source={require('../../Resources/Lotties/bicy_confetti.json')} autoPlay loop 
-                    style={{
-                      width: Dimensions.get('window').width,
-                      height: Dimensions.get('window').width,             
-                    }}/>
+                    {
+                      Env.modo === 'tablet' ?
+                      ''  
+                      :
+                      <LottieView source={require('../../Resources/Lotties/bicy_confetti.json')} autoPlay loop 
+                      style={{
+                        width: Dimensions.get('window').width,
+                        height: Dimensions.get('window').width,             
+                      }}/>
+                    }
+                    
                   </View>
                   :
                   <></>
@@ -370,7 +376,8 @@ return (
                         backgroundColor: Colors.$primario,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        borderRadius: 30
+                        borderRadius: 30,
+                        marginTop: 50
                     }}>
                     <View style={{alignItems: 'center',justifyContent: 'center'}}>
                         <Text style={{
@@ -392,10 +399,13 @@ return (
                   :
                   <View style={{
                     width: Dimensions.get('window').width,
-                    height: 'auto',
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: 50
                   }}>
                   
-                  <Text style={[styles.textButton, {color: Colors.$texto50, marginTop: 20, marginBottom: 50}]}>La reserva vence en:</Text>
+                  <Text style={[styles.textButton, {color: Colors.$texto50, marginBottom: 5}]}>La reserva vence en:</Text>
                   <View style={estilos.cajaCuentaRegresiva}>  
                     <View style={estilos.subcajaCuentaRegresiva}>
                         <Text style={estilos.numeroCuentaRegrasiva}>
@@ -442,18 +452,25 @@ return (
 
           }}>
             <Text style={styles.titulo}>Movilidad 4G</Text>
-            <View style={{
-              justifyContent: "center", 
-              alignItems: "center", 
-              width: Dimensions.get('window').width,
-              height: 'auto', 
-            }}>
-              <LottieView source={require('../../Resources/Lotties/bicy_03.json')} autoPlay loop 
-              style={{
+            {
+            Env.modo === 'tablet' ? 
+              ''
+              :
+              <View style={{
+                justifyContent: "center", 
+                alignItems: "center", 
                 width: Dimensions.get('window').width,
-                height: 350              
-              }}/>
-            </View> 
+                height: 'auto', 
+              }}>
+                <LottieView source={require('../../Resources/Lotties/bicy_03.json')} autoPlay loop 
+                style={{
+                  width: Dimensions.get('window').width,
+                  height: 350              
+                }}/>
+              </View> 
+            }
+
+            
 
             {
               Env.modo === 'tablet' ?
@@ -578,7 +595,7 @@ const styles = StyleSheet.create({
     },
     
     textButton : {
-      fontFamily: Fonts.$poppinsmedium, 
+      fontFamily: Fonts.$poppinsregular, 
       fontSize: 20, 
       paddingTop: 'auto', 
       paddingBottom: 'auto', 

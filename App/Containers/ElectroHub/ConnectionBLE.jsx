@@ -17,6 +17,7 @@ import {
 } from '../../actions/actionParqueadero';
 import { connect, useDispatch } from 'react-redux';
 import { AuthContext } from '../../AuthContext';
+import RNBluetoothClassic from 'react-native-bluetooth-classic';
 import Images from '../../Themes/Images';
 import Fonts from '../../Themes/Fonts';
 import Colors from '../../Themes/Colors';

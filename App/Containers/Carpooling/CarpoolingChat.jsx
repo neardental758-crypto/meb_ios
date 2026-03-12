@@ -1,13 +1,8 @@
 import React from 'react';
-import { useState, useEffect, useContext, useCallback, useLayoutEffect } from 'react';
+import { useState, useContext, useCallback, useLayoutEffect, useRef } from 'react';
 import { 
     View, 
     Text, 
-    ScrollView, 
-    TextInput,
-    StyleSheet, 
-    Pressable,
-    Image,
     Dimensions, 
 } from 'react-native';
 import {
@@ -23,6 +18,7 @@ import * as RootNavigation from '../../RootNavigation';
 import { AuthContext } from '../../AuthContext';
 import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat';
 import { database } from '../../Services/firebase';
+import { sendGroupNotification } from '../../actions/actionCarpooling';
 import Colors from '../../Themes/Colors';
 import Images from '../../Themes/Images';
 import Fonts from '../../Themes/Fonts';
@@ -33,20 +29,13 @@ export function CarpoolingChat (props) {
     const { isLogin, infoUser } = useContext( AuthContext );
     const [ messages, setMessages] = useState([]);
     const currentUserEmail = infoUser.DataUser.email;
-    //const chatID = props.dataCarpooling.tripSelect;
     const chatID = idChat;
-
-    //console.log('props en charID', props.dataCarpooling);
-    // console.log('esto es lo que viene en charID', chatID);
-    // console.log('esto es lo que viene en infouser nombre', infoUser);
-    // console.log('esto es lo que viene en infouser nombre', infoUser.DataUser.name);
-    // console.log('esto es lo que viene en infouser apellido', infoUser.DataUser.firstLastname);
+    
+    // Usar useRef para mantener los miembros del chat sin causar re-renders
+    const chatMembersRef = useRef(new Set());
     
     useLayoutEffect(() => {
       const collectionRef = collection(database, 'chats');
-      //const q = query(collectionRef, where("user", "==", "aaa@gmail.com"));
-      //const q = query(collectionRef, where('chat', '==', 'chat1'));
-      //const q = query(collectionRef, orderBy('createdAt', 'desc'));
       const q = query(
         collectionRef,
         where('chat', '==', chatID), 
@@ -54,7 +43,6 @@ export function CarpoolingChat (props) {
       );
 
       const unsubscribe = onSnapshot(q, querySnapshot => {
-        // console.log('querySnapshot unsusbscribe');
         setMessages(
             querySnapshot.docs.map(doc => ({
               _id: doc.data()._id,
@@ -62,22 +50,36 @@ export function CarpoolingChat (props) {
               chat: doc.data().chat,
               text: doc.data().text,
               user: {
-                _id: doc.data().user._id, // Asegúrate de que este campo exista
-                email: doc.data().user.email, // Asume que hay un campo 'name' en el documento del usuario
+                _id: doc.data().user._id,
+                email: doc.data().user.email,
                 nombre: doc.data().user.nombre, 
                 apellido: doc.data().user.apellido
               },
             }))
-          );
+        );
+        
+        // Actualizar los miembros del chat en el ref (no causa re-render)
+        querySnapshot.docs.forEach(doc => {
+          const userEmail = doc.data().user.email;
+          if (userEmail !== currentUserEmail) {
+            chatMembersRef.current.add(userEmail);
+          }
         });
-        return unsubscribe;
-    }, [currentUserEmail]);
+        
+        console.log('👥 Miembros del chat actualizados:', Array.from(chatMembersRef.current));
+      });
+      
+      return unsubscribe;
+    }, [currentUserEmail, chatID]);
 
     const onSend = useCallback((messages = []) => {
       setMessages(previousMessages =>
         GiftedChat.append(previousMessages, messages)
       );
-      const { _id, createdAt, text, chat, user } = messages[0];    
+      
+      const { _id, createdAt, text, user } = messages[0];
+      
+      // Guardar mensaje en Firebase
       addDoc(collection(database, 'chats'), {
         _id,
         createdAt,
@@ -85,7 +87,27 @@ export function CarpoolingChat (props) {
         chat: chatID,
         user
       });
-    }, []);
+
+      // Enviar notificaciones a todos los miembros del grupo
+      const recipients = Array.from(chatMembersRef.current);
+      
+      if (recipients.length > 0) {
+        const mensaje = `💬 ${user.nombre}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`;
+        
+        console.log('📤 Enviando notificaciones a:', recipients);
+        
+        // Dispatch de la acción para notificaciones grupales
+        dispatch(sendGroupNotification({
+          recipients: recipients,
+          message: mensaje,
+          chatId: chatID,
+          senderEmail: currentUserEmail,
+          senderName: `${user.nombre} ${user.apellido}`
+        }));
+      } else {
+        console.log('⚠️ No hay otros miembros en el chat para notificar');
+      }
+    }, [chatID, currentUserEmail, dispatch, infoUser.DataUser.name, infoUser.DataUser.firstLastname]);
 
     return ( 
         <GiftedChat
@@ -97,55 +119,50 @@ export function CarpoolingChat (props) {
               nombre: infoUser.DataUser.name,
               apellido: infoUser.DataUser.firstLastname
             }}
-            renderMessage={(props) => (
-              // Puedes personalizar la apariencia de cada mensaje aquí
-              <View key={props.currentMessage._id}>
-                <Text style={
-                  infoUser.DataUser.email === props.currentMessage.user.email ?
-                  {
-                    textAlign: 'right',
-                    color: Colors.$texto50,
-                    paddingRight: 10  
-                  }
-                  :
-                  {
-                    textAlign: 'left',
-                    color: Colors.$texto50,
-                    paddingLeft: 10
-                  }
-                }>
-                  {props.currentMessage.user.nombre} {props.currentMessage.user.apellido}
-                </Text>
-              <Bubble                
-                {...props}                
-                wrapperStyle={{
-                  right: {
-                    backgroundColor: Colors.$primario, // Color de fondo de los mensajes enviados por el usuario
-                    marginBottom: 5,
-                    marginRight: 5
-                  },
-                  left: {
-                    backgroundColor: Colors.$secundario, // Color de fondo de los mensajes recibidos
-                    marginBottom: 5,
-                    marginLeft: 5
-                  },
-                }}
-              />
-              </View>
+            renderMessage={(props) => {
+              const { currentMessage, key, ...bubbleProps } = props;
+              const isCurrentUser = infoUser.DataUser.email === currentMessage.user.email;
               
-            )}
+              return (
+                <View key={key}>
+                  <Text style={{
+                    textAlign: isCurrentUser ? 'right' : 'left',
+                    color: Colors.$texto50,
+                    paddingRight: isCurrentUser ? 10 : 0,
+                    paddingLeft: isCurrentUser ? 0 : 10
+                  }}>
+                    {currentMessage.user.nombre} {currentMessage.user.apellido}
+                  </Text>
+                  <Bubble                
+                    currentMessage={currentMessage}
+                    {...bubbleProps}                
+                    wrapperStyle={{
+                      right: {
+                        backgroundColor: Colors.$primario,
+                        marginBottom: 5,
+                        marginRight: 5
+                      },
+                      left: {
+                        backgroundColor: Colors.$secundario,
+                        marginBottom: 5,
+                        marginLeft: 5
+                      },
+                    }}
+                  />
+                </View>
+              );
+            }}
             textInputProps={{
               style: {
                 backgroundColor: Colors.$blanco,
                 width: Dimensions.get("window").width*.75,
-                color: Colors.$texto, // Cambia el color del texto del cuadro de entrada
+                color: Colors.$texto,
                 marginTop: 1,
                 fontSize: 18,
                 paddingLeft: 10
               },
             }}
             renderSend={(props) => (
-              // Puedes personalizar la apariencia del botón "Send" aquí
               <Send {...props}>
                 <View style={{ 
                   width: Dimensions.get("window").width*.2,
@@ -154,7 +171,6 @@ export function CarpoolingChat (props) {
                   textAlign: "center",
                   justifyContent: "center",
                   backgroundColor:  Colors.$adicional,
-                  borderRadius: 10,
                   borderRadius: 20
                 }}>
                   <Text style={{ 
@@ -164,7 +180,6 @@ export function CarpoolingChat (props) {
                   }}>Enviar</Text>
                 </View>
               </Send>
-              
             )}
         />
     )
@@ -177,4 +192,3 @@ function mapStateToProps(state){
 }
 
 export default connect(mapStateToProps)(CarpoolingChat);
-

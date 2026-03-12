@@ -56,7 +56,7 @@ import * as RootNavigation from '../../RootNavigation';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BackgroundTask } from '../ViajeActivo/BackgroundTask';
-import { Env } from "../../Utils/enviroments"; 
+import { Env } from "../../Utils/enviroments";
 
 class TripScreen extends React.Component {
   _mapView;
@@ -95,9 +95,9 @@ class TripScreen extends React.Component {
       this.setState({ error: error.toString() });
     }
   }
-  
 
-  backAction = (): any => {
+
+  backAction = () => {
     //this.props.recordCoordinate(false);
     this.props.endCalculateTime();
     this.setState({ outOfScreen: true });
@@ -116,22 +116,22 @@ class TripScreen extends React.Component {
     let dateLocation = new Date();
     setItem('lastLocationDate', dateLocation);
     setItem('appStateTrip', 'foreground');
-      if (Platform.OS === 'android') {
-        console.log('Permisos background android')
-        //this.requestAndroidPermissions();
-      }
-      this.props.startCalculateTime();
-      this.props.getPermissions();
-      this.props.getActiveTrip();
-      this.props.validatePenalty();
-      this.props.getStations(this.props.tripReducer.newTrip.organizacionId);
-      this.setState({ outOfScreen: false });
-      //this.props.socketConection(this.props);
-      this.getPosition();
-      //this.props.recordCoordinate(true);
-      setTimeout(() => {
-        this.props.calculateTripTime();
-      }, 1000);
+    if (Platform.OS === 'android') {
+      console.log('Permisos background android')
+      //this.requestAndroidPermissions();
+    }
+    this.props.startCalculateTime();
+    this.props.getPermissions();
+    this.props.getActiveTrip();
+    this.props.validatePenalty();
+    this.props.getStations(this.props.tripReducer.newTrip.organizacionId);
+    this.setState({ outOfScreen: false });
+    //this.props.socketConection(this.props);
+    this.getPosition();
+    //this.props.recordCoordinate(true);
+    setTimeout(() => {
+      this.props.calculateTripTime();
+    }, 1000);
     /*RootNavigation.navigate.addListener('focus', () => {
       console.log('plataform', Platform.Version);
       if (Platform.OS === 'android') {
@@ -432,7 +432,7 @@ class TripScreen extends React.Component {
     if (value === 'movil') {
       this.setState({ iniciarRastreo: true });
     }
-  } 
+  }
 
   openModal = () => {
     console.log("OpenModal");
@@ -463,10 +463,11 @@ class TripScreen extends React.Component {
               Abriendo tu candado por bluetooth...
             </Text>
             <LottieView
-              style={{ 
+              style={{
                 width: Dimensions.get('window').width,
-                height: Dimensions.get('window').width,                
-                marginTop: 20 }}
+                height: Dimensions.get('window').width,
+                marginTop: 20
+              }}
               source={require('../../Resources/Lotties/bicy_bluetooth.json')}
               autoPlay
               loop
@@ -480,7 +481,7 @@ class TripScreen extends React.Component {
 
   terminadoTrip = (valor) => {
     this.setState({ terminando: true });
-    if(valor){
+    if (valor) {
       this.backAction();
       RootNavigation.navigate("VerificationsScreent")
     }
@@ -559,15 +560,15 @@ class TripScreen extends React.Component {
           })}
         </MapView>*/}
         <ScrollView>
-        <BackgroundTask 
-          terminadoTrip={this.terminadoTrip} 
-          time={this.props.actualTripTime} 
-          minutes={this.props.actualTripMinutes}
-          iniciar={this.state.iniciarRastreo}
-          modo={Env.modo}
-        />
+          <BackgroundTask
+            terminadoTrip={this.terminadoTrip}
+            time={this.props.actualTripTime}
+            minutes={this.props.actualTripMinutes}
+            iniciar={this.state.iniciarRastreo}
+            modo={Env.modo}
+          />
 
-        {
+          {/*
           this.state.terminando ?
           <TouchableOpacity
             onPress={() => {
@@ -590,115 +591,118 @@ class TripScreen extends React.Component {
           </TouchableOpacity>
           :
           <></>
-        }
-        
-        <View
-          style={{
-            width: '100%',
-            height: 100,
-            flex: 1,
-            flexDirection: 'row',
-            position: 'absolute',
-            top: 0,
-          }}>
-          {/*<View style={{ flex: 1 }}>
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                margin: 30,
-                backgroundColor: Colors.$reservada,
-                borderRadius: 100,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignContent: 'center',
-              }}>
-              <View
-                style={{
-                  flex: 0.4,
-                  alignItems: 'center',
-                  alignContent: 'center',
-                  alignSelf: 'center',
-                }}>
-                <Image
-                  style={{ width: 15, height: 15, resizeMode: 'contain' }}
-                  source={require('../../Resources/Images/clock.png')}></Image>
-              </View>
-              <Text style={{ flex: 1, color: 'black' }}>
-                {this.props.actualTripTime}
-              </Text>
-            </TouchableOpacity>
-          </View>*/}
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity
-              onPress={() => {
-                this.routingSupport();
-              }}
-              style={{
-                height: 'auto',
-                width: 140,
-                flexDirection: 'row',
-                margin: 10,
-                backgroundColor: Colors.$texto,
-                borderRadius: 100,
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignContent: 'center',
-                padding: 5
-              }}>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  alignContent: 'center',
-                  alignSelf: 'center',
-                }}>
-                <Image
-                  style={{ width: 15, height: 15, resizeMode: 'contain' }}
-                  source={require('../../Resources/Images/support.png')}></Image>
-              </View>
-              <Text style={{ 
-                flex: 1,                 
-                color: 'white',
-                fontFamily: Fonts.$poppinsregular
-              }}>Soporte</Text>
-            </TouchableOpacity>
-           {/* <TouchableOpacity
-            onPress={() => {
-              //this.setState({ abrirCandado: true })
-              console.log('props rideruducer', this.cargarinfo() );
-            }}
+        */}
+
+          <View
+            style={{
+              width: '100%',
+              height: 100,
+              flex: 1,
+              flexDirection: 'row',
+              position: 'absolute',
+              top: 0,
+            }}>
+            <View style={{ flex: 1 }}>
+            </View>
+
+            <Overlay
+              containerStyle={styles.overlay}
+              visible={showModalConfirm}
+              childrenWrapperStyle={styles.modalsContainer}
             >
-              <Text>lock</Text>
-            </TouchableOpacity>*/}
-            
+              <ModalConfirmLock onOpenLock={this.openLockBluetooth} modo={this.modoDispositivo} />
+            </Overlay>
+
+            {this.props.loadingBluetooth && this.renderBluetoothLoading()}
           </View>
-          <Overlay
-            containerStyle={styles.overlay}
-            visible={showModalConfirm}
-            childrenWrapperStyle={styles.modalsContainer}
-          >
-            <ModalConfirmLock onOpenLock={this.openLockBluetooth} modo={this.modoDispositivo}/>
-          </Overlay>
-          
-          {/** para intentar volver abrir el candado por bluetooth */}
-          <Overlay
-            containerStyle={styles.overlay}
-            visible={this.state.abrirCandado}
-            childrenWrapperStyle={styles.modalsContainer}
-          >
-            <ModalConfirmLock onOpenLock={this.openLockBluetooth} />
-          </Overlay>
-          {/* <Overlay
-            containerStyle={styles.overlay}
-            visible={showModalLoaderBluetooth}
-            childrenWrapperStyle={styles.modalsContainer}
-          >
-            <ModalLoaderBluetooth onClosePress={this.closeModal} />
-          </Overlay> */}
-          {this.props.loadingBluetooth && this.renderBluetoothLoading()}
-        </View>
         </ScrollView>
+
+        {/* Floating Support Button at the Top Left */}
+        <View style={{
+          position: 'absolute',
+          top: 50,
+          left: 20,
+          zIndex: 999,
+        }}>
+          <TouchableOpacity
+            onPress={() => {
+              this.routingSupport();
+            }}
+            style={{
+              width: 80,
+              height: 80,
+              backgroundColor: Colors.$texto, // Keeping support gray/black to distinguish it
+              borderRadius: 40,
+              justifyContent: 'center',
+              alignItems: 'center',
+              elevation: 8,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.30,
+              shadowRadius: 4.65,
+            }}>
+            <Image
+              style={{ width: 45, height: 45, resizeMode: 'contain', tintColor: 'white' }}
+              source={require('../../Resources/Images/support.png')}
+            />
+            <Text style={{
+              color: 'white',
+              fontFamily: Fonts.$poppinsregular,
+              fontSize: 9,
+              marginTop: 2,
+              textAlign: 'center'
+            }}>SOPORTE</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Floating Unlock Button at the Top Right */}
+        <View style={{
+          position: 'absolute',
+          top: 150,
+          left: 20,
+          zIndex: 999,
+        }}>
+          <TouchableOpacity
+            onPress={() => {
+              Alert.alert(
+                "Abrir candado",
+                "¿Deseas intentar abrir el candado vía Bluetooth?",
+                [
+                  { text: "Cancelar", style: "cancel" },
+                  {
+                    text: "Abrir", onPress: () => {
+                      this.props.resetLock(this.props.rideReducer.lock.mac, this.props.rideReducer.lock.id, this.props.rideReducer.lock.imei);
+                    }
+                  }
+                ]
+              );
+            }}
+            style={{
+              width: 80,
+              height: 80,
+              backgroundColor: Colors.$primario,
+              borderRadius: 40,
+              justifyContent: 'center',
+              alignItems: 'center',
+              elevation: 8,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.30,
+              shadowRadius: 4.65,
+            }}>
+            <Image
+              style={{ width: 50, height: 50, resizeMode: 'contain', tintColor: 'white' }}
+              source={Images.lockBike1}
+            />
+            <Text style={{
+              color: 'white',
+              fontFamily: Fonts.$poppinsregular,
+              fontSize: 9,
+              marginTop: 2,
+              textAlign: 'center'
+            }}>ABRIR</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
@@ -734,6 +738,7 @@ function mapDispatchToProps(dispatch) {
     verifyLockStatusTrip: () => dispatch(verifyLockStatusTrip()),
     setStatusLock: (statusLock) => dispatch(setStatusLock(statusLock)),
     openBluetoothTrip: (lock) => dispatch(appRideActions.openBluetoothTrip(lock)),
+    resetLock: (mac, id, imei) => dispatch(appRideActions.resetLock(mac, id, imei)),
   };
 }
 

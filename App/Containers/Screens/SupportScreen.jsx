@@ -1,6 +1,5 @@
 import { 
     Image, 
-    ImageBackground, 
     SafeAreaView, 
     ScrollView, 
     Text, 
@@ -11,115 +10,193 @@ import {
     Linking,
     Dimensions
 } from 'react-native';
-import Fonts from '../../Themes/Fonts';
-//Components
-import Images from '../../Themes/Images';
-import React,{ useState }from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import styles from './Styles/SupportScreen.style';
-import { navigationNewTicket, supportRequest } from '../../actions/actions';
+import Fonts from '../../Themes/Fonts';
+import Images from '../../Themes/Images';
 import Colors from '../../Themes/Colors';
+import { navigationNewTicket, supportRequest } from '../../actions/actions';
 import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metrics';
-
 
 function SupportScreen (props) {
     const goBack = () => {
         props.navigation.goBack();
-    }
-        return (
-        <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        <View style={estilos.cajaCabeza}>
-        <Text Text style={[styles.accountTitle, { fontFamily: Fonts.$poppinsmedium, fontSize: 26, textAlign: 'center', color: Colors.$texto80 }]}>Soporte</Text>
-            <Pressable  
-                onPress={() => { goBack() }}
-                style={ estilos.btnAtras }>
-                <View>
-                <Image source={Images.atras_Icon} style={{tintColor : Colors.$texto80, width: 30, height: 30}}/> 
-                </View>
-            </Pressable>
-        </View>
+    };
 
-                    <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.8)', justifyContent: 'flex-start', alignItems: 'center', padding: 5 }}>
-                            <View style={{ marginTop: 5, marginHorizontal: 20 }}>
-                                <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 16, marginBottom: 20, color: Colors.$texto, textAlign: 'justify'}}>Si tienes dudas o inquietudes, nos puedes contactar usando la siguiente información. {"\n"}Nuestro equipo de asesores te responderá lo más pronto posible para que sigas disfrutando de nuestros servicios.</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
-                                    <Image style={{ tintColor : Colors.$adicional, resizeMode: "contain", width: 30, height: 30, marginRight: 20 }} source={Images.adjuntar}></Image>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 16, color: Colors.$texto}}>
-                                        +57 316 812 7343
-                                    </Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
-                                    <Image style={{ tintColor : Colors.$adicional, resizeMode: "contain", width: 30, height: 30, marginRight: 20 }} source={Images.mailRed}></Image>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 16, color: 'black' }}>servicio@bicyclecapital.co</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
-                                    <Image style={{ tintColor : Colors.$adicional, resizeMode: "contain", width: 30, height: 30, marginRight: 20 }} source={Images.distance}></Image>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 16, color: 'black' }}>
-                                        bicyclecapital.co
-                                    </Text>
-                                </View>
-                                <View style={{ height: verticalScale(40), width: horizontalScale(200), marginVertical: 10, alignSelf: 'center' }}>
-                                    <TouchableOpacity onPress={() => Linking.openURL("https://wa.link/oulc2m")} style={{ flex: 1, borderRadius: 25, justifyContent: "center", backgroundColor: 'black' }}>
-                                        <Text style={{ fontFamily: Fonts.$poppinsregular, textAlign: "center", fontSize: moderateScale(16), paddingTop: 'auto', paddingBottom: 'auto', color: 'white', fontWeight: '800' }}>Chat de soporte</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: moderateScale(16), color: 'black', marginVertical: 10 }}>Si deseas eliminar tu cuenta, por favor llenar el siguiente formulario  y nuestro administrador se encargara de eliminar tu cuenta notificandote por correo cuando se haya realizado el proceso</Text>
-                                <View style={{ flexDirection : 'row', height: verticalScale(40), width: horizontalScale(200), marginVertical: 10, alignSelf: 'center' }}>
-                                    <Image style={{ tintColor : Colors.$primario, resizeMode: "contain", width: horizontalScale(30), height: verticalScale(30), marginRight: 20 }} source={Images.distance}></Image>
-                                    <TouchableOpacity onPress={() => Linking.openURL("https://www.bicyclecapital.co/clear_data_ride/")} style={{ flex: 1, borderRadius: 25, justifyContent: "center", backgroundColor: 'black' }}>
-                                        <Text style={{ fontFamily: Fonts.$poppinsregular, textAlign: "center", fontSize: moderateScale(16), paddingTop: 'auto', paddingBottom: 'auto', color: 'white', fontWeight: '800' }}>Eliminar cuenta</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                    </SafeAreaView>
+    return (
+        <View style={{ flex: 1, backgroundColor: Colors.$blanco }}>
+            
+            {/* Header */}
+            <View style={estilos.cajaCabeza}>
+                <Text style={estilos.textTitle}>Soporte</Text>
+                <Pressable onPress={goBack} style={estilos.btnAtras}>
+                    <Image 
+                        source={Images.atras_Icon} 
+                        style={estilos.iconAtras}
+                    /> 
+                </Pressable>
             </View>
-        );
-    }
+
+            {/* Content */}
+            <SafeAreaView style={estilos.container}>
+                <ScrollView 
+                    showsVerticalScrollIndicator={false} 
+                    contentContainerStyle={estilos.scrollContent}
+                >
+                    <Text style={estilos.textDescription}>
+                        Si tienes dudas o inquietudes, nos puedes contactar usando la siguiente información. {"\n\n"}
+                        Nuestro equipo de asesores te responderá lo más pronto posible para que sigas disfrutando de nuestros servicios.
+                    </Text>
+
+                    {/* Contact Info */}
+                    <View style={estilos.infoRow}>
+                        <Image style={estilos.icon} source={Images.adjuntar} />
+                        <Text style={estilos.textInfo}>+57 316 812 7343</Text>
+                    </View>
+
+                    <View style={estilos.infoRow}>
+                        <Image style={estilos.icon} source={Images.mailRed} />
+                        <Text style={estilos.textInfo}>servicio@bicyclecapital.co</Text>
+                    </View>
+
+                    <View style={estilos.infoRow}>
+                        <Image style={estilos.icon} source={Images.distance} />
+                        <Text style={estilos.textInfo}>bicyclecapital.co</Text>
+                    </View>
+
+                    {/* Botón soporte */}
+                    <TouchableOpacity 
+                        activeOpacity={0.8} 
+                        onPress={() => Linking.openURL("https://wa.link/oulc2m")} 
+                        style={estilos.btnPrimary}
+                    >
+                        <Text style={estilos.btnText}>Chat de soporte</Text>
+                    </TouchableOpacity>
+
+                    {/* Eliminar cuenta */}
+                    <Text style={estilos.textSecondary}>
+                        Si deseas eliminar tu cuenta, por favor llena el siguiente formulario. 
+                        Nuestro administrador se encargará de eliminar tu cuenta y te notificará por correo cuando el proceso se haya completado.
+                    </Text>
+
+                    <TouchableOpacity 
+                        activeOpacity={0.8} 
+                        onPress={() => Linking.openURL("https://www.bicyclecapital.co/clear_data_ride/")} 
+                        style={estilos.btnSecondary}
+                    >
+                        <Image style={estilos.iconInsideBtn} source={Images.distance} />
+                        <Text style={estilos.btnText}>Eliminar cuenta</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </SafeAreaView>
+        </View>
+    );
+}
 
 const estilos = StyleSheet.create({
     cajaCabeza: {
         backgroundColor: Colors.$blanco,
-        justifyContent: 'space-around',
-        alignItems: 'center', 
-        borderRadius: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         width: Dimensions.get('window').width,
-        height: 80,
-        position: 'relative',
-        bottom: 10,
-        top: 10,
+        height: verticalScale(70),
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.$texto20,
     },
     textTitle: {
-        marginTop: 30, 
-        marginBottom: 20, 
-        textAlign: 'center', 
-        fontSize : 22, 
-        fontFamily : Fonts.$poppinsmedium,
-        alignSelf: "center",
-        color: Colors.$texto80
+        fontSize: moderateScale(22),
+        fontFamily: Fonts.$poppinsmedium,
+        color: Colors.$texto80,
     },
-    btnAtras:{
+    btnAtras: {
         position: 'absolute',
-        top: 10, 
-        left: 10,
-        width: 50,
-        height: 50,
+        left: 15,
+        top: 20,
+        padding: 8,
+        borderRadius: 25,
+    },
+    iconAtras: {
+        tintColor: Colors.$texto80,
+        width: 28,
+        height: 28,
+    },
+    container: {
+        flex: 1,
+        backgroundColor: Colors.$blanco,
+    },
+    scrollContent: {
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+    },
+    textDescription: {
+        fontFamily: Fonts.$poppinsregular,
+        fontSize: moderateScale(15),
+        color: Colors.$texto,
+        textAlign: 'justify',
+        marginBottom: 20,
+        lineHeight: 22,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 8,
+    },
+    icon: {
+        tintColor: Colors.$adicional,
+        resizeMode: 'contain',
+        width: 28,
+        height: 28,
+        marginRight: 15,
+    },
+    textInfo: {
+        fontFamily: Fonts.$poppinsregular,
+        fontSize: moderateScale(15),
+        color: Colors.$texto,
+    },
+    btnPrimary: {
+        marginTop: 25,
+        backgroundColor: Colors.$primario,
+        borderRadius: 25,
+        paddingVertical: 12,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+    },
+    btnSecondary: {
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 25
+        marginTop: 15,
+        backgroundColor: Colors.$negro,
+        borderRadius: 25,
+        paddingVertical: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
     },
-    iconMenu: {
-        width: 50,
-        height: 50,
+    iconInsideBtn: {
+        tintColor: Colors.$blanco,
+        width: 20,
+        height: 20,
+        marginRight: 10,
     },
-    textButton : {
-        fontFamily: Fonts.$poppinsregular, 
-        textAlign: "center", 
-        fontSize: 16, 
-        paddingTop: 'auto', 
-        paddingBottom: 'auto', 
-        color: 'white',
+    btnText: {
+        fontFamily: Fonts.$poppinsmedium,
+        fontSize: moderateScale(16),
         color: Colors.$blanco,
-        alignSelf: "center",
+    },
+    textSecondary: {
+        marginTop: 20,
+        fontFamily: Fonts.$poppinsregular,
+        fontSize: moderateScale(14),
+        color: Colors.$texto,
+        textAlign: 'justify',
+        lineHeight: 20,
     },
 });
 
@@ -140,7 +217,4 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(SupportScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(SupportScreen);

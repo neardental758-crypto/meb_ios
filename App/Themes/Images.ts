@@ -2,7 +2,7 @@ import { Env } from "../Utils/enviroments";
 
 const Images: any = {
   //Backgrounds
-  forest: require('../Resources/Backgrounds/forest.png'),
+  fondoMeb: require('../Resources/Backgrounds/fondoMeb.png'),
   //profileBlackFilter:require('../Resources/Backgrounds/filtro_negro2.png'),
   //grayBackground: require('../Resources/Backgrounds/background.png'),
   //grayBackground2: require('../Resources/Backgrounds/background2.png'),
@@ -27,6 +27,7 @@ const Images: any = {
   //blackFilter:require('../Resources/Backgrounds/filtro_negro.png'),
   //createEventBg:require('../Resources/Backgrounds/fondo_crear_evento.png'),
   //tutorialBg:require('../Resources/Backgrounds/Bicycle_tutorial_fondo.png'),
+  logoMeb: require('../Resources/Images/logoMeb.png'),
 
   fullStar: require('../Resources/Images/star/full_star.png'),
   borderStar: require('../Resources/Images/star/border_star.png'),
@@ -212,7 +213,7 @@ const Images: any = {
   //rutaCorporativaNO: require('../Resources/Images/btnRutaCorporativaNO.png'),
   //aplicacionDavivienda : require ('../Resources/Backgrounds/APLICACIONES-LOGO-DAVIVIENDA.png'),
   //daviviendaImage : require('../Resources/Backgrounds/davivienda.png'),
-  //bcImage : require('../Resources/Backgrounds/mejorenbici.png'),
+  //bcImage : require('../Resources/Backgrounds/bicyclecapital.png'),
   //bandera:require('../Resources/Images/bandera.jpg'),
   //vehicleprivate
   daviviendaLogo: require('../Resources/Images/daviviendaLogo.png'),
@@ -271,6 +272,14 @@ const Images: any = {
   park1: require('../Resources/Images/park1.png'),
   park2: require('../Resources/Images/park2.png'),
   park3: require('../Resources/Images/park3.png'),
+  parqueo_camara: require('../Resources/parqueaderos/camara.png'),
+  parqueo_cerrar: require('../Resources/parqueaderos/close-circle.png'),
+  ProgresoImagen: require('../Resources/parqueaderos/Progreso-Imagen.png'),
+  iconWhatsapp: require('../Resources/parqueaderos/whatsapp.png'),
+  iconWhatsapp01: require('../Resources/parqueaderos/whatsapp01.png'),
+  MapaImagen: require('../Resources/parqueaderos/Mapa-Imagen.png'),
+  IconoAtrasParqueo: require('../Resources/parqueaderos/Iconoatras.png'),
+  ImagenScoterParqueo: require('../Resources/parqueaderos/Scooter-Imagen.png'),
   //flechaAtras : require('../Resources/Icons/manBack.png'),
   flechaAtras: Env.plantilla === 'ride' ? require('../Resources/Icons/manBack.png') : require('../Resources/Icons/arrowBackRed.png'),
   flechaAtras3: Env.plantilla === 'ride' ? require('../Resources/Icons/manBack2.png') : require('../Resources/Icons/arrowBackRed2.png'),
@@ -366,6 +375,7 @@ const Images: any = {
   n_icon: require('../Resources/carpooling/icononotificacion.png'),
   carroblanco: require('../Resources/carpooling/carroblanco.png'),
   carrorojo: require('../Resources/carpooling/carrorojo.png'),
+  carrorojo2: require('../Resources/carpooling/carrorojo2.png'),
   moto: require('../Resources/carpooling/moto.png'),
   iconobillete: require('../Resources/carpooling/iconobillete.png'),
   logodaviplata: require('../Resources/carpooling/logodaviplata.png'),
@@ -384,8 +394,8 @@ const Images: any = {
   like: require('../Resources/Perfil/icono_like.png'),
   userCar: require('../Resources/carpooling/userCar.jpg'),
   iconoviaje: require('../Resources/carpooling/iconoviaje.png'),
-  logoDaviRide: Env.plantilla === 'meb' ? require('../Resources/Images/logoMeb.png') : require('../Resources/Images/logoRide.png'),
-  logoTrip: Env.plantilla === 'meb' ? require('../Resources/Images/logoDaviRide.png') : require('../Resources/Images/logotrip.png'),
+  logoDaviRide: Env.plantilla === 'davivienda' ? require('../Resources/Images/logoDaviRide.png') : require('../Resources/Images/logoRide.png'),
+  logoTrip: Env.plantilla === 'davivienda' ? require('../Resources/Images/logoDaviRide.png') : require('../Resources/Images/logotrip.png'),
   //movilidad4G
   bluetoothError: require('../Resources/movilidad4g/bluetoothError.png'),
   bluetoothOK: require('../Resources/movilidad4g/bluetoothOK.png'),
@@ -408,9 +418,8 @@ const Images: any = {
   historialDrawer: require('../Resources/carpooling/historialDrawer.png'),
   soporteDrawer: require('../Resources/carpooling/soporteDrawer.png'),
   fondo_tarjeta: require('../Resources/Perfil/fondo_tarjeta.png'),
+  catalogo_img: require('../Resources/Perfil/catalogo.jpg'),
   robot_bike: require('../Resources/Icons/robot_bike_meb.png'),
-
-
 };
 
 

@@ -37,7 +37,7 @@ import Images from '../../Themes/Images';
 import Fonts from '../../Themes/Fonts';
 import React, { useState, useEffect, useContext } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 import { navigationNewTicket, supportRequest } from '../../actions/actions';
 import estilos from './styles/reservas4g';
 import { apimysql } from './functions/funciones';
@@ -54,6 +54,7 @@ import { AuthContext } from '../../AuthContext';
 import { GuiaEstados } from '../../Components/movilidad4g/GuiaEstados';
 import Bluetooth from './BluetoothClassic';
 import LottieView from 'lottie-react-native';
+import { NativeModules } from 'react-native';
 
 function Vehiculos4G(props){
   const [ state , setState ] = useState({
@@ -320,7 +321,7 @@ function Vehiculos4G(props){
       console.log('El correo desde infoUser.DataUser.email :',infoUser.DataUser.email )  
       //prestamoActivo(infoUser.DataUser.idNumber);
       userActivo(infoUser.DataUser.idNumber);
-      //reservasActivas(infoUser.DataUser.idNumber);
+      reservasActivas(infoUser.DataUser.idNumber);
       verPenalizaciones(infoUser.DataUser.idNumber);
       registroFinalizado(infoUser.DataUser.idNumber);  
   },[])
@@ -338,10 +339,17 @@ function Vehiculos4G(props){
     }              
   },[props.dataRent.bicicletasCargadas])
 
+  const cerrarApp = () => {
+    if (Platform.OS === 'android') {
+      NativeModules.AppExit.exitApplication();
+    }
+  };
+
   const cerrandoSesion = async() => {
       console.log('cerrando la sesion estamos en tablet');
       await dispatch(cancelar__());
       await logout(); 
+      await cerrarApp();
   }
 
   useEffect(() => {
@@ -364,21 +372,23 @@ function Vehiculos4G(props){
   },[props.dataRent.estacionesCargadas])
 
   const getVehicleStyle = (estado) => {
-    switch (estado) {
-      case 'DISPONIBLE':
-        return estilos.cajaTextVehiuclosDisponible;
-      case 'RESERVADA':
-        return estilos.cajaTextVehiuclosReservada;
-      case 'PRESTADA':
-        return estilos.cajaTextVehiuclosPrestada;
-      case 'INACTIVA':
-        return estilos.cajaTextVehiuclosInactiva;
-      case 'EN TALLER':
-        return estilos.cajaTextVehiuclosTaller;
-      default:
-        return estilos.cajaTextVehiuclosSinEstado;
-    }
-  };
+        switch (estado) {
+          case 'DISPONIBLE':
+            return styles.cajaTextVehiuclosDisponible;
+          case 'RESERVADA':
+            return styles.cajaTextVehiuclosReservada;
+          case 'PRESTADA':
+            return styles.cajaTextVehiuclosPrestada;
+          case 'INACTIVA':
+            return styles.cajaTextVehiuclosInactiva;
+          case 'EN TALLER':
+            return styles.cajaTextVehiuclosTaller;
+          case 'CAMBIAR CLAVE':
+            return styles.cajaTextVehiuclosPrestada;
+          default:
+            return styles.cajaTextVehiuclosSinEstado;
+        }
+    };
   
   const liberar = () => {
     console.log('liberando este vehiculo con ble HC-05')
@@ -527,11 +537,21 @@ function Vehiculos4G(props){
                                 width: Dimensions.get('window').width,
                                 height: 'auto', 
                                 }}>
-                                <LottieView source={require('../../Resources/Lotties/bicy_onOff.json')} autoPlay loop 
-                                style={{
-                                    width: Dimensions.get('window').width,
-                                    height: Dimensions.get('window').width*.5,             
-                                }}/>
+                                {
+                                  Env.modo === 'tablet' ?
+                                  <Text style={{
+                                      fontSize: moderateScale(25),
+                                      color: Colors.$texto,
+                                      textAlign: 'center',  
+                                      fontFamily: Fonts.$poppinsregular
+                                  }}>Selecciona un vehículo</Text>
+                                  :
+                                  <LottieView source={require('../../Resources/Lotties/bicy_onOff.json')} autoPlay loop 
+                                  style={{
+                                      width: Dimensions.get('window').width,
+                                      height: Dimensions.get('window').width*.5,             
+                                  }}/>
+                                }
                             </View>
                             :
                             <></>
@@ -561,26 +581,26 @@ function Vehiculos4G(props){
                                 >
                                 <View style={getVehicleStyle(data.bic_estado)}>
                                 {
-                                    data.bic_nombre === 'electrica' 
-                                    ? 
-                                    <Image source={Images.bicycle_Icon} style={[estilos.iconBici, {tintColor : 'black'}]}/> 
-                                    :
-                                    <></>
-                                }
-                                {
-                                    data.bic_nombre === 'patineta' 
-                                    ? 
-                                    <Image source={Images.patin_Icon} style={[estilos.iconBici, {tintColor : 'black'}]}/> 
-                                    :
-                                    <></>
-                                }
-                                {
-                                    data.bic_nombre === 'mecanica' 
-                                    ? 
-                                    <Image source={Images.cycle_Icon} style={[estilos.iconBici, {tintColor : 'black'}]}/> 
-                                    :
-                                    <></>
-                                }
+                                data.bic_nombre === 'electrica' 
+                                ? 
+                                <Image source={Images.bicycle_Icon} style={[estilos.iconBici, {tintColor : Colors.$inactiva}]}/> 
+                                :
+                                <></>
+                            }
+                            {
+                                data.bic_nombre === 'patineta' 
+                                ? 
+                                <Image source={Images.patin_Icon} style={[estilos.iconBici, {tintColor : Colors.$inactiva}]}/> 
+                                :
+                                <></>
+                            }
+                            {
+                                data.bic_nombre === 'mecanica' 
+                                ? 
+                                <Image source={Images.cycle_Icon} style={[estilos.iconBici, {tintColor : Colors.$inactiva}]}/> 
+                                :
+                                <></>
+                            }
                                 
                                     <Text style={estilos.textVehiculo}>{data.bic_numero}</Text> 
                                 </View>
@@ -598,11 +618,22 @@ function Vehiculos4G(props){
                               width: Dimensions.get('window').width,
                               height: 'auto', 
                               }}>
-                              <LottieView source={require('../../Resources/Lotties/bicy_04.json')} autoPlay loop 
-                              style={{
-                                  width: Dimensions.get('window').width,
-                                  height: Dimensions.get('window').width,             
-                              }}/>
+                              {
+                                Env.modo === 'tablet' ?
+                                <Text style={{
+                                    fontSize: moderateScale(25),
+                                    color: Colors.$texto,
+                                    textAlign: 'center',  
+                                    fontFamily: Fonts.$poppinsregular
+                                }}>Selecciona una estación</Text>
+                                :
+                                <LottieView source={require('../../Resources/Lotties/bicy_04.json')} autoPlay loop 
+                                style={{
+                                    width: Dimensions.get('window').width,
+                                    height: Dimensions.get('window').width,             
+                                }}/>
+                              }  
+                              
                           </View>
                         </>
                         }
@@ -660,7 +691,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     top: 0,
     flexDirection: 'row',
-    zIndex: 100
+    zIndex: 100,
+    paddingTop: 20
   },
   titulo: {
     fontFamily: Fonts.$poppinsmedium, 
@@ -673,7 +705,7 @@ const styles = StyleSheet.create({
   },
   btnAtras: {
     position: 'absolute',
-    top: 10, 
+    top: 20, 
     left: 10,
     width: 50,
     height: 50,
@@ -705,6 +737,60 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.$texto,
   },
+  cajaTextVehiuclosDisponible: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$disponible
+    },
+    cajaTextVehiuclosReservada: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$reservada
+    },
+    cajaTextVehiuclosPrestada: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$prestada
+    },
+    cajaTextVehiuclosInactiva: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$inactiva
+    },
+    cajaTextVehiuclosTaller: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$taller
+    },
+    cajaTextVehiuclosSinEstado: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: 'white'
+    },
 });
 
 const pickerSelectStyles = StyleSheet.create({

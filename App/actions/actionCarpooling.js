@@ -69,7 +69,8 @@ import {
     PATCH_RESET_CONDUCTOR_CARPOOLING,
     PATCH_CONDUCTOR_CARPOOLING,
     LOGRO_PROGRESO_SOLICITUD_VIAJE,
-    LOGRO_PROGRESO_VIAJE_COMPARTIDO_PASAJERO
+    LOGRO_PROGRESO_VIAJE_COMPARTIDO_PASAJERO,
+    SEND_GROUP_NOTIFICATION
 } from '../types/typesCarpooling';
 
 export function sendVehicule(vehiculeData) {
@@ -269,6 +270,7 @@ export function get_riderList(page) {
 }
 
 export function accept_solicitud (id, estado, idTrip, asientos) {
+  console.log('en action para solicitud')
   return {
     type: ACCEPT_SOLICITUD_CARPOOLING,
     id: id,
@@ -373,10 +375,11 @@ export function end_solicitud_carpooling (id, estado) {
     estado: estado
   }
 }
-export function sendApplication(idViaje) {
+export function sendApplication(idViaje, pago) {
     return {
     type: SEND_APPLICATION_CARPOOLING,
-    idViaje: idViaje
+    idViaje: idViaje,
+    pago: pago
   }
 }
 
@@ -547,5 +550,16 @@ export function logro_progreso_viaje_compartido_pasajero() {
   console.log('logro_progreso_viaje_compartido_pasajero en action')
   return{
     type:  LOGRO_PROGRESO_VIAJE_COMPARTIDO_PASAJERO
+  }
+}
+
+export function sendGroupNotification(data) {
+  return {
+    type: SEND_GROUP_NOTIFICATION,
+    recipients: data.recipients,  // Array de emails
+    message: data.message,
+    chatId: data.chatId,
+    senderEmail: data.senderEmail,
+    senderName: data.senderName
   }
 }

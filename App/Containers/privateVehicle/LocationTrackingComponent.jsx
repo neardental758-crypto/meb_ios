@@ -4,13 +4,17 @@ import { NativeModules } from 'react-native';
 
 const { LocationServiceModule } = NativeModules;
 
-export function LocationTrackingComponent(props){  
+export function LocationTrackingComponent(props) {
   const startLocationService = () => {
-    LocationServiceModule.startService();
+    if (Platform.OS === 'android') {
+      LocationServiceModule.startService(false);
+    }
   };
 
   const stopLocationService = () => {
-    LocationServiceModule.stopService();
+    if (Platform.OS === 'android') {
+      LocationServiceModule.stopService();
+    }
   };
 
   return (

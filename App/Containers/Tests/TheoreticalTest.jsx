@@ -26,6 +26,7 @@ import {
     passed_theoretical
   } from '../../actions/actionCarpooling';
   import { v4 as uuidv4 } from 'uuid';
+  import { savePuntos_sinUsuario } from '../../actions/actions3g';
   //import VideoTest from './Bcguiavideo2024.mp4';
 
   function TheoreticalTest(props) {
@@ -64,8 +65,23 @@ import {
         "teorica_exitosas": correctAnswersCount,
         "teorica_fecha": new Date().toISOString(),
         "teorica_resultado": correctAnswersCount > 13 ? 'APROBO' : 'REPROBO',
-    }
+      }
       dispatch(send_answers(dataToSend));
+
+      //validar si paso la prueba téorica y guardar los puntos
+      if (correctAnswersCount > 13) {
+        const dataPuntos = {
+                "pun_id": uuidv4(),
+                "pun_modulo": 'REGISTRO',
+                "pun_fecha": new Date().toISOString(),
+                "pun_puntos": "200",
+                "pun_motivo": "Descarga y registro en ride"
+            }
+            console.log('los puntos para el registro son:', dataPuntos)
+            dispatch(savePuntos_sinUsuario(dataPuntos));
+      }
+      //////////////////////////////////////////////////
+
       dispatch(ask_theoretical());
       if( correctAnswersCount > 13 ){
         dispatch(passed_theoretical());

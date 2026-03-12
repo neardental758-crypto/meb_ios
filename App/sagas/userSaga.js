@@ -813,14 +813,26 @@ function* getUserLoggedFunction() {
 }
 
 function* uploadEventImage(action) {
-	if (action.eventImage.assets) {
+	if (action.eventImage.assets && action.eventImage.assets.length > 0) {
 		try {
-			const s3Route = yield uploadImageS3(action.eventImage.assets, "users");
-			//const s3Route = 'Sin imagen por bucket';
-			console.log('los que trae s3Route y enviar a save', s3Route)
-			let formUser = yield select((state) => state.userReducer.formRegister);
-			//yield put({ type: POST_USER, user: formUser, s3Route: s3Route });
-			if (s3Route) {
+			// Create FormData locally identical to trip logic
+			let formData = new FormData();
+			const imageAsset = action.eventImage.assets[0];
+
+			formData.append('image', {
+				uri: imageAsset.uri,
+				type: imageAsset.type,
+				name: imageAsset.fileName || `profile_image_${Date.now()}.jpg`,
+			});
+
+			console.log('Subiendo imagen de perfil de usuario localmente...', formData);
+			const uploadRes = yield api.postImgFile(formData, 'user');
+			console.log('Respuesta de upload perfil:', uploadRes);
+
+			if (uploadRes && !uploadRes.error && uploadRes.imageUrl) {
+				const s3Route = uploadRes.imageUrl;
+				console.log('Ruta de imagen generada (antes s3Route):', s3Route);
+
 				let formUser = yield select((state) => state.userReducer.formRegister);
 				yield put({ type: POST_USER, user: formUser, s3Route: s3Route });
 
@@ -829,7 +841,7 @@ function* uploadEventImage(action) {
 				yield put({ type: FETCH_UPLOAD_EVENT_IMAGE_FAILURE });
 			}
 		} catch (e) {
-			console.log(e);
+			console.log("Error al subir imagen de evento al API local:", e);
 			yield put({ type: FETCH_UPLOAD_EVENT_IMAGE_FAILURE });
 		}
 
@@ -1550,16 +1562,20 @@ function* guardarForm(stateRegister) {
 						const idOrganization = stateRegister.formRegister.empresa;
 						let tablaOrganization = `bc_empresas/organization/${idOrganization}`;
 						let organizationStations = yield call(apiPerfil.get__, tablaOrganization);
-						const responseStations = organizationStations.data[0].bc_estaciones;
-						const addOrganizationName = {
-							formRegister: {
-								...stateRegister.formRegister,
-								"usu_empresa": organizationStations.data[0].emp_nombre
-							},
-							type: stateRegister.type
-						};
-						yield put({ type: GUARDAR_FORM_REGISTER, formRegister: addOrganizationName });
-						yield put({ type: GET_STATIONS, stations: responseStations });
+						if (organizationStations?.data && organizationStations.data.length > 0) {
+							const responseStations = organizationStations.data[0].bc_estaciones || [];
+							const addOrganizationName = {
+								formRegister: {
+									...stateRegister.formRegister,
+									"usu_empresa": organizationStations.data[0].emp_nombre
+								},
+								type: stateRegister.type
+							};
+							yield put({ type: GUARDAR_FORM_REGISTER, formRegister: addOrganizationName });
+							yield put({ type: GET_STATIONS, stations: Array.isArray(responseStations) ? responseStations : [] });
+						} else {
+							console.warn('organizationStations no contiene datos');
+						}
 					} else {
 						yield put({ type: GUARDAR_FORM_REGISTER_FAILED });
 						console.log('No se encontró empresa con ese ID');
@@ -1580,206 +1596,155 @@ function* updateForm(updateForm) {
 }
 
 function* registerSelectors() {
-	let whereIdType = {
-		where: {
-			and: [{ table: "users" }, { field: "idType" }]
+	try {
+		let whereIdType = {
+			where: {
+				and: [{ table: "users" }, { field: "idType" }]
+			}
 		}
-	}
-	const idTypes = yield api.get('master-lists', whereIdType)
-	yield put({ type: SAVE_ID_TYPE, idTypes: idTypes });
-	//-------------------------------------------------------------------------------------------
+		const idTypes = yield api.get('master-lists', whereIdType)
+		const defaultIdTypes = [
+			{ value: 'Cédula' },
+			{ value: 'Cédula de extranjería' },
+			{ value: 'Pasaporte' },
+			{ value: 'Documento de identidad' }
+		];
+		yield put({ type: SAVE_ID_TYPE, idTypes: Array.isArray(idTypes) && idTypes.length > 0 ? idTypes : defaultIdTypes });
+		//-------------------------------------------------------------------------------------------
 
-	let whereResidentTypes = {
-		where: {
-			and: [{ table: "users" }, { field: "residentType" }]
+		let whereResidentTypes = {
+			where: {
+				and: [{ table: "users" }, { field: "residentType" }]
+			}
 		}
-	}
-	const residentTypes = yield api.get('master-lists', whereResidentTypes)
-	yield put({ type: SAVE_RESIDENT_TYPE, residentTypes: residentTypes });
+		const residentTypes = yield api.get('master-lists', whereResidentTypes)
+		yield put({ type: SAVE_RESIDENT_TYPE, residentTypes: Array.isArray(residentTypes) ? residentTypes : [] });
 
-	//-------------------------------------------------------------------------------------------
-	let whereGenders = {
-		where: { and: [{ table: "users" }, { field: "gender" }] }
-	}
-	const genders = yield api.get('master-lists', whereGenders)
-	yield put({ type: SAVE_GENDER, genders: genders });
-
-	//-------------------------------------------------------------------------------------------
-
-	let whereCivilStates = {
-		where: {
-			and: [{ table: 'users' }, { field: 'civilState' }]
+		//-------------------------------------------------------------------------------------------
+		let whereGenders = {
+			where: { and: [{ table: "users" }, { field: "gender" }] }
 		}
-	}
-	const civilStates = yield api.get('master-lists', whereCivilStates)
-	yield put({ type: SAVE_CIVIL_STATE, civilStates: civilStates });
+		const genders = yield api.get('master-lists', whereGenders)
+		yield put({ type: SAVE_GENDER, genders: Array.isArray(genders) ? genders : [] });
 
-	//-------------------------------------------------------------------------------------------
+		//-------------------------------------------------------------------------------------------
 
-	let whereWorksStatus = {
-		where: {
-			and: [{ table: 'users' }, { field: 'workStatus' }]
+		let whereCivilStates = {
+			where: {
+				and: [{ table: 'users' }, { field: 'civilState' }]
+			}
 		}
-	}
-	const worksStatus = yield api.get('master-lists', whereWorksStatus)
-	yield put({ type: SAVE_WORK_STATUS, worksStatus: worksStatus });
+		const civilStates = yield api.get('master-lists', whereCivilStates)
+		yield put({ type: SAVE_CIVIL_STATE, civilStates: Array.isArray(civilStates) ? civilStates : [] });
 
-	//-------------------------------------------------------------------------------------------
-	const company = yield api.get('organizations')
-	yield put({ type: SAVE_COMPANY_TYPE, companyType: company });
+		//-------------------------------------------------------------------------------------------
 
-	//-------------------------------------------------------------------------------------------
-	let whereTransportationMode = {
-		where: {
-			and: [{ table: 'users' }, { field: 'transportationMode' }]
+		let whereWorksStatus = {
+			where: {
+				and: [{ table: 'users' }, { field: 'workStatus' }]
+			}
 		}
+		const worksStatus = yield api.get('master-lists', whereWorksStatus)
+		yield put({ type: SAVE_WORK_STATUS, worksStatus: Array.isArray(worksStatus) ? worksStatus : [] });
+
+		//-------------------------------------------------------------------------------------------
+		const company = yield api.get('organizations')
+		yield put({ type: SAVE_COMPANY_TYPE, companyType: Array.isArray(company) ? company : [] });
+
+		//-------------------------------------------------------------------------------------------
+		let whereTransportationMode = {
+			where: {
+				and: [{ table: 'users' }, { field: 'transportationMode' }]
+			}
+		}
+		const transportation = yield api.get('master-lists', whereTransportationMode)
+		yield put({ type: SAVE_TRANSPORTATION_MODE, transportationMode: Array.isArray(transportation) ? transportation : [] });
+	} catch (error) {
+		console.log('Error in registerSelectors saga:', error);
 	}
-	const transportation = yield api.get('master-lists', whereTransportationMode)
-	yield put({ type: SAVE_TRANSPORTATION_MODE, transportationMode: transportation });
 }
 
 
 function* postUser(formUser) {
-	console.log('[REGISTRO] Iniciando proceso de registro de usuario');
-	let mongoUser = null;
+	console.log('[REGISTRO] Iniciando proceso de registro de usuario (solo MySQL)');
 	let pass = formUser.user.formRegister.password;
 	pass = pass.toString();
 
-	const user = {
-		name: formUser.user.formRegister.name,
-		firstLastname: formUser.user.formRegister.name,
-		email: formUser.user.formRegister.email.toLowerCase(),
-		username: formUser.user.formRegister.email,
-		password: pass,
-		phoneNumber: formUser.user.formRegister.phoneNumber,
-		birthdate: formUser.user.formRegister.birthday,
-		idType: formUser.user.formRegister.idType,
-		residentType: formUser.user.formRegister.residentType,
-		gender: formUser.user.formRegister.gender,
-		civilState: formUser.user.formRegister.civilState,
-		workStatus: formUser.user.formRegister.workStatus,
-		transportationMode: formUser.user.formRegister.transportationMode,
-		profession: formUser.user.formRegister.phone,
-		idNumber: formUser.user.formRegister.idNumber,
-		secondLastname: formUser.user.formRegister.name,
-		origin: formUser.user.formRegister.origin,
-		favoriteBike: "ninguna",
-		profilePicture: "foto",
-		documents: formUser.s3Route,
-		accountState: "active",
-		position: "ninguna",
-		tripCount: 0,
-		organizationId: formUser.user.formRegister.empresa,
-		roles: "[6142ca4bd97a767dbd8ad130]",
-		created_at: new Date().toJSON(),
-		updated_at: new Date().toJSON(),
-	}
-
-	const dataRex = {
+	// Construir payload único para el endpoint MySQL transaccional
+	// Este payload se envía a POST /api/bc_usuarios/registrar
+	// El controller crea registros en bc_registro_ext, bc_usuarios y bc_usuarios_roles
+	const userData = {
+		// Campos principales de bc_usuarios (mapeados por el controller)
 		"usu_documento": formUser.user.formRegister.idNumber,
+		"usu_tipo_documento": formUser.user.formRegister.idType,
 		"usu_nombre": formUser.user.formRegister.name,
+		"usu_email": formUser.user.formRegister.email.toLowerCase(),
+		"usu_password": pass,
+		"usu_telefono": formUser.user.formRegister.phoneNumber || 'Sin telefono',
 		"usu_empresa": formUser.user.formRegister.usu_empresa,
-		"usu_ciudad": formUser.user.formRegister.usu_ciudad,
-		"usu_habilitado": "0",
-		"usu_calificacion": 5,
-		"usu_viajes": 0,
-		"usu_edad": formUser.user.formRegister.birthday,
-		"usu_genero": formUser.user.formRegister.gender,
-		"usu_dir_trabajo": formUser.user.formRegister.usu_dir_trabajo,
-		"usu_dir_casa": formUser.user.formRegister.usu_dir_casa,
-		"usu_recorrido": formUser.user.formRegister.usu_recorrido,
-		"usu_roles_carpooling": null,
-		"coorCasa": formUser.user.formRegister.coorCasa,
-		"coorTrabajo": formUser.user.formRegister.coorTrabajo,
+		"usu_ciudad": formUser.user.formRegister.usu_ciudad || 'BOGOTA',
+		"usu_fecha_nacimiento": formUser.user.formRegister.birthday || new Date().toISOString(),
+		"usu_genero": formUser.user.formRegister.gender || 'No especificado',
+		"usu_dir_trabajo": formUser.user.formRegister.usu_dir_trabajo || 'No especificado',
+		"usu_dir_casa": formUser.user.formRegister.usu_dir_casa || 'No especificado',
+		"usu_recorrido": formUser.user.formRegister.usu_recorrido || '0',
 		"usu_img": formUser.s3Route || 'Sin url',
-		"usu_creacion": new Date().toJSON(),
+		"usu_habilitado": 0,
 		"usu_prueba": false,
-		"transporte_primario": formUser.user.formRegister.transporte_primario,
-		"tiempo_casa_trabajo": formUser.user.formRegister.tiempo_casa_trabajo,
-		"dias_trabajo": formUser.user.formRegister.dias_trabajo,
-		"satisfaccion_transporte": formUser.user.formRegister.satisfaccion_transporte,
-		"dinero_gastado_tranporte": formUser.user.formRegister.dinero_gastado_tranporte,
-		"alternativas": formUser.user.formRegister.alternativas,
-		"Estacion": formUser.user.formRegister.nombreEstacion,
-	}
+		"coorCasa": formUser.user.formRegister.coorCasa || null,
+		"coorTrabajo": formUser.user.formRegister.coorTrabajo || null,
+
+		// Campos para bc_registro_ext (defaults que serán usados por el controller)
+		"transporte_primario": formUser.user.formRegister.transporte_primario || 'No especificado',
+		"tiempo_casa_trabajo": formUser.user.formRegister.tiempo_casa_trabajo || '0',
+		"tiempo_trabajo_casa": '0',
+		"dias_trabajo": formUser.user.formRegister.dias_trabajo || '5',
+		"satisfaccion_transporte": formUser.user.formRegister.satisfaccion_transporte || 3,
+		"dinero_gastado_tranporte": formUser.user.formRegister.dinero_gastado_tranporte || '0',
+		"alternativas": formUser.user.formRegister.alternativas || 'Ninguna',
+
+		// Rol para bc_usuarios_roles
+		"ur_rol_id": "6142ca4bd97a767dbd8ad130",
+	};
 
 	try {
-		// Paso 1: Guardar en MongoDB
-		console.log('[REGISTRO] Guardando usuario en MongoDB...');
-		mongoUser = yield api.postUser(user);
+		// Una sola llamada al endpoint MySQL que crea todo en transacción
+		console.log('[REGISTRO] Enviando datos a MySQL...');
+		const result = yield api.registerUserMySQL(userData);
 
-		if (!mongoUser || !mongoUser.id) {
-			console.error('[REGISTRO] Error: MongoDB no retornó un ID de usuario');
-			throw new Error('No se pudo crear el usuario en MongoDB');
-		}
+		if (result && result.ok) {
+			console.log('[REGISTRO] Registro completado exitosamente en MySQL');
 
-		console.log('[REGISTRO] Usuario guardado en MongoDB exitosamente. ID:', mongoUser.id);
-
-		// Paso 2: Guardar en MySQL
-		console.log('[REGISTRO] Guardando datos extendidos en MySQL...');
-		let userExtended = yield api.postUserExtended(dataRex);
-
-		if (!userExtended) {
-			console.error('[REGISTRO] Error: MySQL no guardó los datos extendidos');
-			// Rollback: Eliminar usuario de MongoDB
-			console.log('[REGISTRO] Iniciando rollback - Eliminando usuario de MongoDB...');
-			yield api.deleteUser(mongoUser.id);
-			throw new Error('No se pudieron guardar los datos extendidos en MySQL');
-		}
-
-		console.log('[REGISTRO] Datos extendidos guardados en MySQL exitosamente');
-
-		// Paso 3: Crear rol de usuario
-		let rolUser = {
-			id: "6142ca4bd97a767dbd8ad130",
-			name: "usuario final",
-			description: "Usuario registrado en la aplicación"
-		}
-		let userRol = {
-			userId: mongoUser.id,
-			roleId: rolUser.id,
-			createdAt: new Date().toJSON(),
-			updatedAt: new Date().toJSON()
-		}
-
-		console.log('[REGISTRO] Asignando rol al usuario...');
-		let postUserRol = yield api.postData('user-roles', userRol);
-
-		if (postUserRol) {
-			console.log('[REGISTRO] Registro completado exitosamente');
-			yield put({ type: LOGIN_USER, email: user.email, password: user.password, token: 'token' });
+			// Login automático después del registro
+			yield put({ type: LOGIN_USER, email: formUser.user.formRegister.email.toLowerCase(), password: pass, token: 'token' });
 			yield put({ type: ROUTING, component: "LoginScreen" });
 			yield put({ type: SAVE_LOADER, loader: false });
 		} else {
-			console.warn('[REGISTRO] No se pudo asignar rol, pero usuario fue creado');
+			console.error('[REGISTRO] Error al crear usuario en MySQL:', result?.message);
+
+			if (result?.status === 500 && result?.message?.includes('ER_DUP_ENTRY')) {
+				Alert.alert(
+					"Error de Registro",
+					"Este usuario ya existe en el sistema. Por favor verifica tu número de documento."
+				);
+			} else {
+				Alert.alert(
+					"Error de Registro",
+					"Hubo un problema al crear tu cuenta. Por favor intenta nuevamente."
+				);
+			}
 			yield put({ type: SAVE_LOADER, loader: false });
 		}
-
 	} catch (error) {
 		console.error('[REGISTRO] Error en el proceso de registro:', error);
-
-		// Mostrar mensaje de error específico al usuario
-		yield delay(100);
-		if (error.message && error.message.includes('MongoDB')) {
-			Alert.alert(
-				"Error de Registro",
-				"No pudimos crear tu cuenta. Por favor intenta nuevamente."
-			);
-		} else if (error.message && error.message.includes('MySQL')) {
-			Alert.alert(
-				"Error de Registro",
-				"Hubo un problema al guardar tus datos. Tu cuenta no fue creada. Por favor intenta nuevamente."
-			);
-		} else {
-			Alert.alert(
-				"Error de Registro",
-				"Este correo ya está siendo usado por otro usuario o hubo un error. Intenta con otro correo."
-			);
-		}
-
+		Alert.alert(
+			"Error de Registro",
+			"Hubo un error inesperado. Por favor intenta nuevamente."
+		);
 		yield put({ type: SAVE_LOADER, loader: false });
 	}
 }
+
 
 
 
@@ -1883,21 +1848,26 @@ function* uploadEventImageSaga() {
 
 //update password
 function* edit_password__(action) {
-	console.log('estamos actualizando password desde la saga', action.clave);
-
-
-	let request = {
-		//'password': "$2y$10$Ve0gRiFf5u9wSwL.G3BIneTliQE8LM9wHUKdcZg17/fSpymkEYB1W",
-		'password': action.clave,
-	}
+	console.log('estamos actualizando password desde la saga (MySQL)', action.clave);
 	let user = yield getItem('user');
-	console.log('cc user', user.idNumber)
-	console.log('id user', user.id)
-	let updateUser = api.patchField('users', user.id, request);
-	console.log('update user', updateUser);
+	console.log('cc user', user.idNumber);
 
-	if (updateUser) {
-		yield put({ type: UPDATE_PASSWORD_OK });
+	try {
+		// Actualizar usu_password en la tabla bc_usuarios (MySQL)
+		let tabla = 'bc_usuarios/' + user.idNumber;
+		let data = { 'usu_password': action.clave };
+		let updateUser = yield apiPerfil.patch__(tabla, data);
+		console.log('Respuesta de actualización de password MySQL:', updateUser?.status);
+
+		if (updateUser && updateUser.status === 200) {
+			yield put({ type: UPDATE_PASSWORD_OK });
+		} else {
+			console.log('Error al actualizar contraseña en MySQL:', updateUser);
+			Alert.alert('Error', 'No se pudo actualizar la contraseña. Intenta nuevamente.');
+		}
+	} catch (error) {
+		console.log('Excepción al actualizar contraseña:', error);
+		Alert.alert('Error', 'Ocurrió un error inesperado al actualizar la contraseña.');
 	}
 }
 
@@ -1951,20 +1921,39 @@ function* edit_photo_perfil__(action) {
 	let Photo_perfil = yield select((state) => state.userReducer.documentUser);
 	console.log('Photo_perfil', Photo_perfil)
 
-	const s3Route = yield uploadImageS3(Photo_perfil.assets, "users");
-	console.log('los que trae s3Route y enviar a save', s3Route)
-	if (s3Route) {
-		let request = {
-			'documents': s3Route
+	if (Photo_perfil && Photo_perfil.assets && Photo_perfil.assets.length > 0) {
+		const imageAsset = Photo_perfil.assets[0];
+
+		let formData = new FormData();
+		formData.append('image', {
+			uri: imageAsset.uri,
+			type: imageAsset.type,
+			name: imageAsset.fileName || `edit_profile_image_${Date.now()}.jpg`,
+		});
+
+		console.log('Subiendo nueva foto de perfil localmente...', formData);
+		const uploadRes = yield api.postImgFile(formData, 'user');
+
+		if (uploadRes && !uploadRes.error && uploadRes.imageUrl) {
+			const s3Route = uploadRes.imageUrl;
+			console.log('URL de foto generada:', s3Route);
+
+			let request = {
+				'usu_img': s3Route
+			}
+			console.log('cc user', user.idNumber)
+			console.log('id user', user.id)
+			let updateUser = yield api.patchFieldMysql('bc_usuarios', user.idNumber, request);
+			console.log('update user', updateUser);
+			if (updateUser) {
+				yield put({ type: EDITAR_PERFIL_USER_OK });
+			}
+
+		} else {
+			console.log("Error subiendo foto de perfil en edicion:", uploadRes);
 		}
-		let user = yield getItem('user');
-		console.log('cc user', user.idNumber)
-		console.log('id user', user.id)
-		let updateUser = api.patchField('users', user.id, request);
-		console.log('update user', updateUser);
-		if (updateUser) {
-			yield put({ type: EDITAR_PERFIL_USER_OK });
-		}
+	} else {
+		console.log("No habia imagen valida para actualizar");
 	}
 }
 

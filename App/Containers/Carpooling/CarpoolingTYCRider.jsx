@@ -49,7 +49,7 @@ return (
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
         alignItems: 'center',
-        paddingTop: '5%',
+        paddingTop: '15%',
         }}>
         <View style={styles.cajaTyC}>
           <View  style={styles.cajaTituloCerrar}>
@@ -263,12 +263,12 @@ const styles = StyleSheet.create({
       cajaTyC: {
         backgroundColor: Colors.$blanco,
         width: Dimensions.get('window').width*.9,
-        height: Dimensions.get('window').height*.8,
+        height: Dimensions.get('window').height*.75,
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: 10,
+        paddingTop: 30,
         paddingBottom: 20,
-        borderRadius: 15,
+        borderRadius: 25,
         shadowColor: "#000",
         shadowOffset: {
           width: 5,

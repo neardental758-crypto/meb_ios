@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Image, 
-  StyleSheet, 
+import {
+  Image,
+  StyleSheet,
   Text,
-  View, 
-  TextInput, 
+  View,
+  TextInput,
   Dimensions,
   Pressable,
-  ScrollView  } from 'react-native';
+  ScrollView
+} from 'react-native';
 import { routing } from '../../actions/actions';
 import Fonts from '../../Themes/Fonts';
 import Images from '../../Themes/Images';
@@ -19,10 +20,10 @@ import Overlay from 'react-native-modal-overlay';
 import ModalPhotoDocument from '../../Components/ModalPhotoDocument';
 import { updateForm } from '../../actions/actions';
 
-function RegisterViewScreen_7 (props) {
+function RegisterViewScreen_7(props) {
   const dispatch = useDispatch();
   const imageSource = props.documentUser.assets && props.documentUser.assets.length > 0 ? { uri: props.documentUser.assets[0].uri } : Images.profilePhoto;
-  const [ state , setState ] = useState({})
+  const [state, setState] = useState({})
   const openModal = () => {
     setState({ ...state, modalVisible: true });
   }
@@ -34,37 +35,37 @@ function RegisterViewScreen_7 (props) {
   const valorInicialTipoDocumento = props.formState.formRegister && props.formState.formRegister.idType ? props.formState.formRegister.idType : '';
   const valorInicialNumeroDocumento = props.formState.formRegister && props.formState.formRegister.idNumber ? props.formState.formRegister.idNumber : '';
   const valorInicialEmail = props.formState.formRegister && props.formState.formRegister.email ? props.formState.formRegister.email : '';
-  const [ nombre , setNombre ] = useState(valorInicialNombre);
-  const [ tipoDocumento , setTipoDocumento ] = useState(valorInicialTipoDocumento);
-  const [ numeroDocumento , setNumeroDocumento ] = useState(valorInicialNumeroDocumento);
-  const [ email , setEmail ] = useState(valorInicialEmail);
+  const [nombre, setNombre] = useState(valorInicialNombre);
+  const [tipoDocumento, setTipoDocumento] = useState(valorInicialTipoDocumento);
+  const [numeroDocumento, setNumeroDocumento] = useState(valorInicialNumeroDocumento);
+  const [email, setEmail] = useState(valorInicialEmail);
 
   useEffect(() => {
     const actuallyForm = props.formState.formRegister;
-     const updatedUser = {
+    const updatedUser = {
       ...actuallyForm,
-      name : nombre,
+      name: nombre,
       idType: tipoDocumento,
       idNumber: numeroDocumento,
-     };
-     dispatch(updateForm(updatedUser));
-   },[ nombre, tipoDocumento, numeroDocumento ])
-  
+    };
+    dispatch(updateForm(updatedUser));
+  }, [nombre, tipoDocumento, numeroDocumento])
+
   return (
     <ScrollView style={estilos.contenedor}>
       <View style={estilos.textAndImage}>
-        <Text style={{ textAlign: 'center', fontSize : moderateScale(25), width : '60%', marginBottom : 10 }}>Verifica que tus datos esten bien</Text>
-        <Image source={imageSource} style={{ width: 150, height: 150, borderRadius : moderateScale(135)  }} />
-        <Pressable 
-              onPress={()  => openModal()}
-            >
-            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize : moderateScale(18), color : Colors.$secundario, marginVertical : 10}}>Editar</Text>
+        <Text style={{ textAlign: 'center', fontSize: moderateScale(25), width: '60%', marginBottom: 10 }}>Verifica que tus datos esten bien</Text>
+        <Image source={imageSource} style={{ width: 150, height: 150, borderRadius: moderateScale(135) }} />
+        <Pressable
+          onPress={() => openModal()}
+        >
+          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: moderateScale(18), color: Colors.$secundario, marginVertical: 10 }}>Editar</Text>
         </Pressable>
-        <View style={{borderColor : Colors.$secundario , borderWidth : 1, width : '85%', marginBottom : 20}}></View>
+        <View style={{ borderColor: Colors.$secundario, borderWidth: 1, width: '85%', marginBottom: 20 }}></View>
       </View>
-      <View> 
+      <View>
         <View>
-          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize : moderateScale(18),  paddingLeft : '8%', color : Colors.$secundario}}>Nombre y apellido</Text>
+          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: moderateScale(18), paddingLeft: '8%', color: Colors.$secundario }}>Nombre y apellido</Text>
           <TextInput
             placeholder='Ingresa tu nombre completo'
             style={[estilos.inputRegister, { fontFamily: Fonts.$poppinsregular }]}
@@ -73,18 +74,18 @@ function RegisterViewScreen_7 (props) {
             keyboardType={'default'}
             value={nombre}
             onChangeText={(value) => { setNombre(value) }}
-            />
+          />
         </View>
         <View>
-          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize : moderateScale(18),  paddingLeft : '8%', color : Colors.$secundario}}>Tipo de Documento</Text>
+          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: moderateScale(18), paddingLeft: '8%', color: Colors.$secundario }}>Tipo de Documento</Text>
           <RNPickerSelect
             style={pickerSelectStyles}
             placeholder={{ label: 'Agregar tipo de documento', value: '' }}
             useNativeAndroidPickerStyle={false}
             value={tipoDocumento}
-            onValueChange={(value) => { setTipoDocumento(value)}}
-            items={props.idTypes.map(data =>
-              ({ label: data.value, value: data.value }))
+            onValueChange={(value) => { setTipoDocumento(value) }}
+            items={Array.isArray(props.idTypes) ? props.idTypes.map(data =>
+              ({ label: data.value, value: data.value })) : []
             }
             Icon={() => {
               return (
@@ -94,7 +95,7 @@ function RegisterViewScreen_7 (props) {
           />
         </View>
         <View>
-          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize : moderateScale(18),  paddingLeft : '8%', color : Colors.$secundario}}>Número de documento</Text>
+          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: moderateScale(18), paddingLeft: '8%', color: Colors.$secundario }}>Número de documento</Text>
           <TextInput
             placeholder='Ingresa número de Documento'
             style={[estilos.inputRegister, { fontFamily: Fonts.$poppinsregular }]}
@@ -102,11 +103,11 @@ function RegisterViewScreen_7 (props) {
             autoCompleteType={'email'}
             keyboardType={'email-address'}
             value={numeroDocumento}
-            onChangeText={(value) => { setNumeroDocumento(value)}}
-            />
+            onChangeText={(value) => { setNumeroDocumento(value) }}
+          />
         </View>
         <View>
-          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize : moderateScale(18),  paddingLeft : '8%', color : Colors.$secundario}}>Correo Electrónico</Text>
+          <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: moderateScale(18), paddingLeft: '8%', color: Colors.$secundario }}>Correo Electrónico</Text>
           <TextInput
             placeholder='Ingresa correo electrónico'
             style={[estilos.inputRegister, { fontFamily: Fonts.$poppinsregular }]}
@@ -114,16 +115,16 @@ function RegisterViewScreen_7 (props) {
             autoCompleteType={'email'}
             keyboardType={'email-address'}
             value={email}
-            />
+          />
         </View>
       </View>
       <Overlay
-          containerStyle={estilos.overlay}
-          visible={state.modalVisible}  
-          childrenWrapperStyle={estilos.modalsContainer}
-          onClose={closeModal}
-          closeOnTouchOutside>
-          <ModalPhotoDocument onClosePress={closeModal} />
+        containerStyle={estilos.overlay}
+        visible={state.modalVisible}
+        childrenWrapperStyle={estilos.modalsContainer}
+        onClose={closeModal}
+        closeOnTouchOutside>
+        <ModalPhotoDocument onClosePress={closeModal} />
       </Overlay>
     </ScrollView>
   );
@@ -134,33 +135,33 @@ const estilos = StyleSheet.create({
     flexDirection: 'column',
     width: Dimensions.get("window").width,
     backgroundColor: Colors.$blanco,
-    position : 'relative', 
-    top : -30
-  }, 
+    position: 'relative',
+    top: -30
+  },
   overlay: {
-		backgroundColor: "rgba(0,0,0,0.5)",
-		zIndex: 5,
-	},
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 5,
+  },
   modalsContainer: {
-		backgroundColor: Colors.$blanco,
-		borderRadius: 10,
-		padding: 20,
-		paddingTop: moderateScale(45),
-		width: '90%',
-		marginLeft: 'auto',
-		marginRight: 'auto',
-	},
+    backgroundColor: Colors.$blanco,
+    borderRadius: 10,
+    padding: 20,
+    paddingTop: moderateScale(45),
+    width: '90%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
   textAndImage: {
-    justifyContent : 'center',
-    alignItems : 'center'
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   inputRegister: {
-    textAlignVertical : 'bottom',
+    textAlignVertical: 'bottom',
     fontSize: moderateScale(16),
     paddingLeft: moderateScale(10),
     marginLeft: moderateScale(25),
     marginRight: moderateScale(25),
-    paddingVertical:moderateScale(5),
+    paddingVertical: moderateScale(5),
     borderColor: 'black',
     borderWidth: .8,
     borderRadius: moderateScale(5),
@@ -179,7 +180,7 @@ const estilos = StyleSheet.create({
     padding: 5,
     borderRadius: 30,
     shadowColor: 'black',
-    shadowOffset: {width: 0, height: 3},
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.4,
     shadowRadius: 2,
     elevation: 16,
@@ -209,7 +210,7 @@ const pickerSelectStyles = StyleSheet.create({
     paddingLeft: moderateScale(10),
     marginLeft: moderateScale(25),
     marginRight: moderateScale(25),
-    paddingVertical:moderateScale(5),
+    paddingVertical: moderateScale(5),
     borderColor: 'black',
     borderWidth: .8,
     borderRadius: moderateScale(5),

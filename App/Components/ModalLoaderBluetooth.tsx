@@ -12,6 +12,7 @@ import { validateEmailPassword } from '../actions/actions';
 import { navigationLogin } from '../actions/actions';
 import { deleteAccount } from '../actions/settingsAction';
 import { changeStatusLock } from '../actions/tripActions';
+import LottieView from 'lottie-react-native';
 
 interface CustomButtonSelectProps {
     onClosePress?: () => void;
@@ -45,7 +46,14 @@ class ModalLoaderBluetooth extends React.Component<CustomButtonSelectProps,
                     <Image style={[styles.closeForgotIcon, { height: 50, width: 50 }]} source={Images.close} />
                 </TouchableOpacity> */}
                 <KeyboardAwareScrollView enableOnAndroid extraScrollHeight={-100}>
-                    <Image style={[styles.centeredMargins, { height: 30, width: 30, resizeMode: "contain" }]} source={Images.grayPadlock} />
+                    <View style={styles.animationContainer}>
+                        <LottieView
+                            source={require('../Resources/Lotties/lock.json')}
+                            autoPlay
+                            loop
+                            style={styles.lottieAnimation}
+                        />
+                    </View>
                     <Text style={styles.forgotTitle}>Abriendo candado por bluetooth, por favor espere... </Text>
                 </KeyboardAwareScrollView>
             </View>
@@ -55,7 +63,7 @@ class ModalLoaderBluetooth extends React.Component<CustomButtonSelectProps,
 }
 
 
-function mapStateToProps(state:any) {
+function mapStateToProps(state: any) {
     return {
         dataOthers: state.othersReducer,
         loading: state.othersReducer.isFetching,
@@ -64,11 +72,11 @@ function mapStateToProps(state:any) {
     }
 }
 
-function mapDispatchToProps(dispatch:any) {
+function mapDispatchToProps(dispatch: any) {
     return {
         navigationLogin: () => dispatch(navigationLogin()),
         deleteAccount: () => dispatch(deleteAccount()),
-        validateEmailPassword: (emailForgot:any) => dispatch(validateEmailPassword(emailForgot)),
+        validateEmailPassword: (emailForgot: any) => dispatch(validateEmailPassword(emailForgot)),
         changeStatusLock: () => dispatch(changeStatusLock()),
     }
 }

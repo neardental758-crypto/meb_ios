@@ -17,7 +17,7 @@ import Images from '../../Themes/Images';
 import React, { useState, useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 import { navigationNewTicket, supportRequest } from '../../actions/actions';
 import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metrics';
 import Colors from '../../Themes/Colors';

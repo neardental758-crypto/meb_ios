@@ -29,6 +29,7 @@ export const AuthProvider = ({children}) => {
     const dataUser = async () => {
         await AsyncStorage.getItem('token').then((res) => {
             if (res !== null) {
+                console.log('TOKENNNN', res)
                 setToken(res);
                 refreshToken();
                 setIsLogin(true);

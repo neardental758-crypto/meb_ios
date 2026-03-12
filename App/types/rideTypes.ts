@@ -33,4 +33,5 @@ export const appRideTypes = {
 	setChecklistlocation: '[ride] setChecklistlocation',
 	setBluetoothState: '[ride] setBluetoothState',
 	openBluetoothTrip: '[ride] openBluetoothTrip',
+	resetLock: '[ride] resetLock',
 }

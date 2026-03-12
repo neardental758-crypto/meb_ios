@@ -96,7 +96,8 @@ import {
     PATCH_CONDUCTOR_CARPOOLING,
     PATCH_CONDUCTOR_CARPOOLING_OK,
     LOGRO_PROGRESO_SOLICITUD_VIAJE,
-    LOGRO_PROGRESO_VIAJE_COMPARTIDO_PASAJERO
+    LOGRO_PROGRESO_VIAJE_COMPARTIDO_PASAJERO,
+    SEND_GROUP_NOTIFICATION
 } from '../types/typesCarpooling';
 import { all, call, put, select, takeEvery, takeLatest, delay } from 'redux-saga/effects';
 import { api } from '../api/apiCarpooling';
@@ -285,7 +286,13 @@ function* driver_carpooling__get(action) {
         }
         let tabla2 = 'compartidoConductor/itinerario/';
         let tripsCP = yield api.get_active_trips_filtered(tabla2, user.idNumber, { page: action.page });
-        yield put({ type: FETCH_SUCCESS_TRIP, payload: tripsCP });
+        if (tripsCP && !tripsCP.error) {
+            yield put({ type: FETCH_SUCCESS_TRIP, payload: tripsCP });
+        } else {
+            console.log('Error al obtener itinerario:', tripsCP?.error?.message || tripsCP?.error || 'Error desconocido');
+            // Despachar estado vacío para no dejar cargando
+            yield put({ type: FETCH_SUCCESS_TRIP, payload: { data: [], pagination: { currentPage: 1, totalPages: 1, totalItems: 0 } } });
+        }
     }
 
     if (action.rol === 'Pasajero') {
@@ -361,6 +368,7 @@ function* accept__tyc(action) {
         "viajes": 0,
     }
     let tabla = 'compartido' + action.rol + '/registrar';
+    console.log('La data tyc carpolling', data)
     let getActiveTripDriver = yield api.post__(tabla, data);
     if (!getActiveTripDriver.error) {
         if (getActiveTripDriver === 'Item Create Complete') {
@@ -417,8 +425,193 @@ function* save_trip_carpooling(action) {
     let trip = yield api.post__(tabla, action.trip);
     if (trip === 'ok') {
         yield put({ type: SAVE_TRIP_CP_OK });
+
+        // Comparar con solicitudes pendientes
+        yield call(compareWithPendingRequests, action.trip, user);
     }
 }
+
+// Función específica para enviar notificaciones a solicitudes pendientes
+function* enviar_notificacion_pendientes(idSolicitante, mensaje) {
+    const tabla = 'tokenMsn';
+
+    try {
+        console.log('🔍 Buscando token para solicitante:', idSolicitante);
+
+        let toToken = yield api.get_tabla_documento(tabla, idSolicitante);
+
+        if (!toToken.error && toToken.data && toToken.data.length > 0) {
+            let tokenPasajero = toToken.data[0].token;
+
+            if (!tokenPasajero) {
+                console.log('⚠️ Token vacío para solicitante:', idSolicitante);
+                return { success: false, reason: 'token_empty' };
+            }
+
+            console.log('📤 Enviando notificación push de coincidencia...');
+            let resPush = yield push.sendPush(tokenPasajero, mensaje);
+
+            if (resPush.success) {
+                console.log('✅ Notificación de coincidencia enviada:', resPush.data?.messageId);
+                return { success: true };
+            } else {
+                console.log('❌ Error al enviar push:', resPush.error);
+
+                // Si el token es inválido, marcarlo para actualización
+                if (resPush.error?.includes('inválido') ||
+                    resPush.error?.includes('not-registered') ||
+                    resPush.code === 'messaging/registration-token-not-registered') {
+                    console.log('🗑️ Token inválido, debe ser actualizado');
+                    // Aquí podrías agregar lógica para eliminar o marcar el token como inválido
+                    return { success: false, reason: 'token_invalid' };
+                }
+
+                return { success: false, reason: 'push_error', error: resPush.error };
+            }
+        } else {
+            console.log('⚠️ No se encontró token para solicitante:', idSolicitante);
+            return { success: false, reason: 'token_not_found' };
+        }
+    } catch (error) {
+        console.log('❌ ERROR en enviar_notificacion_pendientes:', error);
+        return { success: false, reason: 'exception', error: error.message };
+    }
+}
+
+// Función para comparar el viaje con solicitudes pendientes
+function* compareWithPendingRequests(tripData, user) {
+    try {
+        console.log('Iniciando comparación con solicitudes pendientes...');
+
+        // Obtener solicitudes pendientes
+        let tablaSolicitudes = 'compartidoSolicitudesNoEncontradas/pendientes';
+        let responseSolicitudes = yield api.getActiveTrip(tablaSolicitudes);
+
+        // Extraer el array de data
+        let solicitudesPendientes = responseSolicitudes?.data || [];
+
+        if (!solicitudesPendientes || solicitudesPendientes.length === 0) {
+            console.log('No hay solicitudes pendientes');
+            return;
+        }
+
+        console.log(`Encontradas ${solicitudesPendientes.length} solicitudes pendientes`);
+
+        // CORRECCIÓN: Usar coorSalida y coorDestino en lugar de posicion1 y posicion2
+        const tripPosition1 = tripData.coorSalida;
+        const tripPosition2 = tripData.coorDestino;
+
+        // Validar que las coordenadas existan
+        if (!tripPosition1 || !tripPosition1.lat || !tripPosition1.lng) {
+            console.error('ERROR: tripData no tiene coordenadas de salida válidas:', tripPosition1);
+            return;
+        }
+
+        console.log('Coordenadas del viaje - Salida:', tripPosition1, 'Destino:', tripPosition2);
+
+        // Función para calcular distancia entre dos coordenadas (fórmula de Haversine)
+        const calculateDistance = (lat1, lon1, lat2, lon2) => {
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distancia en km
+        };
+
+        // Comparar con cada solicitud
+        for (let solicitud of solicitudesPendientes) {
+            try {
+                // Ya viene como objeto desde el backend, no necesita parse
+                const solPosition1 = solicitud.posicion1;
+                const solPosition2 = solicitud.posicion2;
+
+                // Validar que las posiciones existan
+                if (!solPosition1 || !solPosition1.lat || !solPosition1.lng) {
+                    console.log(`Solicitud ${solicitud.id} sin posición válida`);
+                    continue;
+                }
+
+                // Calcular distancia entre punto de salida
+                const distanciaOrigen = calculateDistance(
+                    tripPosition1.lat,
+                    tripPosition1.lng,
+                    solPosition1.lat,
+                    solPosition1.lng
+                );
+
+                console.log(`Solicitud ${solicitud.id} - Distancia origen: ${distanciaOrigen.toFixed(2)} km`);
+
+                // Radio de coincidencia en km (ajustable según necesidad)
+                const radioCoincidencia = 5; // 5 km de radio
+
+                let coincideOrigen = distanciaOrigen <= radioCoincidencia;
+                let coincideDestino = true; // Por defecto true si no hay destino en solicitud
+
+                // Si la solicitud tiene destino, comparar también
+                if (solPosition2 && solPosition2.lat && solPosition2.lng && tripPosition2) {
+                    const distanciaDestino = calculateDistance(
+                        tripPosition2.lat,
+                        tripPosition2.lng,
+                        solPosition2.lat,
+                        solPosition2.lng
+                    );
+                    console.log(`Solicitud ${solicitud.id} - Distancia destino: ${distanciaDestino.toFixed(2)} km`);
+                    coincideDestino = distanciaDestino <= radioCoincidencia;
+                }
+
+                // CORRECCIÓN: Usar tripData.fecha en lugar de tripData.fechaSalida
+                const tripDate = new Date(tripData.fecha);
+                const solDate = new Date(solicitud.fechaSolicitud);
+
+                const mismoDia = tripDate.getFullYear() === solDate.getFullYear() &&
+                    tripDate.getMonth() === solDate.getMonth() &&
+                    tripDate.getDate() === solDate.getDate();
+
+                console.log(`Solicitud ${solicitud.id} - Coincide origen: ${coincideOrigen}, destino: ${coincideDestino}, mismo día: ${mismoDia}`);
+
+                // Si coincide origen, destino (si existe) y fecha
+                if (coincideOrigen && coincideDestino && mismoDia) {
+                    console.log(`✅ ¡Coincidencia encontrada con solicitud ${solicitud.id}!`);
+
+                    // CORRECCIÓN: Usar tripData.fecha para el mensaje
+                    const fechaFormateada = new Date(tripData.fecha).toLocaleDateString('es-CO', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    // Enviar notificación al solicitante usando la función específica
+                    const conductorNombre = user.name || 'Un conductor';
+                    const mensaje = `🚗 ¡Buenas noticias! ${conductorNombre} ha creado un viaje que coincide con tu búsqueda del ${fechaFormateada}. ¡Revísalo ahora!`;
+
+                    // Llamar a la función de notificación para pendientes
+                    yield call(enviar_notificacion_pendientes, solicitud.idSolicitante, mensaje);
+
+                    // Actualizar estado de la solicitud a NOTIFICADA
+                    let tablaActualizar = 'compartidoSolicitudesNoEncontradas/actualizar';
+                    yield api.patch__(tablaActualizar, {
+                        id: solicitud.id,
+                        estado: 'NOTIFICADA'
+                    });
+
+                    console.log(`✅ Solicitud ${solicitud.id} procesada y notificada a usuario ${solicitud.idSolicitante}`);
+                }
+
+            } catch (error) {
+                console.error(`Error procesando solicitud ${solicitud.id}:`, error);
+            }
+        }
+
+    } catch (error) {
+        console.error('Error en comparación con solicitudes:', error);
+    }
+}
+
 function* save_trip_cp() {
     yield takeLatest(SAVE_TRIP_CP, save_trip_carpooling);
 }
@@ -427,7 +620,7 @@ function* save_trip_cp() {
 function* save_trip_carpooling_select(action) {
     let tabla = 'compartidoViajeActivo/id/'
     let tripSelect = yield api.get_id(tabla, action.id);
-    if (!tripSelect.error) {
+    if (tripSelect && !tripSelect.error) {
         yield put({ type: SELECT_TRIP_DRIVER_CARPOOLING_DATA, payload: tripSelect.data });
         yield put({ type: SAVE_TRIP_STATE, payload: tripSelect.data.estado })
     } else {
@@ -499,6 +692,97 @@ function* get_trips_filter_carpooling_rider(action) {
         fechaInicio: fromThisDate,
         ...filters,
     });
+
+    console.log('el resultado en filtro', tripsToShow.pagination.totalItems)
+
+    //Se agrega condicional para filtro sin coincidencias
+    if (tripsToShow.pagination.totalItems === 0) {
+        console.log('no se encontraron viajes con este filtro')
+        let tabla = 'compartidoSolicitudesNoEncontradas/registrar';
+
+        // Función para convertir Date a ISO string manteniendo hora local
+        const dateToLocalISO = (date) => {
+            try {
+                // Si es string, convertir a Date
+                const dateObj = date instanceof Date ? date : new Date(date);
+
+                // Verificar que sea válida
+                if (isNaN(dateObj.getTime())) {
+                    console.error('Fecha inválida:', date);
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+                    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+                }
+
+                // Obtener componentes locales
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+                const milliseconds = String(dateObj.getMilliseconds()).padStart(3, '0');
+
+                // Construir ISO string con la hora local
+                return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+            } catch (error) {
+                console.error('Error convirtiendo fecha:', error);
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+            }
+        };
+
+        const formatPosition = (position) => {
+            if (!position) return null;
+
+            try {
+                // Si es string, parsearlo a objeto
+                if (typeof position === 'string') {
+                    return JSON.parse(position);
+                }
+
+                // Si ya es objeto, devolverlo tal cual
+                return position;
+            } catch (e) {
+                console.error('Error procesando posición:', e);
+                return null;
+            }
+        };
+
+        const dataToSolicitud = {
+            "id": uuidv4(),
+            "idSolicitante": user.idNumber,
+            "fechaSolicitud": dateToLocalISO(action.fromThisDate),
+            "posicion1": formatPosition(action.position1),
+            "posicion2": formatPosition(action.position2),
+            "estado": "PENDIENTE",
+            "fechaCreacion": dateToLocalISO(new Date())
+        }
+
+        console.log('Data a guardar:', dataToSolicitud);
+        let saveSolicitud = yield api.saveTrip(tabla, dataToSolicitud)
+        console.log('guardando solicitud', saveSolicitud)
+        if (saveSolicitud === 'Item Create Complete') {
+            Alert.alert(
+                'Sin coincidencias por ahora',
+                'No encontramos viajes con ese filtro, pero te avisaremos cuando haya una opción disponible.'
+            );
+        }
+    }
+
     if (!tripsToShow.error) {
         yield put({ type: SELECT_TRIP_RIDER_CARPOOLING_DATA, payload: tripsToShow });
     } else {
@@ -583,7 +867,9 @@ function* get_riderList_carpooling(action) {
     if (!getRider.error) {
         yield put({ type: GET_RIDERLIST_CARPOOLING_DATA, payload: getRider });
     } else {
-        console.log('ERROR DE LA SAGA CARPOOLING: ', getRider.error)
+        console.log('ERROR DE LA SAGA CARPOOLING: ', getRider.error?.message || getRider.error);
+        // Despachar vacío para no leaving loading colgado
+        yield put({ type: GET_RIDERLIST_CARPOOLING_DATA, payload: { data: [], pagination: { currentPage: 1, totalPages: 1, totalItems: 0 } } });
     }
 }
 
@@ -624,10 +910,13 @@ function* send_application_carpooling(action) {
     let registerApplication = yield api.post__(tabla, dataToSend);
     if (!registerApplication.error) {
         if (registerApplication === 'Item Create Complete') {
-            yield put({ type: SAVE_PAGO_CARPOOLING_OK });
+            //yield put({ type: SAVE_PAGO_CARPOOLING_OK});
+            if (action.pago === 'ACTIVO+PAGOS') {
+                yield put({ type: SAVE_PAGO_CARPOOLING });
+            }
         }
     } else {
-        console.log('ERROR DE LA SAGA DEL PAGO: ', pago.error)
+        console.log('ERROR DE LA SAGA DEL PAGO: ', registerApplication.error)
     }
 }
 function* send_solicitud_cp() {
@@ -664,73 +953,81 @@ function* get_trip_conductor() {
     yield takeLatest(GET_TRIP_ACTIVO, trip_conductor__get);
 };
 
-//verificar si ya existe el token o si no guardarlo en la tabla token_msn
+// Verificar si ya existe el token o si no guardarlo en la tabla token_msn
 function* save_token_msn_user(action) {
-    console.log('🚀 Iniciando saga save_token_msn_user...');
     try {
-        let user = yield getItem('user');
-        let token = yield getItem('tokenMSN');
+        console.log('Agregando token de dispositivo');
 
-        console.log('👤 Usuario cargado:', user ? user.idNumber : 'null');
-        console.log('🔑 Token FCM cargado:', token ? token.token : 'null');
+        const user = yield getItem('user');
+        const token = yield getItem('tokenMSN');
 
-        if (!user || !user.idNumber || !token || !token.token) {
-            console.log('⚠️ Faltan datos críticos (user o token). Abortando.');
+        // Validar que existan los datos necesarios
+        if (!user || !user.idNumber) {
+            console.error('Usuario no encontrado o sin documento');
             return;
         }
 
-        let tabla = 'tokenMsn/documento/';
-        console.log('🔍 Consultando si el token ya existe para el documento:', user.idNumber);
-        let existDoc = yield api.get_id(tabla, user.idNumber);
+        if (!token || !token.token) {
+            console.error('Token de dispositivo no encontrado');
+            return;
+        }
 
-        console.log('📡 Respuesta de existDoc:', JSON.stringify(existDoc));
+        console.log('token msn', token);
 
-        if (!existDoc.error) {
-            if (existDoc.data && existDoc.data.length === 1) {
-                console.log('📝 Registro encontrado. Verificando si el token es el mismo...');
-                if (existDoc.data[0].token === token.token) {
-                    console.log('✅ El token ya está actualizado en la DB.');
-                } else {
-                    console.log('🔄 El token es diferente. Actualizando...');
-                    let tablaPach = 'tokenMsn/' + existDoc.data[0]._id;
-                    const dataPach = {
+        const tabla = 'tokenMsn/documento/';
+        const existDoc = yield api.get_id(tabla, user.idNumber);
+
+        if (existDoc && !existDoc.error) {
+            if (existDoc.data.length === 1) {
+                // Token existe, verificar si es diferente
+                if (existDoc.data[0].token !== token.token) {
+                    const tablaPatch = 'tokenMsn/' + existDoc.data[0]._id;
+                    const dataPatch = {
                         "token": token.token
-                    }
-                    let patchRes = yield api.patch__(tablaPach, dataPach);
-                    console.log('📡 Respuesta de actualización (patch):', JSON.stringify(patchRes));
+                    };
+                    yield api.patch__(tablaPatch, dataPatch);
+                    console.log('Token actualizado exitosamente');
+                } else {
+                    console.log('Token ya está actualizado');
                 }
-            } else if (existDoc.data && existDoc.data.length === 0) {
-                console.log('🆕 Registro NO encontrado. Creando nuevo registro...');
+            } else if (existDoc.data.length === 0) {
+                // Token no existe, crear nuevo registro
                 const dataToken = {
                     "_id": uuidv4(),
                     "documento": user.idNumber,
-                    "email": user.email || '',
+                    "email": user.email,
                     "token": token.token
-                }
-                let tablaReg = 'tokenMsn/registrar';
-                let regRes = yield api.post__(tablaReg, dataToken);
-                console.log('📡 Respuesta de creación (post):', JSON.stringify(regRes));
+                };
+                const tablaReg = 'tokenMsn/registrar';
+                const regToken = yield api.post__(tablaReg, dataToken);
+                console.log('Token registrado exitosamente');
             }
         } else {
-            console.log('❌ Error en el API get_id:', existDoc.error);
+            console.error('Error al consultar tokens existentes:', existDoc?.error || 'Respuesta indefinida - el backend devolvió error');
         }
-    } catch (e) {
-        console.log('❌ Error catastrófico en save_token_msn_user:', e);
+    } catch (error) {
+        console.error('Error en save_token_msn_user:', error);
+        // Opcional: dispatch de una acción de error
+        // yield put({ type: SAVE_TOKEN_MSN_ERROR, error: error.message });
     }
-};
+}
+
 function* saveTokenMsn() {
     yield takeLatest(SAVE_TOKEN_MSN, save_token_msn_user);
-};
+}
 
 //verificar pruebas practica y teorica
 function* ask_practice_test(action) {
     let user = yield getItem('user');
     let token = yield getItem('tokenMSN');
     let tabla = 'bc_agendado/id/';
-    const numberWithId = user ? user.idNumber || '0' : '0';
+    const numberWithId = user && user.idNumber ? user.idNumber : '0';
     let schedule = yield api.get_id(tabla, numberWithId);
+    if (schedule && schedule.error) {
+        Alert.alert("Debug Error Practice", JSON.stringify(schedule));
+    }
     if (schedule) {
-        if (!schedule.error) {
+        if (schedule && !schedule.error) {
             if (schedule.data.length > 0) {
                 yield put({ type: FETCH_SUCCESS_USER_PRACTICE, payload: true, isValidated: true });
             } else {
@@ -747,10 +1044,15 @@ function* ask_theoretical_test(action) {
     let user = yield getItem('user');
     let token = yield getItem('tokenMSN');
     let tabla = 'bc_teorica/id/';
-    const numberWithId = user ? user.idNumber || '0' : '0';
+    const numberWithId = user && user.idNumber ? user.idNumber : '0';
+    console.log('[DEBUG_THEORETICAL] user.idNumber is:', numberWithId);
     let test = yield api.get_id(tabla, numberWithId);
+    console.log('[DEBUG_THEORETICAL] response test:', test);
+    if (test && test.error) {
+        Alert.alert("Debug Error Teorica", JSON.stringify(test));
+    }
     if (test) {
-        if (!test.error) {
+        if (test && !test.error) {
             if (test.data.length > 0) {
                 yield put({ type: FETCH_SUCCESS_USER_THEORETICAL, payload: true, isValidated: true });
             } else {
@@ -770,7 +1072,7 @@ function* get_schedule(action) {
     const numberWithId = user ? user.idNumber || '0' : '0';
     let test = yield api.get_id(tabla, numberWithId);
     if (test) {
-        if (!test.error) {
+        if (test && !test.error) {
             if (test.data.length > 0) {
                 yield put({ type: SEND_SCHEDULE_OK, payload: test.data });
             }
@@ -787,18 +1089,17 @@ function* info_user_mysql(action) {
     let datamysql = yield api.get_tabla_cc(tabla, user.idNumber);
 
     if (!datamysql.error) {
-        if (action.lugar === 'casa' && action.punto === 'psalida') {
-            let dir = datamysql.data;
-            yield put({ type: INFO_USER_DIR_CASA_SALIDA, payload: dir });
-        } else if (action.lugar === 'trabajo' && action.punto === 'psalida') {
-            let dir = datamysql.data;
-            yield put({ type: INFO_USER_DIR_TRABAJO_SALIDA, payload: dir });
-        } else if (action.lugar === 'casa' && action.punto === 'pllegada') {
-            let dir = datamysql.data;
-            yield put({ type: INFO_USER_DIR_CASA_LLEGADA, payload: dir });
-        } else if (action.lugar === 'trabajo' && action.punto === 'pllegada') {
-            let dir = datamysql.data;
-            yield put({ type: INFO_USER_DIR_TRABAJO_LLEGADA, payload: dir });
+        const data = Array.isArray(datamysql.data) ? datamysql.data[0] : datamysql.data;
+        if (data) {
+            if (action.lugar === 'casa' && action.punto === 'psalida') {
+                yield put({ type: INFO_USER_DIR_CASA_SALIDA, payload: data });
+            } else if (action.lugar === 'trabajo' && action.punto === 'psalida') {
+                yield put({ type: INFO_USER_DIR_TRABAJO_SALIDA, payload: data });
+            } else if (action.lugar === 'casa' && action.punto === 'pllegada') {
+                yield put({ type: INFO_USER_DIR_CASA_LLEGADA, payload: data });
+            } else if (action.lugar === 'trabajo' && action.punto === 'pllegada') {
+                yield put({ type: INFO_USER_DIR_TRABAJO_LLEGADA, payload: data });
+            }
         }
     } else {
         console.log('ERROR DE LA SAGA VERIFICANDO RECORRIDO: ', datamysql.error)
@@ -813,9 +1114,16 @@ function* sites_user_mysql(action) {
     let tabla = 'bc_usuarios'
     let datamysql = yield api.get_tabla_cc(tabla, user.idNumber);
     if (!datamysql.error) {
-        const direction = datamysql.data.coorTrabajo;
-        const nameDirection = datamysql.data.usu_dir_trabajo;
-        yield put({ type: GET_SITES_USER, direction: direction, nameDirection: nameDirection });
+        const data = Array.isArray(datamysql.data) ? datamysql.data[0] : datamysql.data;
+        if (data) {
+            const direction = data.coorTrabajo;
+            const nameDirection = data.usu_dir_trabajo;
+            yield put({ type: GET_SITES_USER, direction: direction, nameDirection: nameDirection });
+        } else {
+            console.log('Consulta vacía, no se encuentran datos del usuario.');
+            // Opcional: Despachar una acción para detener el loading incluso si no hay datos
+            yield put({ type: GET_SITES_USER, direction: null, nameDirection: '' });
+        }
     } else {
         console.log('ERROR DE LA SAGA VERIFICANDO RECORRIDO: ', datamysql.error)
     }
@@ -825,7 +1133,7 @@ function* sites_user() {
 }
 
 //notificaciones
-function* enviar__notificacion(action) {
+/*function* enviar__notificacion(action) {
     let tabla = 'tokenMsn'
     let toToken = yield api.get_tabla_documento(tabla, action.to);
     if (!toToken.error) {
@@ -835,6 +1143,43 @@ function* enviar__notificacion(action) {
         console.log('ERROR DE LA SAGA VERIFICANDO RECORRIDO: ', datamysql.error)
     }
 }
+function* enviar_notificacion() {
+    yield takeLatest(SEND_NOTIFICICATION, enviar__notificacion);
+}*/
+function* enviar__notificacion(action) {
+    const tabla = 'tokenMsn';
+
+    try {
+        console.log('🔍 Buscando token para usuario:', action.to);
+
+        let toToken = yield api.get_tabla_documento(tabla, action.to);
+
+        if (!toToken.error && toToken.data && toToken.data.length > 0) {
+            let tokenPasajero = toToken.data[0].token;
+
+            if (!tokenPasajero) {
+                console.log('⚠️ Token vacío para usuario:', action.to);
+                return;
+            }
+
+            console.log('📤 Enviando notificación push...');
+            let resPush = yield push.sendPush(tokenPasajero, action.msn);
+
+            if (resPush.success) {
+                console.log('✅ Notificación push enviada:', resPush.data.messageId);
+            } else {
+                console.log('❌ Error al enviar push:', resPush.error);
+                // Opcional: Disparar una action para mostrar error al usuario
+                // yield put({ type: NOTIFICATION_ERROR, error: resPush.error });
+            }
+        } else {
+            console.log('⚠️ No se encontró token para usuario:', action.to);
+        }
+    } catch (error) {
+        console.log('❌ ERROR en enviar__notificacion:', error);
+    }
+}
+
 function* enviar_notificacion() {
     yield takeLatest(SEND_NOTIFICICATION, enviar__notificacion);
 }
@@ -910,7 +1255,10 @@ function* act_pay_trip() {
 function* save_comment_carpooling(action) {
     let data = action.data;
     let tabla = 'compartidoComentarios/registrar';
+    console.log('data', data)
+    console.log('tabla', tabla)
     let regComment = yield api.post__(tabla, data);
+    console.log('regComment', regComment)
     if (!regComment.error) {
         if (regComment === 'Item Create Complete') {
             //yield put({ type: SAVE_COMMENT_CARPOOLING_OK});
@@ -935,7 +1283,7 @@ function* save_comment_carpooling(action) {
     if (!patchApplication.error) {
         console.log('se actualizo el estado de la solicitud')
     } else {
-        console.log('ERROR DE LA SAGA CAMBIANDOSOLICITUD: ', regComment.error)
+        console.log('ERROR DE LA SAGA CAMBIANDOSOLICITUD: ', patchApplication.error)
     }
 
 }
@@ -1045,7 +1393,7 @@ function* send_answers_theoretical(action) {
             console.log('se guardó el test')
         }
     } else {
-        console.log('ERROR send_answers_theoretical : ', regComment.error)
+        console.log('ERROR send_answers_theoretical : ', getTrip.error)
     }
 };
 
@@ -1070,7 +1418,7 @@ function* send_Schedule(action) {
     if (!getSchedule.error) {
         yield put({ type: SEND_SCHEDULE_OK, payload: getSchedule.data });
     } else {
-        console.log('ERROR send_Schedule: ', regComment.error)
+        console.log('ERROR send_Schedule: ', getSchedule.error)
     }
 };
 
@@ -1265,7 +1613,83 @@ function* progreso_logro_viaje_pasajero() {
     yield takeLatest(LOGRO_PROGRESO_VIAJE_COMPARTIDO_PASAJERO, progreso_logro_viaje_pasajero__);
 }
 
+//push grupal
+function* enviarNotificacionIndividual(recipientEmail, mensaje) {
+    try {
+        console.log('🔍 Buscando token para:', recipientEmail);
 
+        // Llamar a la API con el endpoint correcto
+        const toToken = yield call(
+            api.get_tabla_email,
+            'tokenMsn',
+            recipientEmail
+        );
+
+        if (toToken && !toToken.error && toToken.data && toToken.data.length > 0) {
+            const tokenPasajero = toToken.data[0].token;
+
+            if (tokenPasajero) {
+                console.log('📤 Enviando notificación push a:', recipientEmail);
+                const resPush = yield call(push.sendPush, tokenPasajero, mensaje);
+
+                if (resPush && resPush.success) {
+                    console.log('✅ Notificación enviada a:', recipientEmail);
+                    return { success: true, email: recipientEmail };
+                } else {
+                    console.log('❌ Error al enviar push a:', recipientEmail, resPush?.error);
+                    return { success: false, email: recipientEmail, error: resPush?.error };
+                }
+            } else {
+                console.log('⚠️ Token vacío para:', recipientEmail);
+                return { success: false, email: recipientEmail, error: 'Token vacío' };
+            }
+        } else {
+            console.log('⚠️ No se encontró token para:', recipientEmail);
+            return { success: false, email: recipientEmail, error: 'Token no encontrado' };
+        }
+    } catch (error) {
+        console.log('❌ Error procesando notificación para:', recipientEmail, error);
+        return { success: false, email: recipientEmail, error: error.message };
+    }
+}
+
+// Función principal para enviar notificaciones grupales
+function* enviar_notificacion_grupal(action) {
+    try {
+        console.log('📢 Enviando notificaciones grupales a:', action.recipients);
+
+        // Crear un array de llamadas para cada destinatario
+        const notificationCalls = action.recipients.map(recipientEmail =>
+            call(enviarNotificacionIndividual, recipientEmail, action.message)
+        );
+
+        // Ejecutar todas las notificaciones en paralelo
+        const results = yield all(notificationCalls);
+
+        // Contar éxitos y fallos
+        const successCount = results.filter(r => r && r.success).length;
+        const failedCount = results.filter(r => r && !r.success).length;
+
+        console.log('📊 Resumen de notificaciones:');
+        console.log(`   ✅ Enviadas exitosamente: ${successCount}`);
+        console.log(`   ❌ Fallidas: ${failedCount}`);
+        console.log(`   📮 Total intentos: ${action.recipients.length}`);
+
+        // Opcional: Disparar una acción para mostrar resultado al usuario
+        // yield put({ 
+        //     type: 'GROUP_NOTIFICATION_RESULT', 
+        //     payload: { successCount, failedCount, total: action.recipients.length } 
+        // });
+
+    } catch (error) {
+        console.log('❌ ERROR CRÍTICO en enviar_notificacion_grupal:', error);
+        // yield put({ type: 'GROUP_NOTIFICATION_ERROR', error: error.message });
+    }
+}
+
+function* watcher_notificacion_grupal() {
+    yield takeLatest(SEND_GROUP_NOTIFICATION, enviar_notificacion_grupal);
+}
 
 
 export const sagas = [
@@ -1302,7 +1726,7 @@ export const sagas = [
     sites_user(),
     enviar_notificacion(),
     final_solicitud_cp(),
-    send_solicitud_cp(),
+    send_solicitud_cp(), ,
     patch_trip_cp(),
     get_pay_trip(),
     act_pay_trip(),
@@ -1319,5 +1743,6 @@ export const sagas = [
     patch_vehiculos_carpooling(),
     patch_conductor_carpooling(),
     progreso_logro_solicitud_viaje(),
-    progreso_logro_viaje_pasajero()
+    progreso_logro_viaje_pasajero(),
+    watcher_notificacion_grupal()
 ];

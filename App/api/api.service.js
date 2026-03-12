@@ -43,10 +43,10 @@ const guardandoPreoperacionales = async (tabla, data) => {
     }
 }
 
-const validateTrip = async (qrNumber, organizationId, userId) => {
-    let url = URL + "verifyData";
+const validateTrip = async (qrNumber, organizationId, userId, userCompany) => {
+    let url = URLMysql + "bc_candados/verifyData5g";
     let body = {
-        qrNumber, organizationId, userId
+        qrNumber, organizationId, userId, userCompany
     };
     const request = {
         method: 'POST',
@@ -109,24 +109,51 @@ const validationEndTripC = async (trip, currentLocation) => {
 }
 
 const endTrip = async (trip, endStationId, userTripInformation) => {
-    let url = URL + "endTrip";
-    let body = {
-        trip, endStationId, userTripInformation
-    };
-    const request = {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "*/*"
-        }
-    };
     try {
-        let res = await customFetch(url, request);
-        return res.body;
+        console.log('🏁 Arrancando fin de viaje 5G manual...', trip.pre_id);
+
+        let fechaFin = new Date();
+        fechaFin.setHours(fechaFin.getHours() - 5); // Timezone adjustment for DB if needed
+        const fechaFinISO = fechaFin.toISOString();
+
+        // 1. Actualizar el Prestamo
+        const urlPrestamo = URLMysql + "bc_prestamos/" + trip.pre_id;
+        const bodyPrestamo = {
+            pre_id: trip.pre_id,
+            pre_estado: 'FINALIZADA',
+            pre_devolucion_fecha: fechaFinISO,
+            pre_duracion: '0'
+        };
+        const requestPrestamo = {
+            method: 'PATCH',
+            body: JSON.stringify(bodyPrestamo),
+            headers: { "Content-Type": "application/json", Accept: "*/*" }
+        };
+
+        console.log('🏁 endTrip 5G enviando prestamo:', bodyPrestamo);
+        let resPrestamo = await customFetch(urlPrestamo, requestPrestamo);
+        console.log('🏁 endTrip 5G prestamo response:', JSON.stringify(resPrestamo?.body));
+
+        // 2. Actualizar la Bicicleta
+        const urlBicicleta = URLMysql + "bc_bicicletas/updateEstado";
+        const bodyBicicleta = {
+            bic_id: trip.pre_bicicleta || trip.bikeId,
+            bic_estado: 'DISPONIBLE'
+        };
+        const requestBicicleta = {
+            method: 'POST', // Este endpoint /updateEstado usa POST
+            body: JSON.stringify(bodyBicicleta),
+            headers: { "Content-Type": "application/json", Accept: "*/*" }
+        };
+
+        console.log('🏁 endTrip 5G enviando bici:', bodyBicicleta);
+        let resBicicleta = await customFetch(urlBicicleta, requestBicicleta);
+        console.log('🏁 endTrip 5G bici response:', JSON.stringify(resBicicleta?.body));
+
+        return { success: true, message: 'Viaje finalizado correctamente' };
     } catch (error) {
-        console.log(JSON.stringify(error));
-        return error;
+        console.log('❌ endTrip 5G error:', JSON.stringify(error));
+        return { success: false, error: JSON.stringify(error) };
     }
 }
 
@@ -172,145 +199,123 @@ const pickDevice = async (polarUserInfo) => {
         .then(response => { return response.body });
 }
 
-// const postUser = async (user) => {
+// =====================================================================
+// FUNCIONES ANTIGUAS DE MONGODB - COMENTADAS (migración a solo MySQL)
+// Se conservan por referencia histórica
+// =====================================================================
+
+// const postUser_MONGO = async (user) => {
+//     console.log('se envio postUser')
 //     try {
-//         const url = URL + "users";
+//         const url = URL + "users/login";
 //         const request = {
 //             method: 'POST',
-//             body: JSON.stringify(user)
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
 //         };
-//         let response = await customFetch(url, request);
-//         return response.body;
-//     } catch (error) {
-//         return JSON.stringify(error);
-//     }
+//         let response = await fetch(url, request);
+//         if (!response.ok) throw new Error('Network response was not ok');
+//         const data = await response.json();
+//         const tokenToUse = data.token;
+//         if (tokenToUse) {
+//             const urlSendUser = URL + "users";
+//             const requestSendUser = {
+//                 method: 'POST',
+//                 body: JSON.stringify(user),
+//                 headers: { Authorization: `Bearer ${tokenToUse}` }
+//             };
+//             let response = await customFetch(urlSendUser, requestSendUser);
+//             return response.body;
+//         }
+//     } catch (error) { return JSON.stringify(error); }
 // }
 
-const postUser = async (user) => {
-    console.log('se envio postUser')
+// const postUserExtended_MONGO = async (user) => {
+//     try {
+//         const url = URL + "users/login";
+//         const request = {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
+//         };
+//         let response = await fetch(url, request);
+//         if (!response.ok) throw new Error('Network response was not ok');
+//         const data = await response.json();
+//         const tokenToUse = data.token;
+//         if (tokenToUse) {
+//             const urlSendUser = `${URLMysql}bc_usuarios/registrar`;
+//             const requestSendUser = {
+//                 method: 'POST',
+//                 body: JSON.stringify(user),
+//                 headers: {
+//                     "Content-type": "application/json; charset=UTF-8",
+//                     Authorization: `Bearer ${tokenToUse}`
+//                 }
+//             };
+//             return fetch(urlSendUser, requestSendUser)
+//                 .then(response => response.ok)
+//                 .catch((err) => console.log("error" + JSON.stringify(err)));
+//         }
+//     } catch (error) { return JSON.stringify(error); }
+// }
+
+// const deleteUser_MONGO = async (userId) => {
+//     try {
+//         const url = URL + "users/login";
+//         const request = {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
+//         };
+//         let response = await fetch(url, request);
+//         if (!response.ok) throw new Error('Network response was not ok');
+//         const data = await response.json();
+//         const tokenToUse = data.token;
+//         if (tokenToUse) {
+//             const urlDeleteUser = `${URL}users/${userId}`;
+//             const requestDeleteUser = {
+//                 method: 'DELETE',
+//                 headers: { Authorization: `Bearer ${tokenToUse}` }
+//             };
+//             let response = await customFetch(urlDeleteUser, requestDeleteUser);
+//             return response.body;
+//         }
+//     } catch (error) { return JSON.stringify(error); }
+// }
+
+// =====================================================================
+// NUEVA FUNCIÓN - Registro directo en MySQL (sin MongoDB)
+// Escribe en bc_registro_ext, bc_usuarios y bc_usuarios_roles en una
+// sola transacción del lado del servidor
+// =====================================================================
+const registerUserMySQL = async (userData) => {
+    console.log('[REGISTRO MySQL] Enviando datos de registro...');
     try {
-        const url = URL + "users/login";
+        const urlRegister = `${URLMysql}bc_usuarios/registrar`;
         const request = {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json; charset=UTF-8'
             },
-            body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
+            body: JSON.stringify(userData)
         };
-        let response = await fetch(url, request);
+        let response = await fetch(urlRegister, request);
+        console.log('[REGISTRO MySQL] Response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            const errorText = await response.text();
+            console.error('[REGISTRO MySQL] Error response:', errorText);
+            return { error: true, message: errorText, status: response.status };
         }
-        const data = await response.json();
-        const tokenToUse = data.token;
-        if (tokenToUse) {
-            try {
-                const urlSendUser = URL + "users";
-                const requestSendUser = {
-                    method: 'POST',
-                    body: JSON.stringify(user),
-                    headers: {
-                        Authorization: `Bearer ${tokenToUse}`
-                    }
-                };
-                let response = await customFetch(urlSendUser, requestSendUser);
-                return response.body;
-            }
-            catch (error) {
-                return JSON.stringify(error);
-            }
-        }
+
+        const responseText = await response.text();
+        console.log('[REGISTRO MySQL] Registro exitoso:', responseText);
+        return { ok: true, data: responseText };
     } catch (error) {
-        return JSON.stringify(error);
+        console.error('[REGISTRO MySQL] Error:', error);
+        return { error: true, message: error.message };
     }
 }
-
-const postUserExtended = async (user) => {
-    try {
-        const url = URL + "users/login";
-        const request = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
-        };
-        let response = await fetch(url, request);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        const tokenToUse = data.token;
-        if (tokenToUse) {
-            try {
-                const urlSendUser = `${URLMysql}bc_usuarios/registrar`;
-                const requestSendUser = {
-                    method: 'POST',
-                    body: JSON.stringify(user),
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8",
-                        Authorization: `Bearer ${tokenToUse}`
-                    }
-                };
-                return fetch(urlSendUser, requestSendUser)
-                    .then(response => {
-                        console.log(response)
-                        return response.ok
-                    }).catch((err) => {
-                        console.log("error" + JSON.stringify(err))
-                    });
-            }
-            catch (error) {
-                return JSON.stringify(error);
-            }
-        }
-    } catch (error) {
-        return JSON.stringify(error);
-    }
-}
-
-// Método para eliminar usuario de MongoDB (rollback)
-const deleteUser = async (userId) => {
-    try {
-        const url = URL + "users/login";
-        const request = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
-        };
-        let response = await fetch(url, request);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        const tokenToUse = data.token;
-
-        if (tokenToUse) {
-            try {
-                const urlDeleteUser = `${URL}users/${userId}`;
-                const requestDeleteUser = {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${tokenToUse}`
-                    }
-                };
-                let response = await customFetch(urlDeleteUser, requestDeleteUser);
-                console.log('[ROLLBACK] Usuario eliminado de MongoDB:', userId);
-                return response.body;
-            }
-            catch (error) {
-                console.error('[ROLLBACK] Error al eliminar usuario de MongoDB:', error);
-                return JSON.stringify(error);
-            }
-        }
-    } catch (error) {
-        console.error('[ROLLBACK] Error al autenticar para rollback:', error);
-        return JSON.stringify(error);
-    }
-}
-
 
 
 const linkPolar = async (polarUserInfo) => {
@@ -535,6 +540,24 @@ const updateUserInfos = async (user, userId) => {
         .then(response => { return response.body }).catch((err) => { console.log("error" + JSON.stringify(err)) });
 };
 
+const postImgFile = async (formData, type = null) => {
+    let url = URLMysql + "upload";
+    if (type) {
+        url += `?type=${type}`;
+    }
+    try {
+        let res = await fetch(url, {
+            method: 'POST',
+            body: formData
+            // Let React Native fetch auto-generate the Content-Type header with the boundary
+        });
+        return await res.json();
+    } catch (err) {
+        console.error("Error en postImgFile local:", err);
+        return { error: err };
+    }
+}
+
 const createConfig = async (newConfig) => {
     const url = URL + "configurations";
     const request = {
@@ -692,7 +715,10 @@ const get = async (url, filter) => {
     };
     let endPoint = `${URL}${url}`;
     if (!!filter) endPoint += `?filter=${JSON.stringify(filter)}`;
-    return customFetch(endPoint, request).then(response => { return response.body }).catch((err) => console.log(JSON.stringify(err)));
+    return customFetch(endPoint, request).then(response => { return response.body }).catch((err) => {
+        console.log(JSON.stringify(err));
+        return { error: err.message || 'Unknown error' };
+    });
 }
 
 const getCount = async (url, where) => {
@@ -762,6 +788,20 @@ const patchField = async (table, id, parameters) => {
     };
     const endPoint = `${URL}${table}/${id}`;
     return fetchJSON(endPoint, request).then(response => { return response.body }).catch((err) => { console.log("ERROR PATCHHHHHH " + table + JSON.stringify(err)) });
+}
+
+const patchFieldMysql = async (table, id, parameters) => {
+    const token = await getItem('token');
+    const request = {
+        method: 'PATCH',
+        body: JSON.stringify(parameters),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            Authorization: `Bearer ${token}`,
+        }
+    };
+    const endPoint = `${URLMysql}${table}/${id}`;
+    return fetchJSON(endPoint, request).then(response => { return response.body }).catch((err) => { console.log("ERROR PATCH MYSQL " + table + JSON.stringify(err)) });
 }
 
 const patchField_sin_token = async (table, id, parameters) => {
@@ -913,6 +953,20 @@ const post = async (urlApi, dataInfo) => {
         });
 };
 
+const postMysql = async (urlApi, dataInfo) => {
+    const url = URLMysql + urlApi;
+    const request = {
+        method: 'POST',
+        body: JSON.stringify(dataInfo),
+    };
+    return customFetch(url, request)
+        .then(response => {
+            return response.body
+        }).catch((err) => {
+            console.log("error" + JSON.stringify(err))
+        });
+};
+
 const validationUserDocument = async (tabla, cc) => {
     try {
         const url = URL + "users/login";
@@ -1010,7 +1064,7 @@ export const api = {
     linkPolar,
     garminAuth,
     garminSaveInfo,
-    postUser,
+    // postUser, // COMENTADO - migración a MySQL
     getUserTrackings,
     validateTrip,
     validationEndTrip,
@@ -1018,11 +1072,15 @@ export const api = {
     postData,
     getStationsByFilter,
     validationUserDocument,
-    postUserExtended,
-    deleteUser,
+    // postUserExtended, // COMENTADO - migración a MySQL
+    // deleteUser, // COMENTADO - migración a MySQL
+    registerUserMySQL,
     guardandoIndicadores,
     guardandoPreoperacionales,
-    enviar_recuperacion_password
+    enviar_recuperacion_password,
+    postMysql,
+    postImgFile,
+    patchFieldMysql
 }
 
 

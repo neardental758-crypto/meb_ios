@@ -18,11 +18,11 @@ import Fonts from '../../Themes/Fonts';
 import * as RootNavigation from '../../RootNavigation';
 import { AuthContext } from '../../AuthContext';
 import { moderateScale } from '../../Themes/Metrics';
-import { 
-  updatePassword, 
-  reset__Profile 
+import {
+  updatePassword,
+  reset__Profile
 } from '../../actions/actions';
-import { 
+import {
   getDataPago,
   getVehicles_carpooling,
   patch_vehiculos_carpooling,
@@ -68,7 +68,9 @@ function ConfiguracionPerfil(props) {
   }, [props.dataCarpooling.dataPagoCargada]);
 
   const handleChangePassword = () => {
-    if (claveActual !== infoUser.DataUser.password) {
+    // Validar contra usu_password (MySQL)
+    const claveGuardada = infoUser?.DataUser?.usu_password || infoUser?.DataUser?.password;
+    if (claveActual !== claveGuardada) {
       Alert.alert("Error", "La contraseña actual no coincide.");
       return;
     }
@@ -127,12 +129,12 @@ function ConfiguracionPerfil(props) {
       </View>
 
       <View style={estilos.contenido}>
-        
+
         {/* Cambiar contraseña */}
         <Pressable style={estilos.acordeon} onPress={() => setShowPassword(!showPassword)}>
           <Text style={estilos.acordeonTexto}>Actualizar contraseña</Text>
-          <Image 
-            source={Images.iconPickerYellow} 
+          <Image
+            source={Images.iconPickerYellow}
             style={[estilos.iconToggle, { transform: [{ rotate: showPassword ? '180deg' : '0deg' }] }]}
           />
         </Pressable>
@@ -165,14 +167,14 @@ function ConfiguracionPerfil(props) {
           </View>
         )}
 
-        {/* Medios de pago */}
+        {/* Medios de pago 
         <Pressable style={estilos.acordeon} onPress={() => setShowPagos(!showPagos)}>
           <Text style={estilos.acordeonTexto}>Medios de pago</Text>
-          <Image 
-            source={Images.iconPickerYellow} 
+          <Image
+            source={Images.iconPickerYellow}
             style={[estilos.iconToggle, { transform: [{ rotate: showPagos ? '180deg' : '0deg' }] }]}
           />
-        </Pressable>
+        </Pressable>*/}
         {showPagos && (
           <View style={estilos.card}>
             <View style={estilos.switchRow}>
@@ -241,6 +243,7 @@ const estilos = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     paddingVertical: 30,
+    marginTop: 20
   },
   btnAtras: { marginRight: 10 },
   iconMenu: { width: 25, height: 25 },

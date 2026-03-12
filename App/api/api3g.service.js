@@ -15,10 +15,10 @@ const guardandoRegistroExt = async (tabla, data) => {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
-        headers: {
-            "Content-type": "application/json; charset=UTF-8",
-            Authorization: "Bearer " + token,
-        }
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                Authorization: "Bearer " + token,
+            }
         }
     };
     return fetch(url, request)
@@ -45,6 +45,17 @@ const guardandoRegistroExt = async (tabla, data) => {
 }*/
 
 const getFallas = async (tabla) => {
+    let url = URLMysql + tabla;
+    try {
+        let res = await fetch(url);
+        return res.body;
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
+const get__ = async (tabla) => {
     let url = URLMysql + tabla;
     try {
         let res = await fetch(url);
@@ -104,7 +115,7 @@ const viewEstacion = async (tabla, estacion) => {
 const viewEstacionEmpresa = async (tabla, empresa) => {
     const token = await getItem('token')
     let url = URLMysql + tabla + '/' + empresa;
-    console.log('URL VER ESTACION EMPRESA::::::::::URL::::::::::: api ', url)    
+    console.log('URL VER ESTACION EMPRESA::::::::::URL::::::::::: api ', url)
     try {
         const request = {
             method: 'GET',
@@ -124,11 +135,11 @@ const viewEstacionEmpresa = async (tabla, empresa) => {
 
 const ejecutarHorario = (arrayhora) => {
     let horaActual = new Date().getHours();
-    let horaIni = arrayhora.substr(3,2)
-    let horaFin = arrayhora.substr(6,5)
+    let horaIni = arrayhora.substr(3, 2)
+    let horaFin = arrayhora.substr(6, 5)
     if (horaActual >= horaIni && horaActual <= horaFin) {
         return true
-    }else{
+    } else {
         return false
     }
 }
@@ -147,36 +158,36 @@ const validationHorarios = async (tabla, empresa) => {
 
         let res = await fetch(url);
         console.log('la data de horario hoy es ::', res.body.data[0].hor_mon)
-        let hoy = new Date().toUTCString().substr(0,3);
+        let hoy = new Date().toUTCString().substr(0, 3);
         let hora = '';
         let dia = '';
-        
-        switch(hoy) {
-            case res.body.data[0].hor_mon.substr(0,3):
+
+        switch (hoy) {
+            case res.body.data[0].hor_mon.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_mon);
                 dia = hoy
                 break;
-            case res.body.data[0].hor_tue.substr(0,3):
+            case res.body.data[0].hor_tue.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_tue);
                 dia = hoy
                 break;
-            case res.body.data[0].hor_wed.substr(0,3):
+            case res.body.data[0].hor_wed.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_wed);
                 dia = hoy
                 break;
-            case res.body.data[0].hor_thu.substr(0,3):
+            case res.body.data[0].hor_thu.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_thu);
                 dia = hoy
                 break;
-            case res.body.data[0].hor_fri.substr(0,3):
+            case res.body.data[0].hor_fri.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_fri);
                 dia = hoy
                 break;
-            case res.body.data[0].hor_sat.substr(0,3):
+            case res.body.data[0].hor_sat.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_sat);
                 dia = hoy
                 break;
-            case res.body.data[0].hor_sun.substr(0,3):
+            case res.body.data[0].hor_sun.substr(0, 3):
                 hora = ejecutarHorario(res.body.data[0].hor_sun);
                 dia = hoy
                 break;
@@ -639,7 +650,7 @@ const patch_recorrido = async (tabla, cc, data) => {
     console.log('ESTAMOS EN LA API PATCH recorrido data', data)
     let url = URLMysql + tabla + '/' + cc;
     console.log('URL RECORRIDO :::::::RUTA:::::::', url);
-    
+
     const request = {
         method: 'PATCH',
         body: JSON.stringify(data),
@@ -663,13 +674,13 @@ const patch_recorrido = async (tabla, cc, data) => {
 const get_tabla = async (tabla, cc) => {
     const token = await getItem('token')
     let url = URLMysql + tabla + '/' + cc;
-    console.log('url get_tabla', url);   
+    console.log('url get_tabla', url);
     try {
         const request = {
             method: 'GET',
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
-                "Authorization" : `Bearer ${token}`
+                "Authorization": `Bearer ${token}`
             }
         };
         let res = await fetch(url, request);
@@ -677,7 +688,7 @@ const get_tabla = async (tabla, cc) => {
         return res.body;
     } catch (error) {
         console.log(error);
-        return error;
+        return { error: error.message || String(error) };
     }
 }
 
@@ -698,7 +709,7 @@ const get_tabla_cc = async (tabla, cc) => {
         return res.body;
     } catch (error) {
         console.log(error);
-        return error;
+        return { error: error.message || String(error) };
     }
 }
 
@@ -711,6 +722,7 @@ const get_tabla_cc_sinid = async (tabla, cc) => {
         return;
     }
     let url = URLMysql + tabla + '/' + cc;
+    console.log('url get_tabla_cc_sinid', url);
     try {
         const request = {
             method: 'GET',
@@ -723,7 +735,7 @@ const get_tabla_cc_sinid = async (tabla, cc) => {
         return res.body;
     } catch (error) {
         console.log(error);
-        return error;
+        return { error: error.message || String(error) };
     }
 }
 
@@ -743,10 +755,10 @@ const post__ = async (tabla, data) => {
 }
 
 const postFileHeaders = async (urlF, fileRoute, data) => {
-    console.log('ahora por aca en la function postFileHeaders, ________urlF:',urlF);
-    console.log('ahora por aca en la function postFileHeaders, ________fileRoute:',fileRoute);
-    console.log('ahora por aca en la function postFileHeaders, ________data:',data);
-    console.log('ahora por aca en la function postFileHeaders, ________data._part:',data._parts);
+    console.log('ahora por aca en la function postFileHeaders, ________urlF:', urlF);
+    console.log('ahora por aca en la function postFileHeaders, ________fileRoute:', fileRoute);
+    console.log('ahora por aca en la function postFileHeaders, ________data:', data);
+    console.log('ahora por aca en la function postFileHeaders, ________data._part:', data._parts);
     const url = URL + urlF + "/" + fileRoute;
     console.log('la url aca en la function postFileHeaders, ________url', url)
     const request = {
@@ -759,8 +771,8 @@ const postFileHeaders = async (urlF, fileRoute, data) => {
     };
 
     return fetch(url, request).then(response => {
-        console.log('la response _____________', response); 
-        return response.body ? response.body : response 
+        console.log('la response _____________', response);
+        return response.body ? response.body : response
     }).catch((err) => { console.log("error post file Headers ", err) });
 }
 const guardandoIndicadores = async (tabla, data) => {
@@ -790,7 +802,7 @@ const viajes_5g = async (url) => {
         return res.body;
     } catch (error) {
         console.log(error);
-        return error;
+        return { error: error.message || String(error) };
     }
 }
 
@@ -853,11 +865,11 @@ const correo_recompnesas = async (table, email, data) => {
         let endPoint = URLMysql + table;
         console.log('endPoint correo', endPoint);
         return fetchJSON(endPoint, request)
-            .then(response => { 
+            .then(response => {
                 console.log('la respuesta en CORREO', response)
             })
             .catch((err) => { console.log("ERROR CORREO RECOMPENSAS " + table + JSON.stringify(err)) });
-    } 
+    }
     catch (error) {
         return JSON.stringify(error);
     }
@@ -912,7 +924,8 @@ export const api = {
     patch__,
     temporizadorReserva,
     guardandoPreoperacionales,
-    correo_recompnesas
+    correo_recompnesas,
+    get__
 }
 
 

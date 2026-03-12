@@ -12,13 +12,13 @@ import {
     Platform,
     Modal,
     Dimensions,
-    ScrollView 
+    ScrollView
 } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import LottieView from 'lottie-react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { 
+import {
     rentActive,
     getFallas,
     validateUser3g,
@@ -37,7 +37,7 @@ import {
     reseteoCambioVehiculo,
     saveStateBicicletero,
 } from '../../actions/actions3g';
-import RNPickerSelect from  '@nejlyg/react-native-picker-select';
+import RNPickerSelect from '@nejlyg/react-native-picker-select';
 import URL_mysql from './functions/url';
 import { apimysql } from './functions/funciones'
 import estilos from './styles/rentas.style';
@@ -46,7 +46,7 @@ import Images from '../../Themes/Images';
 import Colors from '../../Themes/Colors';
 import Fonts from '../../Themes/Fonts';
 import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metrics';
-import { Env } from "../../Utils/enviroments"; 
+import { Env } from "../../Utils/enviroments";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as RootNavigation from '../../RootNavigation';
 import { AuthContext } from '../../AuthContext';
@@ -56,13 +56,13 @@ import { Mapa } from '../../Components/carpooling/Mapa';
 import { Tarjeta } from './Tarjeta';
 import { BackgroundTaskManager } from './BackgroundTaskManager';
 
-function RentarActivaScreen (props) {
+function RentarActivaScreen(props) {
     const dispatch = useDispatch();
-    const [ state , setState ] = useState({
+    const [state, setState] = useState({
         organizacion: '',
         fecha: new Date(),
         fechaVence: '',
-        dia: new Date().toUTCString().substr(0,3),
+        dia: new Date().toUTCString().substr(0, 3),
         resDia: null,
         horaValida: false,
         minutos: new Date().getMinutes(),
@@ -78,7 +78,7 @@ function RentarActivaScreen (props) {
         intervalo: '',
         reservaVencida: false,
         prestamoVencido: false,
-        registroFinalizado : false,
+        registroFinalizado: false,
         quieroRentar: false,
         vehiculoEstadoOK: '',
         casco: '',
@@ -90,8 +90,8 @@ function RentarActivaScreen (props) {
         isOpenBackgroundTestRentaModal: false,
         isOpenBackgroundTestReservaModal: false,
     });
-    
-    const { infoUser } = useContext( AuthContext )
+
+    const { infoUser } = useContext(AuthContext)
 
     const [latEstacionState, setLatEstacionState] = useState(props.dataRent.latEstacion);
     const [lngEstacionState, setLngEstacionState] = useState(props.dataRent.lngEstacion);
@@ -106,47 +106,47 @@ function RentarActivaScreen (props) {
     const [segundos, setSegundos] = useState(props.dataRent.segundosResta);
     const [minutos, setMinutos] = useState(props.dataRent.minutosResta);
     const [horas, setHoras] = useState(props.dataRent.horasResta);
-    const [diaRestante, setDiaRestante] = useState(props.dataRent.diaResta); 
-    const [claveGenerada, setClaveGenerada] = useState(props.dataRent.clave); 
+    const [diaRestante, setDiaRestante] = useState(props.dataRent.diaResta);
+    const [claveGenerada, setClaveGenerada] = useState(props.dataRent.clave);
     const [isModalCancelVisible, setIsModalCancelVisible] = useState(false);
     const [touchRentar, setTouchRentar] = useState(false);
-    const [position1, setPosition1 ] = useState({lat: '',lng: ''});
-    const [position2, setPosition2 ] = useState({lat: '',lng: ''});
+    const [position1, setPosition1] = useState({ lat: '', lng: '' });
+    const [position2, setPosition2] = useState({ lat: '', lng: '' });
     const [cargaPosicion, setCargaPosicion] = useState(false)
 
 
     const goHome3G = () => { RootNavigation.navigate('Home3G') }
-    
-        useEffect(()=>{
-            
-            setSegundos(props.dataRent.segundosResta);
-            setMinutos(props.dataRent.minutosResta);
-            setHoras(props.dataRent.horasResta);
-            setDiaRestante(props.dataRent.diaResta); 
-            setClaveGenerada(props.dataRent.clave);
-        },[props.dataRent.segundosResta])
 
-        useEffect(()=>{
-            const timer = setInterval(() => {
-                if (segundos > 0) {
-                    setSegundos(segundos - 1);
-                  }else if(segundos == 0 && minutos > 0){
-                    setMinutos(minutos - 1);
-                    setSegundos(59);
-                  }else if(segundos == 0 && minutos == 0 && horas > 0){
-                    setHoras(horas - 1);
-                    setMinutos(59);
-                    setMinutos(59);
-                  }else if(segundos == 0 && minutos == 0 && horas == 0 && diaRestante > 0){
-                    setDiaRestante(diaRestante - 1);
-                    setHoras(23);
-                    setMinutos(59);
-                    setMinutos(59);
-                  }else{
-                  }
-            }, 1000);
-            return () => clearInterval(timer);
-        },[segundos])
+    useEffect(() => {
+
+        setSegundos(props.dataRent.segundosResta);
+        setMinutos(props.dataRent.minutosResta);
+        setHoras(props.dataRent.horasResta);
+        setDiaRestante(props.dataRent.diaResta);
+        setClaveGenerada(props.dataRent.clave);
+    }, [props.dataRent.segundosResta])
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            if (segundos > 0) {
+                setSegundos(segundos - 1);
+            } else if (segundos == 0 && minutos > 0) {
+                setMinutos(minutos - 1);
+                setSegundos(59);
+            } else if (segundos == 0 && minutos == 0 && horas > 0) {
+                setHoras(horas - 1);
+                setMinutos(59);
+                setMinutos(59);
+            } else if (segundos == 0 && minutos == 0 && horas == 0 && diaRestante > 0) {
+                setDiaRestante(diaRestante - 1);
+                setHoras(23);
+                setMinutos(59);
+                setMinutos(59);
+            } else {
+            }
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [segundos])
 
     ///////////// modal ///////////////
     const displayBackgroundInfoModal = (value) => {
@@ -155,7 +155,7 @@ function RentarActivaScreen (props) {
     const stateModalCancelRent = (value) => {
         setIsModalCancelVisible(value);
     }
-    
+
     const modalCargandoDataRenta = () => {
         return (
             <View style={{
@@ -168,7 +168,7 @@ function RentarActivaScreen (props) {
                 <Modal transparent={true}>
                     <View style={{ backgroundColor: Colors.$blanco, flexDirection: "column", flex: 1 }}>
                         <View style={{ flex: 1, justifyContent: "space-between", alignItems: "center" }}>
-                        <LottieView source={require('../../Resources/Lotties/bicy_03.json')} autoPlay loop style={{width: '100%',height: '100%'}}/>
+                            <LottieView source={require('../../Resources/Lotties/bicy_03.json')} autoPlay loop style={{ width: '100%', height: '100%' }} />
                         </View>
                     </View>
                 </Modal>
@@ -177,7 +177,7 @@ function RentarActivaScreen (props) {
         //Abrir el modal de backgrund info
     }
 
-    const [modalInfo, setModalInfo ] = useState(true);
+    const [modalInfo, setModalInfo] = useState(true);
 
     const openModalInfo = () => {
         return (
@@ -191,27 +191,27 @@ function RentarActivaScreen (props) {
                 <Modal transparent={true} animationType="slide">
                     <View style={{ backgroundColor: Colors.$texto80, flexDirection: "column", flex: 1 }}>
                         <View style={{ flex: 1, borderRadius: 20, marginVertical: 50, marginHorizontal: 10, justifyContent: "center", alignItems: "center", paddingHorizontal: 25, position: "relative", backgroundColor: Colors.$blanco, padding: 10 }}>
-                            
-                            <Text style={{ 
-                                textAlign: "center", 
+
+                            <Text style={{
+                                textAlign: "center",
                                 color: Colors.$texto,
                                 fontFamily: Fonts.$poppinsmedium,
                                 fontSize: 22,
                                 zIndex: 100
                             }}
-                            >¡FELIZ VIAJE!</Text>   
+                            >¡FELIZ VIAJE!</Text>
 
                             <View style={{
-                                justifyContent: "center", 
+                                justifyContent: "center",
                                 alignItems: "center",
-                              }}>
-                                <LottieView source={require('../../Resources/Lotties/bicy_feliz_viaje.json')} autoPlay loop 
-                                style={{
-                                  width: Dimensions.get('window').width*.9,
-                                  height: Dimensions.get('window').width*.9,              
-                                }}/>
-                            </View>    
-                        
+                            }}>
+                                <LottieView source={require('../../Resources/Lotties/bicy_feliz_viaje.json')} autoPlay loop
+                                    style={{
+                                        width: Dimensions.get('window').width * .9,
+                                        height: Dimensions.get('window').width * .9,
+                                    }} />
+                            </View>
+
                             <View style={{
                                 width: Dimensions.get('window').width,
                                 paddingTop: 30,
@@ -220,9 +220,9 @@ function RentarActivaScreen (props) {
                                 alignItems: 'center',
                                 justifyContent: 'space-around',
                                 flexWrap: 'wrap',
-                            }}>    
+                            }}>
 
-                                <Tarjeta 
+                                <Tarjeta
                                     icono={Images.vpini}
                                     titulo={'Estación'}
                                     texto1={remove(estacionPrestamo, 'Estacion')}
@@ -230,7 +230,7 @@ function RentarActivaScreen (props) {
                                     elcolor={Colors.$adicional}
                                 />
 
-                                <Tarjeta 
+                                <Tarjeta
                                     icono={Images.cycle_Icon}
                                     titulo={'Vehículo'}
                                     texto1={vehiculoPrestamo}
@@ -238,7 +238,7 @@ function RentarActivaScreen (props) {
                                     elcolor={Colors.$texto}
                                 />
 
-                                <Tarjeta 
+                                <Tarjeta
                                     icono={Images.cycle_Icon}
                                     titulo={'Clave'}
                                     texto1={(claveRenta !== '') ? claveRenta : 'Generando clave ...'}
@@ -248,8 +248,8 @@ function RentarActivaScreen (props) {
                             </View>
 
 
-                            <Pressable  
-                                onPress={() => { 
+                            <Pressable
+                                onPress={() => {
                                     setModalInfo(false);
                                 }}
                                 style={estilos.btnCenter}>
@@ -261,7 +261,7 @@ function RentarActivaScreen (props) {
                                         color: Colors.$blanco, fontSize: 18, fontFamily: Fonts.$poppinsregular
                                     }]}>Aceptar</Text>
                                 </View>
-                            </Pressable>                             
+                            </Pressable>
                         </View>
                     </View>
                 </Modal>
@@ -271,7 +271,7 @@ function RentarActivaScreen (props) {
     ///////////////////////////////////
 
     ///// OBTENIENDO LA POSSCION //////
-    const getPosition = () =>{
+    const getPosition = () => {
         Geolocation.getCurrentPosition(
             geoSuccess,
             geoFailed,
@@ -301,9 +301,9 @@ function RentarActivaScreen (props) {
         timeout: 100000,
         maximumAge: 3600000
     }
-    
+
     ///////////////////////////////////
-    const verState = () => { 
+    const verState = () => {
         console.log('EL STATE ACT::::: ', state)
         console.log('PROPS::::', props.dataRent)
         console.log('la distancia max para renta', distanciaMaxRenta)
@@ -312,16 +312,16 @@ function RentarActivaScreen (props) {
         console.log('la longitud actual', latActual)
         console.log('la longitud actual', lngActual)
     }
-    const verState2 = () => { 
-        console.log('EL STATE PROPS ACT::::: ', props.dataRent.prestamo.data[0].pre_devolucion_fecha) 
+    const verState2 = () => {
+        console.log('EL STATE PROPS ACT::::: ', props.dataRent.prestamo.data[0].pre_devolucion_fecha)
     }
-    const verState3 = () => { 
-        console.log('EL STATE PROPS ACT::::: ', props.dataUser) 
+    const verState3 = () => {
+        console.log('EL STATE PROPS ACT::::: ', props.dataUser)
     }
-    const goBack = () => { 
-        props.navigation.goBack() 
+    const goBack = () => {
+        props.navigation.goBack()
     }
-    const home = () => { 
+    const home = () => {
         RootNavigation.navigate('Home');
     }
     const irFInRenta = () => {
@@ -330,20 +330,20 @@ function RentarActivaScreen (props) {
 
     const cambiarEstadoPrestamo = () => {
         const data = {
-            "pre_id": props.dataRent.prestamo.data[0].pre_id,	
+            "pre_id": props.dataRent.prestamo.data[0].pre_id,
             "estado": 'VENCIDA'
         }
         let vehiculo = props.dataRent.prestamo.data[0].pre_bicicleta;
         props.cambiarEstadoPrestamo(data, vehiculo, 'DISPONIBLE');
     }
 
-    const crearPenalizacion = async() => {
+    const crearPenalizacion = async () => {
         const data = {
             "pen_id": "0",
             "pen_tipo_penalizacion": "1",
             "pen_novedad": "por vencimiento",
             "pen_usuario": infoUser.DataUser.idNumber,
-            "pen_fecha_creacion":  state.fecha.toUTCString().substr(0,10),
+            "pen_fecha_creacion": state.fecha.toUTCString().substr(0, 10),
             "pen_fecha_tiempo_ok": state.dia,
             "pen_fecha_dinero_ok": "dinero",
             "pen_estado": "ACTIVA",
@@ -359,26 +359,26 @@ function RentarActivaScreen (props) {
         crearPenalizacion();
     }
 
-    const vehiculoseleccionado = async(data) => {
+    const vehiculoseleccionado = async (data) => {
         console.log('data', data);
         if (data.bic_estado === 'DISPONIBLE') {
             setState({ ...state, ticket: data.bic_id, numVehiculo: data.bic_numero })
             dispatch(saveStateBicicletero(data.bic_id, data.bic_estacion));
-        }else {
+        } else {
             Alert.alert('Vehículo ', data.bic_estado)
         }
     }
 
 
     const viewBicycle = async (estacion) => {
-        if(estacion !== ''){
+        if (estacion !== '') {
             await props.viewVehiculo(estacion);
         }
     }
 
     const cancelarReserva = async () => {
         let vehiculo = props.dataRent.reservas.data[0].res_bicicleta;
-        const data = {"res_id": props.dataRent.reservas.data[0].res_id,	"estado": 'CANCELADA'}
+        const data = { "res_id": props.dataRent.reservas.data[0].res_id, "estado": 'CANCELADA' }
         props.cambiarEstadoReserva(data, vehiculo);
     }
 
@@ -392,23 +392,23 @@ function RentarActivaScreen (props) {
         let fechaVence = '';
 
         if (dia === 'Sat') {
-            fechaVence = new Date( hoy.setDate(hoy.getDate() + 2 ))
-        }else{
-            fechaVence = new Date( hoy.setDate(hoy.getDate() + 1 ))
+            fechaVence = new Date(hoy.setDate(hoy.getDate() + 2))
+        } else {
+            fechaVence = new Date(hoy.setDate(hoy.getDate() + 1))
         }
-        
+
         if (props.dataRent.reservas === 0) {
             vehiculoPrestamo = state.ticket;
             estacionPrestamo = state.estacionSelect;
             bicicletero = props.dataRent.idBicicletero;
             reservaId = 'sinreserva';
-        }else{
+        } else {
             vehiculoPrestamo = props.dataRent.reservas.data[0].res_bicicleta;
             estacionPrestamo = props.dataRent.reservas.data[0].res_estacion;
             bicicletero = props.dataRent.idBicicletero;
             reservaId = props.dataRent.reservas.data[0].res_id;
         }
-        
+
         const data = {
             "pre_id": "0",
             "pre_hora_server": state.fecha.toJSON(),
@@ -424,10 +424,11 @@ function RentarActivaScreen (props) {
             "pre_devolucion_hora": state.horas,
             "pre_duracion": "null",
             "pre_dispositivo": Platform.OS,
-            "pre_estado": "ACTIVA"
+            "pre_estado": "ACTIVA",
+            "pre_modulo": "3g"
         }
-        
-        await props.savePrestamo(data, vehiculoPrestamo, reservaId, estacionPrestamo ); 
+
+        await props.savePrestamo(data, vehiculoPrestamo, reservaId, estacionPrestamo);
         RootNavigation.navigate('Rentar')
     }
 
@@ -441,7 +442,7 @@ function RentarActivaScreen (props) {
     }
 
     const cambiarEstadoBici = async (estado, vehiculo) => {
-        const data = {"bic_id": vehiculo, "bic_estado": estado}
+        const data = { "bic_id": vehiculo, "bic_estado": estado }
         props.changeVehiculo(data)
         const data2 = {
             "res_id": props.dataRent.reservas.data[0].res_id,
@@ -473,55 +474,55 @@ function RentarActivaScreen (props) {
     const verFallas = async () => {
         props.getFallas();
     }
-    
+
     ////////// CHECHLIST rentar /////////////////
     const vehiculoEstado = (estado) => {
         if (estado === 'SI') {
-            setState({ ...state, vehiculoEstadoOK : estado}); 
-        }else if(estado === 'falla'){
-            setState({ ...state, vehiculoEstadoOK : estado});
-        }else{
-            setState({ ...state, vehiculoEstadoOK : estado});
+            setState({ ...state, vehiculoEstadoOK: estado });
+        } else if (estado === 'falla') {
+            setState({ ...state, vehiculoEstadoOK: estado });
+        } else {
+            setState({ ...state, vehiculoEstadoOK: estado });
             viewBicycle(state.estacionSelect)
         }
-        
+
     }
-    
-    const estadoCasco = (estado) => {setState({ ...state, casco : estado});}
-    const estadoSobrio = (estado) => {setState({ ...state, sobrio : estado});}
+
+    const estadoCasco = (estado) => { setState({ ...state, casco: estado }); }
+    const estadoSobrio = (estado) => { setState({ ...state, sobrio: estado }); }
     const quieroRentar = () => {
         cargarIDbicicletero();
-        setState({ ...state, quieroRentar : true})
+        setState({ ...state, quieroRentar: true })
     }
-    const quieroRentar2 = () => {setState({ ...state, isOpenBackgroundTestRentaModal: true})}
-    
+    const quieroRentar2 = () => { setState({ ...state, isOpenBackgroundTestRentaModal: true }) }
+
     const otroVehiculo = () => {
         let id = props.dataRent.reservas.data[0].res_bicicleta;
         cambiarEstadoBici('FALLA MECANICA', id);
     }
-    
+
     const addPropsCoord = () => {
         setLatEstacionState(props.dataRent.latEstacion);
         setLngEstacionState(props.dataRent.lngEstacion);
     }
 
-    const calcularDistancia = async () =>{
+    const calcularDistancia = async () => {
 
         let coordenadas = {
-            "lat1": latActual, 
+            "lat1": latActual,
             "lng1": lngActual,
             "lat2": latEstacionState,
             "lng2": lngEstacionState,
         }
-        
+
         if (latEstacionState !== '' && lngEstacionState !== '' && latActual !== '' && lngActual !== '') {
-            
+
             await props.calcularDistancia(coordenadas)
-        }else{
+        } else {
             console.log('NO han cargado las coor de la estacion', coordenadas)
             addPropsCoord();
         }
-        
+
     }
 
 
@@ -532,13 +533,13 @@ function RentarActivaScreen (props) {
 
     useEffect(() => {
         if (props.perfil.empresa !== null) {
-            console.log('la empresa ES:',props.perfil.empresa)
-           dispatch(viewEstacion(props.perfil.empresa))
-           validarHor(props.perfil.empresa); 
-        }              
-    },[props.perfil.empresa])
-    
-    
+            console.log('la empresa ES:', props.perfil.empresa)
+            dispatch(viewEstacion(props.perfil.empresa))
+            validarHor(props.perfil.empresa);
+        }
+    }, [props.perfil.empresa])
+
+
     useEffect(() => {
         //console.log('dispositivo ', Platform.OS)
         //console.log('la distancia esSSSSSSSSSSSSS ::', props.dataRent.distanciaMt)
@@ -551,9 +552,9 @@ function RentarActivaScreen (props) {
         //cronometroVRenta();
         //validarHor(state.organizacion);
         //calcularDistancia();
-    },[])
+    }, [])
 
-    useFocusEffect( 
+    useFocusEffect(
         React.useCallback(() => {
             prestamoActivo(infoUser.DataUser.idNumber);
             getPosition();
@@ -569,22 +570,22 @@ function RentarActivaScreen (props) {
 
     useEffect(() => {
         reservasActivas(infoUser.DataUser.idNumber);
-        setState({ 
-            ...state, 
-            vehiculoEstadoOK : ''
+        setState({
+            ...state,
+            vehiculoEstadoOK: ''
         })
         props.reseteoCambioVehiculo();
-    },[props.dataRent.cambioVehiculo === true])
+    }, [props.dataRent.cambioVehiculo === true])
 
-   
-    
+
+
     useEffect(() => {
         calcularDistancia(); //descomentó
         addPropsCoord();
         getPosition();
-    },[latEstacionState !== '' && lngEstacionState !== ''])
+    }, [latEstacionState !== '' && lngEstacionState !== ''])
 
-    const cargarClave = () =>{
+    const cargarClave = () => {
         setClaveRenta(props.dataRent.clave);
         setEstacionPrestamo(props.dataRent.estacionPrestamo);
         setVehiculoPrestamo(props.dataRent.vehiculoPrestamo);
@@ -592,11 +593,11 @@ function RentarActivaScreen (props) {
 
     useEffect(() => {
         cargarClave()
-    },[props.dataRent.clave !== null])
+    }, [props.dataRent.clave !== null])
 
     useEffect(() => {
         cargarClave();
-    },[claveRenta === ''])
+    }, [claveRenta === ''])
 
     //effect para distancia con la estación
     useEffect(() => {
@@ -607,15 +608,15 @@ function RentarActivaScreen (props) {
         if (indice_tuempresa !== -1) {
             console.log('para la distancia con tuempresa');
             setDistanciaMaxRenta(10000000);
-        }else {
+        } else {
             setDistanciaMaxRenta(props.dataRent.distanciaRenta);
         }
-        
-    },[props.dataRent.distanciaRenta !== distanciaMaxRenta])
+
+    }, [props.dataRent.distanciaRenta !== distanciaMaxRenta])
 
     useEffect(() => {
         setVehiculoReserva(props.dataRent.vehiculoReserva);
-    },[vehiculoReserva !== ''])
+    }, [vehiculoReserva !== ''])
 
 
     //////////////// CRONOMETRO ///////////////////
@@ -628,29 +629,29 @@ function RentarActivaScreen (props) {
     const [activoV, setActivoV] = useState(false);
     const [intervaloV, setIntervaloV] = useState(null);
 
-        useEffect(()=>{
-            setSegundosV(props.dataRent.segundosRentaTrans);
-            setMinutosV(props.dataRent.minutosRentaTrans);
-            setHorasV(props.dataRent.horasRentaTrans);
-        },[props.dataRent.segundosRentaTrans])
+    useEffect(() => {
+        setSegundosV(props.dataRent.segundosRentaTrans);
+        setMinutosV(props.dataRent.minutosRentaTrans);
+        setHorasV(props.dataRent.horasRentaTrans);
+    }, [props.dataRent.segundosRentaTrans])
 
 
-    const cronometroVRenta = () => {   
+    const cronometroVRenta = () => {
         console.log('iniciando cronómetro')
         if (activoV) {
-          console.log('viaje pausadooooo')
-          clearInterval(intervaloV);
-          setActivoV(false);
+            console.log('viaje pausadooooo')
+            clearInterval(intervaloV);
+            setActivoV(false);
         } else {
-          console.log('iniciando activo')
-          const idIntervaloV = setInterval(() => {
-            setSegundosV(prevSegundosV => prevSegundosV + 1);
-          }, 1000);
-          setIntervaloV(idIntervaloV);
-          setActivoV(true);
+            console.log('iniciando activo')
+            const idIntervaloV = setInterval(() => {
+                setSegundosV(prevSegundosV => prevSegundosV + 1);
+            }, 1000);
+            setIntervaloV(idIntervaloV);
+            setActivoV(true);
         }
     };
-    
+
     useEffect(() => {
         return () => clearInterval(intervaloV);
     }, [intervaloV]);
@@ -662,9 +663,9 @@ function RentarActivaScreen (props) {
         if (activoV) {
             getPosition();
             //guardarsegundosCronometroStorageVP(); 
-        }else{
+        } else {
             console.log('viaje pausado')
-        }   
+        }
     }
 
     const remove = (str, word) => {
@@ -683,172 +684,174 @@ function RentarActivaScreen (props) {
         latActual !== '' && 
         lngActual !== ''
         ])}*/
-    {useEffect(() => {
-        if (props.dataRent.distanciaMt === '') {
-          getPosition();  
-        }
-    },[props.dataRent.distanciaMt === ''])}
+    {
+        useEffect(() => {
+            if (props.dataRent.distanciaMt === '') {
+                getPosition();
+            }
+        }, [props.dataRent.distanciaMt === ''])
+    }
 
     const onUpdateCoordinates = (valor) => {
         setCoordinadas(valor);
     }
-    
+
     return (
-    <SafeAreaView  style={{ flex: 1 }}>  
-        {modalInfo ? openModalInfo() : <></>} 
-        <ScrollView  style={estilos.contenedor}>
-        {   
-            ( props.dataRent.distanciaMt <= distanciaMaxRenta )  //valor ini <= si la distacia con la estación es menor a 300 metros
-            ? 
-            <>
-            {
-                (props.dataRent.prestamoActivo ) ? 
-                <>
-                    { 
-                    (props.dataRent.distanciaMt <= distanciaMaxRenta ) ? 
-                    <>
-                        {
-                        (props.dataRent.horarios.dia === state.dia) && 
-                        (props.dataRent.horarios.hora === true) && 
-                        (props.dataRent.usuarioValido === true) &&
-                        (props.dataRent.penalizaciones === 0) ?
-                        <SafeAreaView style={estilos.contentCenter}>
-    
-                            <View style={estilos.cajaCod2}>
+        <SafeAreaView style={{ flex: 1 }}>
+            {modalInfo ? openModalInfo() : <></>}
+            <ScrollView style={estilos.contenedor}>
+                {
+                    (props.dataRent.distanciaMt <= distanciaMaxRenta)  //valor ini <= si la distacia con la estación es menor a 300 metros
+                        ?
+                        <>
+                            {
+                                (props.dataRent.prestamoActivo) ?
+                                    <>
+                                        {
+                                            (props.dataRent.distanciaMt <= distanciaMaxRenta) ?
+                                                <>
+                                                    {
+                                                        (props.dataRent.horarios.dia === state.dia) &&
+                                                            (props.dataRent.horarios.hora === true) &&
+                                                            (props.dataRent.usuarioValido === true) &&
+                                                            (props.dataRent.penalizaciones === 0) ?
+                                                            <SafeAreaView style={estilos.contentCenter}>
 
-                                <BackgroundTaskManager />
-      
-                                <Pressable  
-                                    onPress={() => { irFInRenta()}}
-                                    style={estilos.btnCenter1}>
-                                    <View style={estilos.btnSaveOK2}>
-                                        <Text style={estilos.btnSaveColor}>Devolver Vehículo</Text>
+                                                                <View style={estilos.cajaCod2}>
+
+                                                                    <BackgroundTaskManager />
+
+                                                                    <Pressable
+                                                                        onPress={() => { irFInRenta() }}
+                                                                        style={estilos.btnCenter1}>
+                                                                        <View style={estilos.btnSaveOK2}>
+                                                                            <Text style={estilos.btnSaveColor}>Devolver Vehículo</Text>
+                                                                        </View>
+                                                                    </Pressable>
+
+                                                                    <Pressable
+                                                                        onPress={() => { setModalInfo(true) }}
+                                                                        style={{
+                                                                            width: Dimensions.get('window').width,
+                                                                            textAlign: 'center',
+                                                                            alignItems: 'center',
+                                                                        }}>
+                                                                        <Text style={{
+                                                                            fontSize: 18,
+                                                                            color: Colors.$texto50,
+                                                                            fontFamily: Fonts.$poppinsregular
+                                                                        }}>
+                                                                            información
+                                                                        </Text>
+                                                                    </Pressable>
+
+                                                                </View>
+                                                            </SafeAreaView>
+                                                            :
+                                                            <View style={estilos.cajaMns}>
+                                                                {(props.dataRent.usuarioValido === true) ? <></> : <Text style={estilos.denegado}>Usuario NO habilitado </Text>}
+                                                                {(props.dataRent.horarios.dia === state.dia) ? <></> : <Text style={estilos.denegado}>Día No hábil </Text>}
+                                                                {(props.dataRent.horarios.hora === true) ? <></> : <Text style={estilos.denegado}>Horario fuera de servicio </Text>}
+                                                                {(props.dataRent.penalizaciones === 0) ? <></> : <Text style={estilos.denegado}>Tiene penalizaciones </Text>}
+                                                            </View>
+                                                    }
+                                                </>
+                                                :
+                                                <>
+                                                    {
+                                                        (props.dataRent.clave === null) ?
+                                                            <View style={estilos.contentCenter}>
+                                                                <Text style={estilos.denegado2}>La distancia es {props.dataRent.distanciaMt} metros, está fuera de los límites para hacer la renta</Text>
+                                                                <Pressable onPress={() => {
+                                                                    calcularDistancia()
+                                                                }} style={estilos.btnCenter}>
+                                                                    <View style={estilos.btnSaveOK}>
+                                                                        <Text style={estilos.btnSaveColor}>Volver a calcular distancia</Text>
+                                                                    </View>
+                                                                </Pressable>
+                                                            </View>
+                                                            :
+                                                            <View style={estilos.cajaDatosViaje}>
+
+                                                                <View style={estilos.contentMsn2}>
+                                                                    <Text style={estilos.textVehiculo}>Renta en Progreso</Text>
+                                                                    <Text style={estilos.textVehiculo2}>Renta vence:</Text>
+                                                                </View>
+
+                                                                <View style={estilos.contentMsn2}>
+                                                                    <Text style={estilos.textVehiculo2}>Distancia con la estación</Text>
+                                                                    <Text style={estilos.textClave}>
+                                                                        {latActual !== '' && lngActual !== '' ?
+                                                                            props.dataRent.distanciaMt
+                                                                            :
+                                                                            'calculando...'
+                                                                        }
+                                                                        <Text style={estilos.textVehiculo2}> metros</Text>
+                                                                    </Text>
+                                                                </View>
+
+                                                                <View style={estilos.cajaSubIn}>
+                                                                    <Text style={estilos.textVehiculo2}>TIEMPO</Text>
+                                                                    <View style={estilos.subIndicadores}>
+                                                                        <Text style={estilos.textsubIndicadures}>
+                                                                            {(horasV < 10) ? "0" + horasV : "" + horasV} :
+                                                                            {(minutosV < 10) ? " 0" + minutosV : "" + minutosV} :
+                                                                            {(segundosV < 10) ? " 0" + segundosV : "" + segundosV}
+
+                                                                            {(segundosV === 60) ? incrementarMin() : <></>}
+                                                                        </Text>
+                                                                    </View>
+                                                                </View>
+
+                                                                <View>
+                                                                    <Pressable onPress={() => {
+                                                                        calcularDistancia()
+                                                                    }} style={estilos.btnCenter}>
+                                                                        <View style={estilos.btnSaveOK}>
+                                                                            <Text style={estilos.btnSaveColor}>Devolver vehículo</Text>
+                                                                        </View>
+                                                                    </Pressable>
+
+                                                                    <Pressable onPress={() => {
+                                                                        RootNavigation.navigate('Ayuda3GScreen')
+                                                                    }} style={estilos.btnCenter}>
+                                                                        <View style={estilos.btnSaveOK}>
+                                                                            <Text style={estilos.btnSaveColor3}>AYUDA</Text>
+                                                                        </View>
+                                                                    </Pressable>
+
+
+                                                                </View>
+
+                                                            </View>
+                                                    }
+                                                </>
+                                        }
+                                    </>
+                                    :
+                                    <>
+                                    </>
+                            }
+                        </>
+                        :
+                        <>
+                            <View style={estilos.contentCenter}>
+                                <Text style={estilos.denegado3}>La distancia en metros con la estación es: </Text>
+                                <Text style={estilos.denegado4}>{props.dataRent.distanciaMt}</Text>
+                                <Text style={estilos.denegado2}>Estás fuera de los límites para hacer una renta.</Text>
+                                <Pressable onPress={() => {
+                                    home()
+                                }} style={estilos.btnCenter}>
+                                    <View style={estilos.btnSaveOK}>
+                                        <Text style={estilos.btnSaveColor}>Home</Text>
                                     </View>
                                 </Pressable>
+                            </View>
+                        </>
+                }
+            </ScrollView >
 
-                                <Pressable  
-                                    onPress={() => { setModalInfo(true)}}
-                                    style={{
-                                        width: Dimensions.get('window').width,
-                                        textAlign: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Text style={{
-                                        fontSize: 18,
-                                        color: Colors.$texto50,
-                                        fontFamily: Fonts.$poppinsregular
-                                    }}>
-                                        información
-                                    </Text>
-                                </Pressable>
-                                
-                            </View>                                
-                        </SafeAreaView>
-                        :
-                        <View style={estilos.cajaMns}>
-                        {(props.dataRent.usuarioValido === true) ? <></> : <Text style={estilos.denegado}>Usuario NO habilitado </Text>}
-                        {(props.dataRent.horarios.dia  === state.dia) ? <></>: <Text style={estilos.denegado}>Día No hábil </Text>}
-                        {(props.dataRent.horarios.hora === true) ? <></> : <Text style={estilos.denegado}>Horario fuera de servicio </Text>}
-                        {(props.dataRent.penalizaciones === 0) ? <></> : <Text style={estilos.denegado}>Tiene penalizaciones </Text>}
-                        </View>
-                        }    
-                    </>
-                    :
-                    <>
-                        {   
-                        (props.dataRent.clave === null) ?
-                        <View style={estilos.contentCenter}>
-                            <Text style={estilos.denegado2}>La distancia es { props.dataRent.distanciaMt } metros, está fuera de los límites para hacer la renta</Text>
-                            <Pressable  onPress={()=>{ 
-                                calcularDistancia() 
-                            }} style={estilos.btnCenter}>
-                                <View style={estilos.btnSaveOK}>
-                                    <Text style={estilos.btnSaveColor}>Volver a calcular distancia</Text>
-                                </View>
-                            </Pressable>
-                        </View>
-                        :
-                        <View style={estilos.cajaDatosViaje}>
-
-                                <View style={estilos.contentMsn2}>
-                                    <Text style={estilos.textVehiculo}>Renta en Progreso</Text>
-                                    <Text style={estilos.textVehiculo2}>Renta vence:</Text>
-                                </View> 
-
-                                <View style={estilos.contentMsn2}>
-                                    <Text style={estilos.textVehiculo2}>Distancia con la estación</Text>
-                                    <Text style={estilos.textClave}>
-                                        { latActual !== '' && lngActual !== '' ?
-                                        props.dataRent.distanciaMt 
-                                        :
-                                        'calculando...'
-                                        } 
-                                        <Text style={estilos.textVehiculo2}> metros</Text>
-                                    </Text> 
-                                </View>
-                                
-                                <View style={estilos.cajaSubIn}>
-                                    <Text style={estilos.textVehiculo2}>TIEMPO</Text>
-                                    <View style={estilos.subIndicadores}>
-                                        <Text style={estilos.textsubIndicadures}>
-                                        { (horasV < 10 ) ? "0" + horasV:"" + horasV} :  
-                                        { (minutosV < 10) ? " 0" + minutosV:"" + minutosV} : 
-                                        { (segundosV < 10) ? " 0" + segundosV:"" + segundosV}
-
-                                        { (segundosV === 60) ? incrementarMin() : <></>}
-                                        </Text>
-                                    </View>
-                                </View>  
-                                
-                                <View>
-                                    <Pressable  onPress={()=>{ 
-                                        calcularDistancia() 
-                                    }} style={estilos.btnCenter}>
-                                        <View style={estilos.btnSaveOK}>
-                                            <Text style={estilos.btnSaveColor}>Devolver vehículo</Text>
-                                        </View>
-                                    </Pressable>
-                                    
-                                    <Pressable  onPress={()=>{ 
-                                        RootNavigation.navigate('Ayuda3GScreen') 
-                                        }} style={estilos.btnCenter}>
-                                            <View style={estilos.btnSaveOK}>
-                                                <Text style={estilos.btnSaveColor3}>AYUDA</Text>
-                                            </View>
-                                    </Pressable> 
-
-                                    
-                                </View>
-                                    
-                        </View>
-                        }
-                    </> 
-                    }
-                </>
-                :
-                <>
-                </>
-            } 
-            </>
-            :
-            <>
-            <View style={estilos.contentCenter}>
-                <Text style={estilos.denegado3}>La distancia en metros con la estación es: </Text>
-                <Text style={estilos.denegado4}>{ props.dataRent.distanciaMt }</Text>
-                <Text style={estilos.denegado2}>Estás fuera de los límites para hacer una renta.</Text>
-                <Pressable  onPress={()=>{ 
-                    home() 
-                }} style={estilos.btnCenter}>
-                    <View style={estilos.btnSaveOK}>
-                        <Text style={estilos.btnSaveColor}>Home</Text>
-                    </View>
-                </Pressable>
-            </View>
-            </>
-        }                                                 
-        </ScrollView >
-
-    </SafeAreaView>
+        </SafeAreaView>
     );
 }
 
@@ -856,15 +859,15 @@ const styles = StyleSheet.create({
     cajaCabeza: {
         backgroundColor: Colors.$primario,
         justifyContent: 'space-around',
-        alignItems: 'center', 
+        alignItems: 'center',
         borderRadius: 1,
         width: Dimensions.get('window').width,
         position: 'absolute',
         top: 0
     },
-    btnAtras:{
+    btnAtras: {
         position: 'absolute',
-        top: 10, 
+        top: 10,
         left: 10,
         width: 50,
         height: 50,
@@ -934,7 +937,7 @@ const styles = StyleSheet.create({
 
 const estilos_ = StyleSheet.create({
     cajaTarjeta: {
-        width: Dimensions.get('window').width*.3,
+        width: Dimensions.get('window').width * .3,
         height: 140,
         backgroundColor: Colors.$blanco,
         alignItems: "center",
@@ -943,14 +946,14 @@ const estilos_ = StyleSheet.create({
         marginBottom: 10,
         shadowColor: "#000",
         shadowOffset: {
-          width: 5,
-          height: 5,
+            width: 5,
+            height: 5,
         },
         shadowOpacity: 1,
         shadowRadius: 5,
         elevation: 8,
     },
-    row_:{
+    row_: {
         width: "90%",
         height: 'auto',
         backgroundColor: Colors.$secundario50,
@@ -967,43 +970,43 @@ const estilos_ = StyleSheet.create({
         justifyContent: 'center',
     },
     btnInit: {
-        fontFamily: Fonts.$poppinsregular, 
-        textAlign: "center", 
-        fontSize: 18, 
-        paddingTop: 'auto', 
-        paddingBottom: 'auto', 
+        fontFamily: Fonts.$poppinsregular,
+        textAlign: "center",
+        fontSize: 18,
+        paddingTop: 'auto',
+        paddingBottom: 'auto',
         color: 'white',
         color: Colors.$blanco,
         alignSelf: "center",
-        width : 250,
+        width: 250,
     },
     cajaCabeza: {
         backgroundColor: Colors.$blanco,
         flex: 1,
         justifyContent: 'space-around',
-        alignItems: 'center', 
-        borderWidth : 1,
-        borderColor : Colors.$blanco,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: Colors.$blanco,
         borderRadius: 25,
         width: Dimensions.get('window').width,
         position: 'relative',
         marginTop: -30,
     },
-    
+
     barraCaja: {
-        width: 30, 
-        height: 30, 
-        borderRadius: 15, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: Colors.$blanco
     },
-    cajaInfo: {        
+    cajaInfo: {
         width: 100,
         height: 'auto',
         alignItems: 'center',
-        justifyContent: 'center',  
-        marginBottom: 10   
+        justifyContent: 'center',
+        marginBottom: 10
     },
     textCaja: {
         fontSize: 14,
@@ -1012,11 +1015,11 @@ const estilos_ = StyleSheet.create({
         paddingLeft: 5
     },
     textTitle: {
-        marginTop: 30, 
-        marginBottom: 20, 
-        textAlign: 'center', 
-        fontSize : 22, 
-        fontFamily : Fonts.$poppinsmedium,
+        marginTop: 30,
+        marginBottom: 20,
+        textAlign: 'center',
+        fontSize: 22,
+        fontFamily: Fonts.$poppinsmedium,
         alignSelf: "center",
         color: Colors.$texto80
     },
@@ -1028,9 +1031,9 @@ const estilos_ = StyleSheet.create({
         width: 30,
         height: 30,
     },
-    btnAtras:{
+    btnAtras: {
         position: 'absolute',
-        top: 15, 
+        top: 15,
         left: 15,
         width: 50,
         height: 50,
@@ -1040,8 +1043,8 @@ const estilos_ = StyleSheet.create({
         borderRadius: 25,
         shadowColor: "#000",
         shadowOffset: {
-          width: 5,
-          height: 5,
+            width: 5,
+            height: 5,
         },
         shadowOpacity: 1,
         shadowRadius: 5,
@@ -1051,19 +1054,19 @@ const estilos_ = StyleSheet.create({
 
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {
-      fontSize: moderateScale(13),
-      paddingVertical: 8,
-      borderBottomWidth: 1,
-      backgroundColor: "transparent",
-      paddingLeft: moderateScale(15),
-      marginLeft: moderateScale(20),
-      marginRight: moderateScale(20),
-      borderColor: '#8ac43f',
-      borderWidth: 2,
-      borderRadius: 25,
-      marginTop: 15,
-      color: 'white',
-      marginBottom: 30,
+        fontSize: moderateScale(13),
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        backgroundColor: "transparent",
+        paddingLeft: moderateScale(15),
+        marginLeft: moderateScale(20),
+        marginRight: moderateScale(20),
+        borderColor: '#8ac43f',
+        borderWidth: 2,
+        borderRadius: 25,
+        marginTop: 15,
+        color: 'white',
+        marginBottom: 30,
     },
     inputAndroid: {
         marginLeft: 20,
@@ -1079,17 +1082,17 @@ const pickerSelectStyles = StyleSheet.create({
         color: Colors.$texto,
         backgroundColor: Colors.$blanco,
         borderColor: Colors.$texto20,
-        width: Dimensions.get('window').width*0.7,
+        width: Dimensions.get('window').width * 0.7,
         paddingLeft: 20,
         fontFamily: Fonts.$poppinsregular,
     },
     placeholder: {
         color: Colors.$texto,
     },
-    registerTitleContainer:{
+    registerTitleContainer: {
         color: '#f60',
     },
-    accountTitle:{
+    accountTitle: {
         marginBottom: 1,
     },
 });

@@ -48,6 +48,7 @@ import { apiPerfil } from '../../api/apiPerfil';
 import { connect, useDispatch } from 'react-redux';
 import { getEstaciones } from '../../actions/actionPerfil'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import Chatbot from '../Chatbot/Chatbot';
 
 const mapRef = React.createRef();
@@ -101,7 +102,10 @@ function HomeScreen(props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            dispatch(routingIfHasTrip());
+            /*if (!props.dataParqueo.conectividad_net) {
+                return
+            }*/
+            //dispatch(routingIfHasTrip()); // Deshabilitado para evitar crash con MongoDB deprecado
         }, [])
     );
 
@@ -109,40 +113,125 @@ function HomeScreen(props) {
         const correo_cor = infoUser.DataUser.email;
         let tablaEmail = 'bc_empresas/email/' + correo_cor;
         let emailCorporativo = await apiPerfil.get__empresa(tablaEmail);
-        console.log('empresa por el correo corporativo es:', emailCorporativo);
+        //console.log('empresa por el correo corporativo es:', emailCorporativo);
         dispatch(getEstaciones(emailCorporativo.data[0].emp_nombre));
     }
 
+    /*const recordarReserva = async () => {
+        const pendientes = JSON.parse(await AsyncStorage.getItem('qr_pendientes')) || [];
+        if (pendientes.length === 0) {
+          //Alert.alert('Modo Offline','No tiene ningún pendiente para guardar');
+          return;
+        }
+    
+        for (let qr of pendientes) {
+          try {
+            Alert.alert(
+                "Parqueadero",
+                "Acción pendiente en Lugar" + qr.numero + " con QR " + qr.qr + ".",
+                [
+                    {
+                        text: "",
+                        style: "cancel"
+                    },
+                    {
+                        text: "Confirmar",
+                        onPress: () =>  RootNavigation.navigate('Home_parqueadero')
+                    }
+                ]
+            )
+          } catch (error) {
+            console.log('Error sincronizando QR:', error);
+            break;
+          }
+        }
+    };*/
+
+    const [isConnected, setIsConnected] = useState(true);
+    const [connectionType, setConnectionType] = useState(null);
+
+    useEffect(() => {
+        // Suscribirse a los cambios de estado de red
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected);
+            setConnectionType(state.type);
+        });
+
+        // Limpiar la suscripción al desmontar
+        return () => unsubscribe();
+    }, []);
+
+    const recordarReserva = async () => {
+        const pendientes = JSON.parse(await AsyncStorage.getItem('qr_pendientes')) || [];
+        if (pendientes.length === 0) {
+            return;
+        }
+
+        for (let qr of pendientes) {
+            try {
+                if (isConnected) {
+                    // Con conexión estable
+                    Alert.alert(
+                        "Parqueadero",
+                        `Acción pendiente en Lugar ${qr.numero} con QR ${qr.qr}.`,
+                        [
+                            {
+                                text: "Cancelar",
+                                style: "cancel"
+                            },
+                            {
+                                text: "Confirmar",
+                                onPress: () => RootNavigation.navigate('Home_parqueadero')
+                            }
+                        ]
+                    );
+                } else {
+                    // Sin conexión estable
+                    Alert.alert(
+                        "Parqueadero",
+                        `Acción pendiente en Lugar ${qr.numero} con QR ${qr.qr}.\n\nNo puedes avanzar sin conexión estable.`,
+                        [
+                            {
+                                text: "Aceptar",
+                                style: "cancel"
+                            }
+                        ]
+                    );
+                }
+            } catch (error) {
+                console.log('Error sincronizando QR:', error);
+                break;
+            }
+        }
+    };
+
+    useEffect(() => {
+        recordarReserva();
+    }, [isConnected])
+
+
     useEffect(() => {
         if (infoUser) {
-            refreshToken()
+            refreshToken();
             trearEstaciones();
         }
     }, [infoUser])
+
+
 
     useEffect(() => {
         //dispatch( patch__img() )
         //dispatch( patch__calificacion() )
     }, []);
-    /**
-     Versión de Android: 
-     {  
-        "OS": "android", 
-        "Version": 34, 
-        "__constants": 
-        {
-            "Brand": "google", 
-            "Fingerprint": "google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.036.A1/11228894:userdebug/dev-keys", 
-            "Manufacturer": "Google", 
-            "Model": "sdk_gphone64_x86_64", 
-            "Release": "14", "Serial": "unknown", "ServerHost": "10.0.2.2:8081", "Version": 34, "isTesting": false, "reactNativeVersion": {"major": 0, "minor": 72, "patch": 0, "prerelease": null}, "uiMode": "normal"}, "constants": {"Brand": "google", "Fingerprint": "google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.036.A1/11228894:userdebug/dev-keys", "Manufacturer": "Google", "Model": "sdk_gphone64_x86_64", "Release": "14", "Serial": "unknown", "ServerHost": "10.0.2.2:8081", "Version": 34, "isTesting": false, "reactNativeVersion": {"major": 0, "minor": 72, "patch": 0, "prerelease": null}, "uiMode": "normal"}, "isTV": false, "isTesting": false, "select": [Function select]}
-    */
 
     useEffect(() => {
         //dispatch(verifyTripActiveCache())
         if (Platform.OS === 'android') {
             console.log('Versión de Android:', Platform.__constants.Release);
             if (Platform.__constants.Release >= '13') {
+                if (!props.dataParqueo.conectividad_net) {
+                    return
+                }
                 dispatch(notificationPermissions());
             } else {
                 console.log('Está versión no necesita permisos para notificación')
@@ -151,7 +240,11 @@ function HomeScreen(props) {
 
         refreshToken()
         setTimeout(function () {
-            dispatch(routingIfHasTrip());
+            //console.log('props.dataParqueo.conectividad_net', props.dataParqueo.conectividad_net)
+            /*if (!props.dataParqueo.conectividad_net) {
+                return
+            }*/
+            //dispatch(routingIfHasTrip()); // Deshabilitado para evitar crash con MongoDB deprecado
         }, 1000);
 
         backHandler = BackHandler.addEventListener(
@@ -268,7 +361,7 @@ function HomeScreen(props) {
                                             language: 'es',
                                             components: 'country:co'  // Limitar resultados a Colombia
                                         }}
-                                        redefinedPlaces={[]}
+                                        predefinedPlaces={[]}
                                         styles={{
                                             container: {
                                                 flex: 0,
@@ -442,7 +535,6 @@ function HomeScreen(props) {
         loadStoredData();
     }, []);
 
-
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
 
@@ -459,6 +551,7 @@ function HomeScreen(props) {
                     </View>
             }
             <MapScreen></MapScreen>
+
             {/* Floating Chatbot Button */}
             <Pressable onPress={() => setModalVisibleChat(true)} style={estilos.fabBot}>
                 <View style={estilos.tooltipContainer}>
@@ -663,7 +756,8 @@ const estilos = StyleSheet.create({
 function mapStateToProps(state) {
     return {
         dataRent: state.reducer3G,
-        perfil: state.reducerPerfil
+        perfil: state.reducerPerfil,
+        dataParqueo: state.reducerParqueadero,
     }
 }
 

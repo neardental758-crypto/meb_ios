@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import RootContainer from '../RootContainer';
 import { StatusBar, View, Platform, Linking, AppState, Modal, Text, ActivityIndicator } from 'react-native';
 import { Root } from 'native-base';
-import RNExitApp from 'react-native-exit-app';
+//import RNExitApp from 'react-native-exit-app';
+import { BackHandler } from 'react-native';
 import { getItem } from '../Services/storage.service';
 import Colors from '../Themes/Colors';
 import Fonts from '../Themes/Fonts';
@@ -48,6 +49,7 @@ function App (props) {
     if (nextAppState === 'inactive' || nextAppState === 'background') {
       let needToClose = await getItem("closeAppNeeded");
       if (needToClose == "needToClose") {
+        //RNExitApp.exitApp();
         RNExitApp.exitApp();
       }
     }

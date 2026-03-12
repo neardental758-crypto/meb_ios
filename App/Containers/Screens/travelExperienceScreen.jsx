@@ -36,6 +36,7 @@ import { Env } from "../../Utils/enviroments";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeModules } from 'react-native';
 import { changeProgreso, getLogrosProgreso, changeProgresoEstado, saveProgresoLogro} from '../../actions/actionPerfil';
+import { useDispatch } from 'react-redux';
 
 const { LocationServiceModule } = NativeModules; //Solo android
 const { SharedPreferencesModule } = NativeModules; //Solo android
@@ -73,6 +74,7 @@ function travelExperienceScreen (props){
             isChecked: false
         })
     const { infoUser, logout } = useContext( AuthContext )
+    const dispatch = useDispatch();
     useEffect( () => {
         setState({ 
             ...state, 
@@ -91,6 +93,12 @@ function travelExperienceScreen (props){
         console.log("las props en calificar experiencia", props.currentTrip.userId)
     }
 
+    const cerrarApp = () => {
+        if (Platform.OS === 'android') {
+            NativeModules.AppExit.exitApplication();
+        }
+    };
+
     const clearTrackingData = async () => {
         try {
             await AsyncStorage.multiRemove([
@@ -100,15 +108,18 @@ function travelExperienceScreen (props){
                 'isTrackingActive',
                 'posicionInicial'
             ])
-            await SharedPreferencesModule.clearCoordinates(); //Solo android
+            if (Platform.OS === 'android') {
+                await SharedPreferencesModule.clearCoordinates(); //Solo android
+            }
             Alert.alert("Coordenadas nativas eliminadas exitosamente");
             console.log('Datos de rastreo eliminados');
             if (Env.modo === 'tablet') {
                 console.log('ESTAMOS EN TABLET ; VAMOS A CERRAR SESION');
                 await logout(); 
+                await cerrarApp();
                 return
             }
-            //RootNavigation.navigate('Home');
+            RootNavigation.navigate('Home');
         } catch (err) {
             console.log('Error al limpiar los datos de rastreo:', err);
         }
@@ -328,7 +339,7 @@ try {
 
     const submit = async () => {
         console.log('el modo es :', Env.modo)
-        progresoLogro();
+        //progresoLogro();
         // Función para validar la calificación y el comentario
         const validateFeedback = () => {
             if (!state.rating) {
@@ -354,7 +365,7 @@ try {
         if (!validateFeedback()) return;
     
         console.log('finalizando trip desde travelExperience', props.actualTrip.id);
-        
+        Alert.alert('Terminando', 'Viaje finalizado correctamente');
         // Configuración de los datos de viaje y envío de retroalimentación
 
         await setState({
@@ -572,7 +583,7 @@ try {
                                 />
                             }
                         </View>
-                        <Text style={stylesModal.textoCheck}>He asegurado el vehículo correctamente</Text>
+                        <Text style={stylesModal.textoCheck}>He asegurado el vehículo correctamente.</Text>
                     </View>
 
                                 

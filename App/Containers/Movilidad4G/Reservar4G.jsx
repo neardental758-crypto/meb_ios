@@ -1,457 +1,424 @@
 import {
-  Image,
-  ImageBackground,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  Pressable,
-  View,
-  StyleSheet,
-  Alert,
-  Modal,
-  Button,
-  Dimensions,
+    Image,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    Pressable,
+    View,
+    StyleSheet,
+    Alert,
+    Modal,
+    Dimensions,
 } from 'react-native';
 import { 
-  rentActive,
-  getFallas,
-  validateUser3g,
-  validateHorarios,
-  reserveActive,
-  viewPenalizaciones,
-  calcularDistancia,
-  viewEstacion,
-  viewVehiculo,
-  saveReserva,
-  changeVehiculo,
-  validateRegister,
-  savePenalization,
-  cambiarEstadoReserva,
-  decrementarSeg,
-  saveStateBicicletero
+    rentActive,
+    getFallas,
+    validateUser3g,
+    validateHorarios,
+    reserveActive,
+    viewPenalizaciones,
+    calcularDistancia,
+    viewEstacion,
+    viewVehiculo,
+    saveReserva,
+    changeVehiculo,
+    validateRegister,
+    savePenalization,
+    cambiarEstadoReserva,
+    decrementarSeg,
+    saveStateBicicletero,
 } from '../../actions/actions3g';
 import Images from '../../Themes/Images';
 import Fonts from '../../Themes/Fonts';
 import React, { useState, useEffect, useContext } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
-import { navigationNewTicket, supportRequest } from '../../actions/actions';
+import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 import estilos from './styles/reservas4g';
-import { apimysql } from './functions/funciones';
-import firebase from '@react-native-firebase/app';
-import messaging from '@react-native-firebase/messaging';
 import Colors from '../../Themes/Colors';
-import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metrics';
-import { getItem, setItem } from '../../Services/storage.service';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Env } from "../../Utils/enviroments"; 
-import { TimeComponent } from './missingtTimeScreen';
+import { moderateScale } from '../../Themes/Metrics';
 import * as RootNavigation from '../../RootNavigation';
 import { AuthContext } from '../../AuthContext';
 import { GuiaEstados } from '../../Components/movilidad4g/GuiaEstados';
-import Bluetooth from './BluetoothClassic';
 import LottieView from 'lottie-react-native';
 
 function Reservar4G(props){
-  const [ state , setState ] = useState({
-      dataCargada: false,
-      documentoUser: '',
-      organizacion: '',
-      fecha: new Date(),
-      fechaVence: '',
-      dia: new Date().toUTCString().substr(0,3),
-      horas: new Date().getHours(),
-      horaExtraida: new Date().toUTCString().substr(17,8),
-      estaciones: '',
-      penalizaciones: null,
-      ticket: null, 
-      numVehiculo: null,
-      prestamoActivo: true,
-      reservaVencida: false,
-      registroFinalizado : false,
-      reservaActiva: '',
-      isOpenBackgroundInfoModal: false,
-  });
-  const { infoUser } = useContext( AuthContext )
-  const dispatch = useDispatch();
-  const [estacionData , setEstacionData] = useState('');
-  const [bicicletaData , setBicicletaData] = useState('');
-  const [resInicio , setResInicio] = useState();
-  const [reservando, setReservando] = useState(false);
-  const [estaciones, setEstaciones ] = useState('');
-  const [ticket, setTicket ] = useState(null);
-  const [numVehiculo, setNumVehiculo ] = useState('');
-  const [mac, setMac ] = useState(null);
-  const [macCargado, setMacCargado ] = useState(false);
-  const [resArduino, setResArduino] = useState(null);
-  const [claveHC05, setclaveHC05] = useState(null);
-  const [claveHC05Cargada, setclaveHC05Cargada] = useState(false);
+    const [ state , setState ] = useState({
+        dataCargada: false,
+        fecha: new Date(),
+        dia: new Date().toUTCString().substr(0,3),
+        horas: new Date().getHours(),
+        horaExtraida: new Date().toUTCString().substr(17,8),
+        estaciones: '',
+        ticket: null, 
+        numVehiculo: null,
+    });
+    const { infoUser } = useContext( AuthContext )
+    const dispatch = useDispatch();
+    const [estacionData , setEstacionData] = useState('');
+    const [bicicletaData , setBicicletaData] = useState('');
+    const [resInicio , setResInicio] = useState('');
+    const [reservando, setReservando] = useState(false);
+    const [modalError, setModalError] = useState(false);
+    const [modalReservaExitosa, setModalReservaExitosa] = useState(false);
+    const [minutosReserva, setMinutosReserva] = useState('');
 
-  const displayBackgroundInfoModal = (value) => {
-  setState({ ...state, isOpenBackgroundInfoModal: value })
-  }
+    const goBack = () => { RootNavigation.navigate('Home3G') }
 
-  const reservaOK = async() => {
-    await displayBackgroundInfoModal(false); 
-    await home()
-  }
+    const openBackgroundInfoModal = () => {
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 22,
+                height: 20,
+            }}>
+                <Modal transparent={true} animationType="slide">
+                    <View style={{ backgroundColor: Colors.$texto80, flexDirection: "column", flex: 1 }}>
+                        <View style={{ flex: 1, borderRadius: 20, marginVertical: 200, marginHorizontal: 25, justifyContent: "space-between", alignItems: "center", paddingHorizontal: 25, position: "relative", backgroundColor: Colors.$blanco, padding: 10 }}>
+                            
+                            <Text style={{ 
+                                textAlign: "center", 
+                                color: Colors.$texto,
+                                fontFamily: Fonts.$poppinsmedium,
+                                fontSize: 22,
+                                margin: 10,
+                                zIndex: 100
+                            }}
+                            >¡Reserva Exitosa!</Text>   
 
-  const openBackgroundInfoModal = () => {
-      return (
-        <View style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 22,
-          height: 20,
-      }}>
-          <Modal transparent={true} animationType="slide">
-              <View style={{ backgroundColor: Colors.$texto80, flexDirection: "column", flex: 1 }}>
-                  <View style={{ flex: 1, borderRadius: 20, marginVertical: 200, marginHorizontal: 25, justifyContent: "space-between", alignItems: "center", paddingHorizontal: 25, position: "relative", backgroundColor: Colors.$blanco, padding: 10 }}>
-                      
-                      <Text style={{ 
-                          textAlign: "center", 
-                          color: Colors.$texto,
-                          fontFamily: Fonts.$poppinsmedium,
-                          fontSize: 22,
-                          margin: 10,
-                          zIndex: 100
-                      }}
-                      >¡Reserva Exitosa!</Text>   
+                            <View style={{
+                                justifyContent: "center", 
+                                alignItems: "center", 
+                                width: 250,
+                                minHeight: 250,
+                              }}>
+                                <LottieView source={require('../../Resources/Lotties/bicy_01.json')} autoPlay loop 
+                                style={{
+                                  width: 250,
+                                  height: 250              
+                                }}/>
+                            </View>                      
 
-                      <View style={{
-                          justifyContent: "center", 
-                          alignItems: "center", 
-                          width: 250,
-                          minHeight: 250,
-                        }}>
-                          <LottieView source={require('../../Resources/Lotties/bicy_01.json')} autoPlay loop 
-                          style={{
-                            width: 250,
-                            height: 250              
-                          }}/>
-                      </View>                      
-
-                      <Pressable  
-                          onPress={() => { 
-                              reservaOK()
-                          }}
-                          style={estilos.btnCenter}>
-                          <View style={[estilos.btnSaveOK, {
-                              backgroundColor: Colors.$primario,
-                              width: 300
-                          }]}>
-                              <Text style={[estilos.textBtnNext, {
-                                  color: Colors.$blanco, fontSize: 18, fontFamily: Fonts.$poppinsregular
-                              }]}>Aceptar</Text>
-                          </View>
-                      </Pressable>                             
-                  </View>
-              </View>
-          </Modal>
-      </View>
-      )
-  }
-
-  const home = () => {RootNavigation.navigate('Home4G')}
-  const irRentar = () => {RootNavigation.navigate('Vehiculos4G')}
-
-  const crearPenalizacion = async() => {
-      const data = {
-          "pen_id": "0",
-          "pen_tipo_penalizacion": "1",
-          "pen_novedad": "por vencimiento de reserva",
-          "pen_usuario": props.dataRent.DataUser.DataUser.idNumber,
-          "pen_fecha_creacion":  state.fecha.toUTCString().substr(0,10),
-          "pen_fecha_tiempo_ok": state.dia,
-          "pen_fecha_dinero_ok": "dinero",
-          "pen_estado": "ACTIVA",
-          "pen_fecha_apelado": "sin fecha",
-          "pen_motivo_apelado": "sin motivo"
-      }
-      let vehiculo = props.dataRent.reservas.data[0].res_bicicleta;
-      let reservaId = props.dataRent.reservas.data[0].res_id;
-      dispatch(savePenalization(data, vehiculo, reservaId));
-  }
-
-  const registroFinalizado = async (cc) => {
-      await dispatch(validateRegister(cc));
-  }
-
-  const verPenalizaciones = async (cc) => {
-      await dispatch(viewPenalizaciones(cc));
-  }
-
-  const prestamoActivo = async (cc) => {
-      await dispatch(rentActive(cc))
-  }
-
-  const guardarReserva = async() => {
-      let hoy = new Date();
-      let dia = state.dia;
-      let fechaVence = '';
-      if (dia === 'Sat') {
-          fechaVence = new Date( hoy.setDate(hoy.getDate() + 2 ))
-      }else{
-          fechaVence = new Date( hoy.setDate(hoy.getDate() + 1 ))
-      }
-      const data = {
-          "res_id": "0",
-          "res_estacion": estaciones.est_estacion,
-          "res_usuario": infoUser.DataUser.idNumber,
-          "res_bicicleta": ticket,
-          "res_fecha_inicio": state.fecha.toUTCString().substr(0,10),
-          "res_hora_inicio": new Date().toUTCString().substr(17,8),
-          "res_fecha_fin": fechaVence.toJSON(),
-          "res_hora_fin": state.horas,
-          "res_estado": "ACTIVA"
-      }
-      console.log('data', data)
-      await dispatch(saveReserva(data, fechaVence.toJSON()));
-      //displayBackgroundInfoModal(true); 
-  }
-
-  const vehiculoseleccionado = async(data) => {
-    //data.bic_id, data.bic_numero, data.bic_estado
-    console.log('la data del veh selec', data)
-    console.log('clave del veh selec', data.bc_bicicletero.bro_clave)
-    if (data.bic_estado === 'DISPONIBLE') {
-      setTicket(data.bic_id);
-      setNumVehiculo(data.bic_numero);
-      setclaveHC05Cargada(true);
-      setclaveHC05(data.bc_bicicletero.bro_clave);
-      //dispatch(saveStateBicicletero(id, state.estaciones));
-    }else {
-      Alert.alert('Vehículo ', data.bic_estado)
-    }
-  }
-
-  const conectarArduino = async (mac) => {
-    if(mac !== 'sin mac'){
-      setMacCargado(true);
-      setMac(mac)
-    }
-  }
-
-  const getVehiculos = async (estacion) => {
-    if(estacion !== ''){
-        await dispatch(viewVehiculo(estacion));
-    }
-  } 
-  
-  const gestionarEstacion = async (data) => {
-    console.log('la estacion seleccionada: ', data)
-    await conectarArduino(data.est_mac);
-    await getVehiculos(data.est_estacion);
-
-  }
-
-  const traerEstaciones = async(empresa) => {
-      console.log('entrnado a lassssss estaciones ', empresa)
-      await dispatch(viewEstacion(empresa));
-  }
-
-  const reservasActivas = async (cc) => {
-      const res = await dispatch(reserveActive(cc));
-      console.log('QUE RESERVA HAYYYYYYYYYYYYYY', res);
-  }
-
-  const userActivo = async (cc) => {
-      console.log('mirando si usuario activo', cc);
-      await dispatch(validateUser3g(cc));
-  }
-
-  const penal = async () => {
-      crearPenalizacion();
-  }
-
-  useEffect(() => {
-      if (props.perfil.empresa !== null) {
-         traerEstaciones(props.perfil.empresa);  
-      }              
-  },[props.perfil.empresa])
-  
-  useEffect(() => {
-      console.log('La cedula desde infoUser.DataUser.idNumber :',infoUser.DataUser.idNumber )  
-      console.log('El correo desde infoUser.DataUser.email :',infoUser.DataUser.email )  
-      //prestamoActivo(infoUser.DataUser.idNumber);
-      userActivo(infoUser.DataUser.idNumber);
-      //reservasActivas(infoUser.DataUser.idNumber);
-      verPenalizaciones(infoUser.DataUser.idNumber);
-      registroFinalizado(infoUser.DataUser.idNumber);  
-  },[])
-
-  useEffect(() => {
-    if (props.dataRent.vehiculoReservaCargada) {
-       console.log('vehiculo en reserva ', props.dataRent.dataVehiculoReserva) 
-    }              
-  },[props.dataRent.vehiculoReservaCargada])
-
-  useEffect(() => {
-    if (props.dataRent.bicicletasCargadas) {
-       console.log('vehiculos', props.dataRent.bicicletas.data) 
-    }              
-  },[props.dataRent.bicicletasCargadas])
-
-  useEffect(() => {
-    if (props.dataRent.estacionesCargadas) {
-       console.log('estaciones', props.dataRent.estacionex.data) 
-    }              
-  },[props.dataRent.estacionesCargadas])
-
-  useEffect(() => {
-    if (props.dataRent.reservaSave) {
-      displayBackgroundInfoModal(true); 
-    }
-  }, [props.dataRent.reservaSave])
-
-  const getVehicleStyle = (estado) => {
-    switch (estado) {
-      case 'DISPONIBLE':
-        return estilos.cajaTextVehiuclosDisponible;
-      case 'RESERVADA':
-        return estilos.cajaTextVehiuclosReservada;
-      case 'PRESTADA':
-        return estilos.cajaTextVehiuclosPrestada;
-      case 'INACTIVA':
-        return estilos.cajaTextVehiuclosInactiva;
-      case 'EN TALLER':
-        return estilos.cajaTextVehiuclosTaller;
-      default:
-        return estilos.cajaTextVehiuclosSinEstado;
-    }
-  };
-  
-  const liberar = () => {
-    console.log('liberando este vehiculo con ble HC-05')
-  }
-
-  const respuestaArduino = (res) => {
-    console.log('res arduino', res);
-    setResArduino(res);
-  }
-
-  return (        
-  <SafeAreaView style={estilos.safeArea}>
-      
-      {(state.isOpenBackgroundInfoModal) ? openBackgroundInfoModal() : <></>}
-
-      <View style={styles.cajaCabeza}>
-        <Pressable  
-          onPress={() => { home() }}
-          style={styles.btnAtras}>
-          <View>
-            <Image source={Images.menu_icon} style={styles.iconMenu}/> 
-          </View>
-        </Pressable>
-        
-        <Text style={styles.titulo}>Reservar un vehículo</Text>
-      </View> 
-
-      <ScrollView>
-          {
-              (props.dataRent.prestamoActivo === false) ? 
-              <>
-              { 
-                  (props.dataRent.reservaSave === false) ? 
-                  <>
-                  {
-                      (props.dataRent.registroFinalizado === true) &&
-                      (props.dataRent.usuarioValido == true) &&
-                      (props.dataRent.penalizaciones === 0) &&
-                      (props.dataRent.usuarioValido == true)
-                      ?
-                      <>
-                      <View style={styles.contenedor}>
-                          {
-                              (props.dataRent.estacionesCargadas === true) ?
-                              <>
-                                  {<RNPickerSelect
-                                      style={pickerSelectStyles}
-                                      placeholder={{ label: 'Elige tu estación', value: '' }}
-                                      useNativeAndroidPickerStyle={false}
-                                      value={estaciones}
-                                      onValueChange={
-                                          (value) => { 
-                                              setEstaciones(value), 
-                                              gestionarEstacion(value)
-                                          }
-                                      }
-                                      items={props.dataRent.estacionex.data.map((data) =>
-                                          ({ label: data.est_estacion, value: data }))
-                                      }
-
-                                      Icon={() => {
-                                          return (
-                                          <Image source={Images.iconPickerYellow} style={{tintColor: Colors.$adicional, top: 25, right: 50, height: 25, width: 25, resizeMode: 'contain' }} />
-                                          );
-                                      }}
-                                  />}
-                                  <GuiaEstados />
-                                  
-                              </>:
-                              <><Text style={{textAlign: 'center', fontSize: moderateScale(25)}}>...cargando las estaciones...</Text></>
-                          }
-                          
-                      </View>
-                      
-                      
-                      {
-                          ticket !== null ?
-                          <View style={estilos.cajaBtnReservar}>
-                              <Text style={estilos.titleSelect4}>Vehículo seleccionado: {numVehiculo}</Text>
-
-                              {
-                                  reservando ? 
-                                  <View style={{
-                                      justifyContent: "center", 
-                                      alignItems: "center", 
-                                      width: Dimensions.get('window').width,
-                                      height: 'auto', 
-                                      }}>
-                                      <LottieView source={require('../../Resources/Lotties/bicy_loader.json')} autoPlay loop 
-                                      style={{
-                                          width: Dimensions.get('window').width,
-                                          height: 150,             
-                                      }}/>
-                                  </View>
-                                  :
-                                  <View style={{
-                                    width: Dimensions.get('window').width*.9,
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-around',
-                                  }}>
-                                  <Pressable  
-                                      onPress={() => { 
-                                          setReservando(true),
-                                          guardarReserva()
-                                      }} 
-                                      style={estilos.btnCenter}>
-                                      <View style={estilos.btnRed}>
-                                          <Text style={estilos.btnTextColorBlack}>
-                                            Reservar
-                                          </Text>
-                                      </View>
-                                  </Pressable>
+                            <Pressable  
+                                onPress={() => { 
+                                    guardar_reserva()
+                                }}
+                                style={estilos.btnCenter}>
+                                <View style={[estilos.btnSaveOK, {
+                                    backgroundColor: Colors.$primario,
+                                    width: 300
+                                }]}>
+                                    <Text style={[estilos.textBtnNext, {
+                                        color: Colors.$blanco, fontSize: 18, fontFamily: Fonts.$poppinsregular
+                                    }]}>OK</Text>
                                 </View>
-                              }
-                              
-                          </View>
-                          :
-                          <View style={estilos.cajaImgReserva}>
-                              
-                          </View>
-                      }
+                            </Pressable>                             
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+        )
+    }
 
-                    <View style={estilos.boxPrincipalItemsReserva}>
-                     
-                      
-                        {props.dataRent.bicicletasCargadas === true ? 
-                        <>
-                         {
-                        ticket === null ?
+    const openModalError = () => {
+        return (
+            <Modal transparent={true} animationType="slide">
+                <View style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)' // si usas transparent={true}
+                }}>
+                    <View style={{
+                        borderRadius: 20,
+                        width: '80%',
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: 25,
+                        backgroundColor: Colors.$blanco
+                    }}>
+                        <Text style={{
+                            textAlign: "center",
+                            color: Colors.$texto80,
+                            fontFamily: Fonts.$poppinsregular,
+                            fontSize: 22,
+                            margin: 10,
+                        }}>
+                            Vehículo no disponible
+                        </Text>
+
+                        <LottieView source={require('../../Resources/Lotties/bicy_error.json')} autoPlay loop
+                            style={{ width: 150, height: 150 }} />
+
+                        <Pressable
+                            onPress={() => setModalError(false)}
+                            style={{
+                                backgroundColor: Colors.$primario,
+                                paddingVertical: 10,
+                                paddingHorizontal: 20,
+                                borderRadius: 10,
+                                marginTop: 20
+                            }}>
+                            <Text style={{
+                                color: Colors.$blanco,
+                                fontSize: 18,
+                                fontFamily: Fonts.$poppinsregular
+                            }}>Aceptar</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
+
+    const guardar_reserva = async () => {
+        console.log('Guardando la reserva');
+
+        const ahora = new Date();
+        ahora.setHours(ahora.getHours() - 5);
+        const hora = ahora.getHours();
+
+        // Validar si está fuera del horario permitido (entre 7 PM y 6 AM)
+        /*if (hora >= 19 || hora < 6) {
+            Alert.alert(
+                "Horario no permitido",
+                "Las reservas solo se pueden realizar entre las 6:00 a.m. y 7:00 p.m."
+            );
+            return;
+        }*/
+
+        // Obtenemos duración de la reserva en minutos desde la DB
+        const duracionMinutos = minutosReserva || 60;
+
+        const horaFin = new Date(ahora.getTime() + duracionMinutos * 60000); // sumamos minutos
+
+        const data = {
+            res_id: "0",
+            res_estacion: state.estaciones.est_estacion,
+            res_usuario: props.dataRent.docUsuario,
+            res_bicicleta: state.ticket,
+            res_fecha_inicio: ahora.toISOString().substring(0, 10), // YYYY-MM-DD
+            res_hora_inicio: ahora.toTimeString().substring(0, 8),  // HH:MM:SS
+            res_fecha_fin: horaFin.toISOString().substring(0, 10),
+            res_hora_fin: horaFin.toTimeString().substring(0, 8),
+            res_estado: "ACTIVA"
+        };
+
+        console.log('data save reserva', data);
+
+        await dispatch(saveReserva(data, horaFin.toISOString().substring(0, 10), duracionMinutos, state.ticket));
+        await resetState();
+        await setModalReservaExitosa(false);
+
+    };
+
+
+
+    const resetState = async () => {
+        await setState({ 
+            ...state,
+            dataCargada: false,
+            ticket: null, 
+            numVehiculo: null,
+        })
+        await setEstacionData('');
+        await setBicicletaData('');
+        await setResInicio('');
+        await setReservando(false);
+        await setModalError(false);
+    }
+
+    const vehiculoseleccionado = async(data) => {
+        console.log('data', data);
+        console.log('data bicicletero', data.bc_bicicletero.bro_id);
+        console.log('la estacion para bicicletero', state.estaciones)
+        console.log('Los minutos para la reserva', minutosReserva);
+
+        if (data.bic_estado === 'DISPONIBLE') {
+            setState({ ...state, ticket: data.bic_id, numVehiculo: data.bic_numero })
+            dispatch(saveStateBicicletero(data.bc_bicicletero.bro_id));
+        }else {
+            setModalError(true);
+        }
+    }
+    
+    const viewBicycle = async (data) => {
+        console.log('la estacion seleccionada es:', data)
+        console.log('El horario de la estacion seleccionada es:', data.est_horario);
+        setMinutosReserva(data.est_horario);
+        if(data !== ''){
+            await dispatch(viewVehiculo(data.est_estacion));
+        }
+    }
+
+    const traerEstaciones = async(empresa) => {
+        console.log('entrnado a lassssss estaciones ', empresa)
+        await dispatch(viewEstacion(empresa));
+    }
+
+    const reservasActivas = async (cc) => {
+        const res = await dispatch(reserveActive(cc));
+    }
+
+    const getVehicleStyle = (estado) => {
+        switch (estado) {
+          case 'DISPONIBLE':
+            return styles.cajaTextVehiuclosDisponible;
+          case 'RESERVADA':
+            return styles.cajaTextVehiuclosReservada;
+          case 'PRESTADA':
+            return styles.cajaTextVehiuclosPrestada;
+          case 'INACTIVA':
+            return styles.cajaTextVehiuclosInactiva;
+          case 'EN TALLER':
+            return styles.cajaTextVehiuclosTaller;
+          case 'CAMBIAR CLAVE':
+            return styles.cajaTextVehiuclosPrestada;
+          default:
+            return styles.cajaTextVehiuclosSinEstado;
+        }
+    };
+
+    useEffect(()=>{
+        if(typeof props.dataRent.reservas.data != 'undefined'){
+            setEstacionData(props.dataRent.reservas.data[0].res_estacion);
+            setBicicletaData(props.dataRent.reservas.data[0].res_bicicleta);
+            setResInicio(props.dataRent.reservas.data[0].res_fecha_inicio);
+        }
+    },[props.dataRent.reservas.data])
+
+    useEffect(() => {
+        if (props.perfil.empresa !== null) {
+            console.log('la empresa es hhdhhdhdhdhdhdhhdhd ', props.perfil.empresa)
+            traerEstaciones(props.perfil.empresa);  
+        }              
+    },[props.perfil.empresa])
+
+    useEffect(() => {
+        if (props.dataRent.reservaSave) {
+            RootNavigation.navigate('Home4G')
+        }
+    },[props.dataRent.reservaSave])
+
+    useEffect(()=>{
+        if (!props.dataRent.estacionesCargadas) {
+            if (props.perfil.empresa !== null) {
+                traerEstaciones(props.perfil.empresa);  
+             }   
+        }
+
+        if (props.dataRent.estacionesCargadas) {
+            console.log('data estacion ', props.dataRent.estacionex)
+        }
+    },[props.dataRent.estacionesCargadas])
+
+    useEffect(() => {
+        dispatch(validateUser3g(infoUser.DataUser.idNumber))
+        dispatch(viewPenalizaciones(infoUser.DataUser.idNumber));
+        dispatch(validateRegister(infoUser.DataUser.idNumber));
+    },[])
+    
+    return (    
+    <>   
+    {modalReservaExitosa ? openBackgroundInfoModal() : <></>}  
+    {modalError ? openModalError() : <></>}  
+    <SafeAreaView style={estilos.safeArea}>
+        <ScrollView>
+        <View style={styles.cajaCabeza}>
+          <Pressable  
+              onPress={() => { goBack() }}
+              style={ styles.btnAtras }>
+              <View>
+              <Image source={Images.menu_icon} style={[styles.iconMenu]}/> 
+              </View>
+          </Pressable>
+          <Text style={estilos.title}>Disponibilidad</Text>
+        </View>    
+    
+        {
+            (props.dataRent.registroFinalizado === true) &&
+            (props.dataRent.usuarioValido == true) &&
+            (props.dataRent.penalizaciones === 0) &&
+            (props.dataRent.usuarioValido == true)
+            ?
+            <>
+            <View style={estilos.contenedor}>
+                {
+                    (props.dataRent.estacionesCargadas === true) ?
+                    <>
+                        {<RNPickerSelect
+                            style={pickerSelectStyles}
+                            placeholder={{ label: 'Elige tu estación', value: '' }}
+                            useNativeAndroidPickerStyle={false}
+                            value={state.estaciones}
+                            onValueChange={
+                                (value) => { 
+                                    setState({ ...state, estaciones: value }), 
+                                    viewBicycle(value)
+                                }
+                            }
+                            items={props.dataRent.estacionex.data.map((data) =>
+                                ({ label: data.est_estacion, value: data }))
+                            }
+
+                            Icon={() => {
+                                return (
+                                <Image source={Images.iconPickerYellow} style={{tintColor: 'black', top: 25, right: 50, height: 25, width: 25, resizeMode: 'contain' }} />
+                                );
+                            }}
+                        />
+                        
+                        }<GuiaEstados />
+                        
+                    </>:
+                    <><Text style={{textAlign: 'center', fontSize: moderateScale(25)}}>...cargando las estaciones...</Text></>
+                }
+                
+            </View>                       
+            
+            {
+                state.ticket !== null ?
+                <View style={estilos.cajaBtnReservar}>
+                    <Text style={estilos.titleSelect4}>Seleccionaste el vehículo: {state.numVehiculo}</Text>
+
+                    {
+                        reservando ? 
                         <View style={{
+                            justifyContent: "center", 
+                            alignItems: "center", 
+                            width: Dimensions.get('window').width,
+                            height: 'auto', 
+                            }}>
+                            <LottieView source={require('../../Resources/Lotties/bicy_loader.json')} autoPlay loop 
+                            style={{
+                                width: Dimensions.get('window').width,
+                                height: 150,             
+                            }}/>
+                        </View>
+                        :
+                        <Pressable  
+                            onPress={() => { 
+                                setReservando(true),
+                                setModalReservaExitosa(true)
+                            }} 
+                            style={estilos.btnCenter}>
+                            <View style={estilos.btnRed}>
+                                <Text style={estilos.btnTextColorBlack}>Reservar</Text>
+                            </View>
+                        </Pressable>
+                    }
+                    
+                </View>
+                :
+                <></>
+            }
+
+            <View style={estilos.boxPrincipalItemsReserva}>
+                {
+                    state.ticket === null && props.dataRent.bicicletasCargadas?
+                    <View style={{
                             justifyContent: "center", 
                             alignItems: "center", 
                             width: Dimensions.get('window').width,
@@ -465,223 +432,220 @@ function Reservar4G(props){
                         </View>
                         :
                         <></>
-                      }
-                        {
-                            props.dataRent.bicicletas.data.map((data) => 
-                               
-                              <Pressable 
-                                key={data.bic_numero}
-                                onPress={() => { 
-                                    vehiculoseleccionado(data)
-                                }} 
-                                style={
-                                    (numVehiculo !== data.bic_numero) ?
-                                    estilos.btnVehiculos
-                                    :                          
-                                    estilos.btnVehiculosSelect
-                                }
-                                >
-                                <View style={getVehicleStyle(data.bic_estado)}>
-                                {
-                                    data.bic_nombre === 'electrica' 
-                                    ? 
-                                    <Image source={Images.bicycle_Icon} style={[estilos.iconBici, {tintColor : 'black'}]}/> 
-                                    :
-                                    <></>
-                                }
-                                {
-                                    data.bic_nombre === 'patineta' 
-                                    ? 
-                                    <Image source={Images.patin_Icon} style={[estilos.iconBici, {tintColor : 'black'}]}/> 
-                                    :
-                                    <></>
-                                }
-                                {
-                                    data.bic_nombre === 'mecanica' 
-                                    ? 
-                                    <Image source={Images.cycle_Icon} style={[estilos.iconBici, {tintColor : 'black'}]}/> 
-                                    :
-                                    <></>
-                                }
-                                
-                                    <Text style={estilos.textVehiculo}>{data.bic_numero}</Text> 
-                                </View>
-                              </Pressable>
-              
-                            )
-                        }
+                }
                         
-                        </>
-                        :
-                        <>
-                          {/*<Image source={Images.reserva01} style={estilos.imgReserva01}/>*/}
-                          <View style={{
-                              justifyContent: "center", 
-                              alignItems: "center", 
-                              width: Dimensions.get('window').width,
-                              height: 'auto', 
-                              }}>
-                              <LottieView source={require('../../Resources/Lotties/bicy_04.json')} autoPlay loop 
-                              style={{
-                                  width: Dimensions.get('window').width,
-                                  height: Dimensions.get('window').width,             
-                              }}/>
-                          </View>
-                        </>
-                        }
-                      </View>
+                {props.dataRent.bicicletasCargadas === true ? 
+                <>
+                {
+                    props.dataRent.bicicletas.data.map((data) => 
+                        <Pressable 
+                            key={data.bic_numero}
+                            onPress={() => { 
+                                vehiculoseleccionado(data)
+                            }} 
+                            style={
+                                (state.numVehiculo !== data.bic_numero) ?
+                                estilos.btnVehiculos
+                                :
+                                estilos.btnVehiculosSelect
+                            }>
+                            <View style={getVehicleStyle(data.bic_estado)}>
+                            {
+                                data.bic_nombre === 'electrica' 
+                                ? 
+                                <Image source={Images.bicycle_Icon} style={[estilos.iconBici, {tintColor : Colors.$inactiva}]}/> 
+                                :
+                                <></>
+                            }
+                            {
+                                data.bic_nombre === 'patineta' 
+                                ? 
+                                <Image source={Images.patin_Icon} style={[estilos.iconBici, {tintColor : Colors.$inactiva}]}/> 
+                                :
+                                <></>
+                            }
+                            {
+                                data.bic_nombre === 'mecanica' 
+                                ? 
+                                <Image source={Images.cycle_Icon} style={[estilos.iconBici, {tintColor : Colors.$inactiva}]}/> 
+                                :
+                                <></>
+                            }
+                            
+                                <Text style={estilos.textVehiculo}>{data.bic_numero}</Text> 
+                            </View>
+                        </Pressable>
+                    )
+                }
+                
+                </>
+                :
+                <View style={{
+                    justifyContent: "center", 
+                    alignItems: "center", 
+                    width: Dimensions.get('window').width,
+                    minHeight: Dimensions.get('window').height*.5,
+                    }}>
+                    <LottieView source={require('../../Resources/Lotties/bicy_04.json')} autoPlay loop 
+                    style={{
+                        width: Dimensions.get('window').width,
+                        height: Dimensions.get('window').width              
+                    }}/>
+                </View>  
+                }
+            </View>
 
-                      
-                      </>
-                      :
-                      <>
-                      <View style={estilos.contentMsn}>
-                          {(props.dataRent.usuarioValido === true) ? <></>: <Text style={estilos.denegado}>Usuario NO habilitado</Text>}
-                          {(props.dataRent.penalizaciones === 0) ? <></> : <Text style={estilos.denegado}>Tiene penalizaciones {props.dataRent.penalizaciones}</Text>}
-                          {(props.dataRent.registroFinalizado === true) ? <></> : <Text style={estilos.denegado}>No ha finalizado el registro {props.dataRent.registroFinalizado}</Text>}   
-                      </View>
-                      </>
-                  }
-                  </>
-                  :
-                  <></>
-              }
-              </>
-              :
-              <View>
-                  <Text style={estilos.aceptado3}>Préstamo activo </Text>
-                  <Pressable  
-                      onPress={() => { irRentar() }}
-                      style={estilos.btnCenter}>
-                      <View style={estilos.btnSaveOK}>
-                          <Text style={estilos.btnSaveColor}>Ir a rentar</Text>
-                      </View>
-                  </Pressable>
-              </View>
-          }
-      </ScrollView>
-      
-  </SafeAreaView>
-  );
-  
+            
+            </>
+            :
+            <>
+            <View style={estilos.contentMsn}>
+                {(props.dataRent.usuarioValido === true) ? <></>: <Text style={estilos.denegado}>Usuario NO habilitado</Text>}
+                {(props.dataRent.penalizaciones === 0) ? <></> : <Text style={estilos.denegado}>Tiene penalizaciones {props.dataRent.penalizaciones}</Text>}
+                {(props.dataRent.registroFinalizado === true) ? <></> : <Text style={estilos.denegado}>No ha finalizado el registro {props.dataRent.registroFinalizado}</Text>}   
+            </View>
+            </>
+        }            
+                
+        </ScrollView>
+        
+    </SafeAreaView>
+    </>
+    );
+    
 }
 
 const styles = StyleSheet.create({
-  contenedor: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.$blanco,
-  },
-  cajaCabeza: {
-    backgroundColor: Colors.$blanco,
-    justifyContent: 'space-between',
-    alignItems: 'center', 
-    borderRadius: 1,
-    width: Dimensions.get('window').width,
-    height: 80,
-    position: 'relative',
-    top: 0,
-    flexDirection: 'row',
-    zIndex: 100
-  },
-  titulo: {
-    fontFamily: Fonts.$poppinsmedium, 
-    fontSize: 22, 
-    color: Colors.$texto,
-    alignItems: 'center',
-    textAlign: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  btnAtras: {
-    position: 'absolute',
-    top: 10, 
-    left: 10,
-    width: 50,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-    zIndex: 1000
-  },
-  iconMenu: {
-    width: 50,
-    height: 50,
-  },
-  textButton: {
-    fontFamily: Fonts.$poppinsmedium, 
-    fontSize: 20, 
-    color: Colors.$texto,
-    alignSelf: "center",
-    marginVertical: 20,
-  },
-  picker: {
-    height: 50,
-    width: 200,
-  },
-  selectedStationView: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  selectedStationText: {
-    fontSize: 18,
-    color: Colors.$texto,
-  },
-});
+    cajaCabeza: {
+        backgroundColor: Colors.$blanco,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: Dimensions.get('window').width,
+        height: 100,
+        position: 'relative',
+    },
+    btnAtras:{
+        position: 'absolute',
+        top: 10, 
+        left: 10,
+        width: 50,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 25
+    },
+    iconMenu: {
+        width: 50,
+        height: 50,
+    },
+    cajaTextVehiuclosDisponible: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$disponible
+    },
+    cajaTextVehiuclosReservada: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$reservada
+    },
+    cajaTextVehiuclosPrestada: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$prestada
+    },
+    cajaTextVehiuclosInactiva: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$inactiva
+    },
+    cajaTextVehiuclosTaller: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: Colors.$taller
+    },
+    cajaTextVehiuclosSinEstado: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        backgroundColor: 'white'
+    },
+})
 
 const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 14,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    backgroundColor: "transparent",
-    paddingLeft: 15,
-    marginLeft: 20,
-    marginRight: 20,
-    borderColor: '#8ac43f',
-    borderWidth: 2,
-    borderRadius: 25,
-    marginTop: 15,
-    color: '#878787',
-    height: 40,
-    marginBottom: 30,
-  },
-  inputAndroid: {
-    marginLeft: 20,
-    marginRight: 20,
-    borderWidth: 2,
-    borderRadius: 25,
-    marginBottom: 10,
-    fontSize: 20,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    marginTop: 10,
-    paddingBottom: 10,
-    color: Colors.$texto,
-    backgroundColor: Colors.$blanco,
-    borderColor: Colors.$secundario50,
-    width: Dimensions.get('window').width*0.9,
-    paddingLeft: 20,
-    fontFamily: Fonts.$poppinsregular,
-    textAlign: 'center',
-  },
-  placeholder: {
+    inputIOS: {
+      fontSize: moderateScale(13),
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      backgroundColor: "transparent",
+      paddingLeft: 15,
+      marginLeft: 20,
+      marginRight: 20,
+      borderColor: '#8ac43f',
+      borderWidth: 2,
+      borderRadius: 25,
+      marginTop: 15,
+      color: '#878787',
+      height: 40,
+      marginBottom: 30,
+    },
+    inputAndroid: {
+      marginLeft: 20,
+      marginRight: 20,
+      borderWidth: 2,
+      borderRadius: 25,
+      marginBottom: 30,
+      fontSize: 20,
+      paddingHorizontal: 10,
+      borderBottomWidth: 1,
+      marginTop: 10,
+      paddingBottom: 10,
       color: Colors.$texto,
-  },
-  registerTitleContainer:{
-    color: '#f60',
-  },
-  accountTitle:{
-    marginBottom: 1,
-  },
+      backgroundColor: Colors.$blanco,
+      borderColor: Colors.$texto20,
+      width: Dimensions.get('window').width*0.9,
+      paddingLeft: 20,
+      fontFamily: Fonts.$poppinsregular,
+      textAlign: 'center',
+    },
+    placeholder: {
+      color: Colors.$texto,
+    },
+    registerTitleContainer:{
+      color: '#f60',
+    },
+    accountTitle:{
+      marginBottom: 1,
+    },
 });
 
 function mapStateToProps(state) {
-  return {
-      perfil: state.reducerPerfil,
-      dataRent: state.reducer3G,
-  }
+    return {
+        perfil: state.reducerPerfil,
+        dataRent: state.reducer3G,
+    }
 }
 
 export default connect(mapStateToProps)(Reservar4G);

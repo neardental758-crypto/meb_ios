@@ -9,6 +9,7 @@ import {
 	SAVE_DATA_CRONO_OK,
 	RENT_ACTIVE,
 	FETCH_SUCCESS_RENT,
+	RENT_ACTIVE_PP,
 	FETCH_NULL_USERR,
 	GET_FALLAS,
 	FETCH_SUCCESS_FAllAS,
@@ -53,6 +54,8 @@ import {
 	SAVE_COMENTARIO_BC,
 	SAVE_COMENTARIO_OK,
 	SAVE_PUNTOS_BC,
+	SAVE_PUNTOS_BC_SINUSUARIO,
+	RESTAR_PUNTOS_BC,
 	SAVE_PUNTOS_OK,
 	CHANGE_CLAVE_BC,
 	CHANGE_CLAVE_OK,
@@ -68,6 +71,7 @@ import {
 	VALIDATE_VEHICLE_OK,
 	SAVE_VP_VIAJE,
 	SAVE_VP_VIAJE_OK,
+	SAVE_VP_VIAJE_FAILURE,
 	VALIDATE_VEHICLE_SINMYSQL,
 	VALIDATE_VEHICLE_SINMYSQL_OK,
 	REINICIAR_QR,
@@ -118,7 +122,12 @@ import {
 	CALIFICACION_EXITOSA,
 	RESET_APP,
 	RESET_APP_OK,
-	COMPLETAR_PROGRESO_LOGRO
+	COMPLETAR_PROGRESO_LOGRO,
+	SAVE_REGISTRO_PP,
+	SAVE_REGISTRO_PP_OK,
+	BICICLETA_YA_PRESTADA,
+	VALIDATE_BIKE_AVAILABILITY,
+	VALIDATE_BIKE_AVAILABILITY_OK
 } from '../types/G3types'
 import { all, call, put, select, takeEvery, takeLatest, delay, cancel } from 'redux-saga/effects'
 import { getItem } from '../Services/storage.service';
@@ -137,7 +146,7 @@ function* save_register_ext_3g(action) {
 	if (!saveUser.error) {
 		yield put({ type: SAVE_REGISTER_EXT_OK });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', saveUser.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(saveUser.error))
 	}
 }
 function* save_register_ext() {
@@ -226,6 +235,43 @@ function* viewRentActive3g(action) {
 function* viewRentActive() {
 	yield takeLatest(RENT_ACTIVE, viewRentActive3g);
 }
+
+///RENTAS ACIVAS PP
+/////////////////////////////////////////////////////////////bc_estaciones
+function* viewRentActive3gPP(action) {
+	let user = yield getItem('user');
+	if (!user) {
+		console.log('Usuario no encontrado en storage');
+		return;
+	}
+	console.log('USUARIO', user.idNumber)
+	if (user.idNumber) {
+		let cc = action.cc;
+		let tabla = 'bc_prestamos/prestamoActivoPP'
+		let rent = yield api.get_tabla_cc_sinid(tabla, user.idNumber);
+		console.log('RENTA PP:::::::::::::::::::::::::::', rent);
+		if (rent && !rent.error) {
+			if (rent.data.length === 1) {
+				yield put({ type: FETCH_SUCCESS_RENT, payload: rent });
+			} else if (rent.data.length > 1) {
+				Alert.alert('Tienes un error en el último viaje, comunícate con soporte.');
+				yield put({ type: FETCH_ERROR_RENT, payload: rent });
+			} else {
+				yield put({ type: FETCH_FAILD_RENT })
+			}
+
+		} else {
+			console.log('ERROR DE LA SAGA 3G:')
+		}
+	} else {
+		console.log('Usuario no ha iniciado sesión')
+	}
+}
+function* viewRentActivePP() {
+	yield takeLatest(RENT_ACTIVE_PP, viewRentActive3gPP);
+}
+
+
 ////////////////////////////////////////////////////////////
 function* viewFallasNow() {
 	let tabla = 'bc_fallas'
@@ -233,7 +279,7 @@ function* viewFallasNow() {
 	if (!fallas.error) {
 		yield put({ type: FETCH_SUCCESS_FAllAS, payload: fallas });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', fallas.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(fallas.error))
 	}
 }
 function* viewFallas() {
@@ -253,7 +299,7 @@ function* validateUserNow(action) {
 			yield put({ type: FETCH_NULL_USERR });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', user.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(user.error))
 	}
 }
 function* validateUser() {
@@ -268,7 +314,7 @@ function* validateHorariosEmpresa(action) {
 	if (!horarios.error) {
 		yield put({ type: FETCH_SUCCESS_HORARIOS, payload: horarios });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', horarios.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(horarios.error))
 	}
 }
 function* validateHorarios() {
@@ -331,7 +377,7 @@ function* reserveActive3g(action) {
 		}
 
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', reserva.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(reserva.error))
 	}
 }
 function* reserveActive() {
@@ -345,7 +391,7 @@ function* viewPenalizations3g(action) {
 	if (penalizaciones && !penalizaciones.error) {
 		yield put({ type: REGISTER_PENALIZATION, payload: penalizaciones.data.length });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', penalizaciones.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(penalizaciones.error))
 	}
 }
 function* viewPenalizations() {
@@ -401,7 +447,7 @@ function* verEstacionesEmpresa3g(action) {
 	if (!estaciones.error) {
 		yield put({ type: FETCH_ESTACIONES_EMPRESA, payload: estaciones });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', estaciones.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(estaciones.error))
 	}
 }
 function* verEstacionesEmpresa() {
@@ -417,7 +463,7 @@ function* viewVehiculoEstacion3g(action) {
 	if (!vehiculo.error) {
 		yield put({ type: FETCH_VEHICULOS_ESTACION, payload: vehiculo });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', vehiculo.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(vehiculo.error))
 	}
 }
 function* viewVehiculoEstacion() {
@@ -481,7 +527,7 @@ function* saveReservaBC3g(action) {
 			}
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', reserva.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(reserva.error))
 	}
 }
 function* saveReservaBC() {
@@ -495,7 +541,7 @@ function* changeVehiculoEstado3g(action) {
 	if (!cambiov.error) {
 		yield put({ type: CHANGE_VEHICULO_ESTADO_OK });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', cambiov.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(cambiov.error))
 	}
 }
 function* changeVehiculoEstado() {
@@ -512,7 +558,7 @@ function* validateRegisterEnd3g(action) {
 			yield put({ type: VERIFICAR_REGISTRO_FINALIZADO, payload: register });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', register.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(register.error))
 	}
 }
 function* validateRegisterEnd() {
@@ -541,7 +587,7 @@ function* savePenalizateBC3g(action) {
 			yield put({ type: SAVE_PENALIZATION_OK });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', penalizacion.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(penalizacion.error))
 	}
 }
 function* savePenalizateBC() {
@@ -568,7 +614,7 @@ function* changeVehicleResrve3g(action) {
 			yield put({ type: FETCH_SUCCESS_RESERVE, payload: reserva });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', changeVeh.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(changeVeh.error))
 	}
 }
 function* changeVehicleResrve() {
@@ -580,6 +626,7 @@ function* savePrestamoBC3g(action) {
 	let tabla = 'bc_prestamos/registrar';
 
 	console.log('DATA PARA PRESTAMO:::::', data);
+
 	let prestamo = yield api.guardandoPrestamo(tabla, data);
 	console.log('PRESTAMO:::::', prestamo);
 
@@ -600,7 +647,7 @@ function* savePrestamoBC3g(action) {
 				"id": new Date().getTime(),
 				"usuario": user.idNumber,
 				"idViaje": rentID.data[0].pre_id,
-				"modulo": '3G-4G MEB',
+				"modulo": '3G-4G',
 				"respuestas": preoperacionales.respuestas,
 				"comentario": preoperacionales.comentario
 			}
@@ -649,11 +696,44 @@ function* savePrestamoBC3g(action) {
 			Alert.alert(prestamo.error.body.message);
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', prestamo.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(prestamo.error))
 	}
 }
 function* savePrestamoBC() {
 	yield takeLatest(SAVE_PRESTAMO_BC, savePrestamoBC3g);
+}
+////////////////////////////////////////////////////////////////
+// Validar disponibilidad de bicicleta antes de seleccionar
+function* validateBikeAvailability3g(action) {
+	const bicicletaId = action.bicicletaId;
+	console.log('Validando disponibilidad de bicicleta:', bicicletaId);
+
+	try {
+		// Obtener préstamos activos
+		let prestamosActivos = yield api.get__('bc_prestamos/prestamoActivos');
+		console.log('Préstamos activos:', prestamosActivos);
+
+		// Verificar si la bicicleta ya está prestada
+		const bicicletaYaPrestada = prestamosActivos.data?.some(
+			prestamo => prestamo.pre_bicicleta === bicicletaId
+		);
+
+		// Enviar resultado al reducer
+		yield put({
+			type: VALIDATE_BIKE_AVAILABILITY_OK,
+			payload: bicicletaYaPrestada
+		});
+	} catch (error) {
+		console.log('Error al validar disponibilidad de bicicleta:', error);
+		// En caso de error, asumimos que está disponible
+		yield put({
+			type: VALIDATE_BIKE_AVAILABILITY_OK,
+			payload: false
+		});
+	}
+}
+function* validateBikeAvailability() {
+	yield takeLatest(VALIDATE_BIKE_AVAILABILITY, validateBikeAvailability3g);
 }
 ////////////////////////////////////////////////////////////////
 function* changeReservaBc3g(action) {
@@ -671,7 +751,7 @@ function* changeReservaBc3g(action) {
 			yield put({ type: CHANGE_ESTADO_RESERVA_OK });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', cambioEstadoReserva.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(cambioEstadoReserva.error))
 	}
 }
 function* changeReservaBc() {
@@ -693,7 +773,7 @@ function* changePrestamoBc3g(action) {
 			yield put({ type: CHANGE_ESTADO_PRESTAMO_OK });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', cambioEstadoPrestamo.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(cambioEstadoPrestamo.error))
 	}
 }
 function* changePrestamoBc() {
@@ -705,7 +785,6 @@ function* changePrestamoRide3g(action) {
 	let tabla = 'bc_prestamos/' + action.data.pre_id;
 	let data2 = {
 		"bic_id": action.vehiculo,
-		"bic_estacion": action.nuevaEstacion,
 		"bic_estado": action.estadoV
 	}
 	let tabla2 = 'bc_bicicletas/updateEstado';
@@ -716,7 +795,7 @@ function* changePrestamoRide3g(action) {
 			yield put({ type: CHANGE_ESTADO_PRESTAMO_OK });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', cambioEstadoPrestamo.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(cambioEstadoPrestamo.error))
 	}
 }
 function* changePrestamoRide() {
@@ -731,7 +810,7 @@ function* saveHistClavesBc3g(action) {
 	if (saveClave && !saveClave.error) {
 		yield put({ type: SAVE_HIST_CLAVES_OK });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', saveClave.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(saveClave.error))
 	}
 }
 function* saveHistClavesBc() {
@@ -754,7 +833,7 @@ function* saveComentarioBc3g(action) {
 		yield put({ type: SAVE_COMENTARIO_OK });
 
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', saveComentario.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(saveComentario.error))
 	}
 }
 function* saveComentarioBc() {
@@ -762,17 +841,59 @@ function* saveComentarioBc() {
 }
 ////////////////////////////////////////////////////////////////////
 function* savePuntosBc3g(action) {
+	//let user = yield getItem('user');
 	let data = action.data;
 	let tabla = 'bc_puntos/registrar';
 	let savePunto = yield api.savePuntos(tabla, data);
 	if (!savePunto.error) {
 		yield put({ type: SAVE_PUNTOS_OK });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', savePunto.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(savePunto.error))
 	}
 }
 function* savePuntosBc() {
 	yield takeLatest(SAVE_PUNTOS_BC, savePuntosBc3g);
+}
+
+
+////// puntos sin usuario
+function* savePuntosBc3g__sinusuario(action) {
+	const user = yield getItem('user');
+	const datapun = {
+		...action.data,
+		"pun_usuario": user.idNumber
+	};
+	let tabla = 'bc_puntos/registrar';
+	let savePunto = yield api.savePuntos(tabla, datapun);
+	if (!savePunto.error) {
+		yield put({ type: SAVE_PUNTOS_OK });
+	} else {
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(savePunto.error))
+	}
+}
+function* savePuntosBc_sinusuario() {
+	yield takeLatest(SAVE_PUNTOS_BC_SINUSUARIO, savePuntosBc3g__sinusuario);
+}
+
+//restar puntos
+function* restarPuntosBc3g(action) {
+	let user = yield getItem('user');
+	let data = action.data;
+	let tabla = 'bc_puntos/registrar';
+	let savePunto = yield api.savePuntos(tabla, data);
+	if (!savePunto.error) {
+		yield put({ type: SAVE_PUNTOS_OK });
+		yield api.correo_recompnesas('bc_puntos/correo_recompensas', user.email, action.data.pun_motivo);
+		Alert.alert(
+			'🎉 Recompensa',
+			'¡Felicidades! Has obtenido una recompensa en RIDE. Revisa tu correo para más detalles. Nuestro equipo de soporte también se pondrá en contacto contigo para completar el proceso.'
+		);
+	} else {
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(savePunto.error))
+	}
+}
+function* restarPuntosBc() {
+	yield takeLatest(RESTAR_PUNTOS_BC, restarPuntosBc3g);
 }
 
 function* save_comentarios_vp(action) {
@@ -782,7 +903,7 @@ function* save_comentarios_vp(action) {
 	if (!savePunto.error) {
 		yield put({ type: SAVE_COMENTARIOS_VP_OK });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', savePunto.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(savePunto.error))
 	}
 }
 function* saveComentarioVP() {
@@ -797,7 +918,7 @@ function* changeClaveBc3g(action) {
 		yield put({ type: CHANGE_CLAVE_OK });
 
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', cambioKey.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(cambioKey.error))
 	}
 }
 function* changeClaveBc() {
@@ -814,7 +935,7 @@ function* get_tipos_v_p(action) {
 	if (!tvp.error) {
 		yield put({ type: GET_TYPE_VP_OK, payload: tvp });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', tvp.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(tvp.error))
 	}
 }
 function* get_tipos() {
@@ -876,7 +997,7 @@ function* uploadEventImage(action) {
 						yield put({ type: SAVE_VP_USUARIO_OK });
 					}
 				} else {
-					console.log('ERROR DE LA SAGA 3G: ', regVP.error)
+					console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(regVP.error))
 				}
 			}
 		} catch (e) {
@@ -896,7 +1017,7 @@ function* get_myvehicles_v_p(action) {
 	if (!mvp.error) {
 		yield put({ type: GET_MY_VEHICLES_OK, payload: mvp });
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', mvp.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(mvp.error))
 	}
 }
 function* get_myvehicles() {
@@ -916,7 +1037,7 @@ function* validata_vehicle_vp(action) {
 			yield put({ type: VALIDATE_VEHICLE_OK });
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', resp.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(resp.error))
 	}
 }
 function* validata_vehicle() {
@@ -929,12 +1050,11 @@ function* save_vp_trip_user(action) {
 	console.log('La data para el viaje en la SAGA', data);
 	let resp_trip = yield api.save_trip_vp(tabla, data);
 	console.log('resp_trip:::::', resp_trip)
-	if (!resp_trip.error) {
-		if (resp_trip === 'ok') {
-			yield put({ type: SAVE_VP_VIAJE_OK, payload: data });
-		}
+	if (resp_trip && !resp_trip.error) {
+		yield put({ type: SAVE_VP_VIAJE_OK, payload: data });
 	} else {
-		console.log('ERROR DE LA SAGA GUARDANDO VIAJE: ', resp_trip.error)
+		console.log('ERROR DE LA SAGA GUARDANDO VIAJE: ', resp_trip?.error || 'Unknown error');
+		yield put({ type: SAVE_VP_VIAJE_FAILURE });
 	}
 }
 function* save_vp_trip() {
@@ -992,7 +1112,7 @@ function* save_state_bicicletero_3g(action) {
 		let idBicicletero = bicicletero.data[0].bro_id;
 		yield put({ type: SAVE_STATE_BICICLETERO_OK, payload: idBicicletero});		
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', bicicletero.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(bicicletero.error))
 	}*/
 }
 function* save_state_bicicletero() {
@@ -1061,12 +1181,10 @@ function* end_vp_trip_user(action) {
 	let data = action.data;
 	let tabla = 'vp_viajes/updateTrip';
 	let end_trip = yield api.end_trip_vp(tabla, data);
-	if (!end_trip.error) {
-		if (end_trip === 'ok') {
-			yield put({ type: TRIP_END_VP_OK });
-		}
+	if (end_trip && !end_trip.error) {
+		yield put({ type: TRIP_END_VP_OK });
 	} else {
-		console.log('ERROR DE LA SAGA GUARDANDO VIAJE: ', end_trip.error)
+		console.log('ERROR DE LA SAGA FINALIZANDO VIAJE: ', end_trip?.error || 'Unknown error');
 	}
 }
 function* end_vp_trip() {
@@ -1159,44 +1277,53 @@ function* buscar_puntos() {
 function* mis_viajes_all(action) {
 	let user = yield getItem('user');
 	console.log('user _id: ' + user.id);
-	//viajes vehiculo particulas
-	let tabla = 'vp_viajes'
-	let viajesVP = yield api.get_tabla_cc(tabla, user.idNumber);
-	//viajes 3g y 4g
-	let tabla2 = 'bc_prestamos/prestamoUsuario';
-	let viajes3G = yield api.get_tabla(tabla2, user.idNumber);
-	//viajes 5g
-	let url_5g = "users/" + user.id + "/trips";
-	let viajes5G = yield api.viajes_5g(url_5g);
-	//viajes carpooling
+
+	// Viajes 3g, 4g y 5g unificados en bc_prestamos
+	let tabla3G4G5G = 'bc_prestamos/prestamoUsuario';
+	let viajesBC = yield api.get_tabla(tabla3G4G5G, user.idNumber);
+
+	// Viajes vehiculo particulares
+	let tablaVP = 'vp_viajes';
+	let viajesVP = yield api.get_tabla_cc(tablaVP, user.idNumber);
+
+	// Viajes carpooling
 	let url_carpooling = 'compartidoViajeActivo/viajeTerminado';
 	let viajeCarpooling = yield api.get_tabla(url_carpooling, user.idNumber);
-	//respuestas
-	console.log('viajes3G', viajes3G);
+
+	console.log('viajesBC (3G/4G/5G)', viajesBC);
 	console.log('viajesVP', viajesVP);
-	console.log('viajes5G', viajes5G);
 	console.log('viajescarpooling', viajeCarpooling.data);
-	console.log('viajes5G total', viajes5G.length);
-	console.log('viajescarpooling total', viajeCarpooling.data.length);
-	if (!viajesVP.error && !viajes3G.error) {
+
+	if (!viajesVP.error && !viajesBC.error && !viajeCarpooling.error) {
+		// Categorizar viajes de bc_prestamos por modulo
+		const misViajes3G = viajesBC.data?.filter(v => v.pre_modulo === '3g' || v.pre_modulo === '') || [];
+		const misViajes4G = viajesBC.data?.filter(v => v.pre_modulo === '4g') || [];
+		const misViajes5G = viajesBC.data?.filter(v => v.pre_modulo === '5g') || [];
+
 		yield put({
 			type: MIS_VIAJES_TOTAL,
 			payload: viajesVP.data.length,
 			misviajesVP: viajesVP.data,
-			cantidadV3g: viajes3G.data.length,
-			misViajes3G: viajes3G.data,
-			totalViajes5G: viajes5G.length,
-			misViajes5G: viajes5G,
+			cantidadV3g: misViajes3G.length,
+			misViajes3G: misViajes3G,
+			totalViajes4G: misViajes4G.length,
+			misViajes4G: misViajes4G,
+			totalViajes5G: misViajes5G.length,
+			misViajes5G: misViajes5G,
 			totalViajesCarpooling: viajeCarpooling.data.length,
 			misViajesCarpooling: viajeCarpooling.data
 		});
+
 		let totalkms = 0;
-		viajesVP.data.forEach((viaje) => {
-			totalkms = totalkms + Number(viaje.via_kilometros);
-		})
+		if (viajesVP.data) {
+			viajesVP.data.forEach((viaje) => {
+				totalkms = totalkms + Number(viaje.via_kilometros);
+			});
+		}
 		yield put({ type: MIS_VIAJES_KMS, payload: totalkms });
 	} else {
-		console.log('ERROR DE LA SAGA VERIFICANDO VIAJES: ', viajesVP.error)
+		const errorMsg = viajesVP.error || viajesBC.error || viajeCarpooling.error;
+		console.log('ERROR DE LA SAGA VERIFICANDO VIAJES: ', JSON.stringify(errorMsg));
 	}
 }
 function* mis_viajes() {
@@ -1439,94 +1566,6 @@ function* indicadores_prestamo__(action) {
 	console.log('la data_ind: ', data_ind);
 	let saveIndicadores = yield api.guardandoIndicadores(tabla, data_ind);
 	console.log('Se guardó el indicador');
-
-	//Validar si realizó más de 10 km y que no exista registro de progreso logro con los 10 km
-	/*if (indicador_.distancia >= 1000) {
-		const idLogro = 202; // ID del logro de los 10 km
-		const data_logro = {
-			"usuario_id": user.idNumber,
-			"logro_id": idLogro,
-			"estado": "COMPLETADO",
-		}; 
-		let get_progreso_logro = yield api.get_logro_progreso('progreso_logros/logro_progreso', data_logro);
-		
-		const progreso_actual = get_progreso_logro?.data ?? [];
-
-		console.log('✔ Progreso consulta tamaño:', progreso_actual.length);
-
-		if (progreso_actual.length === 1) {
-			console.log('✔ Ya completó este logro de 10 km:', progreso_actual);
-		}
-
-		if (progreso_actual.length === 0) {
-			console.log('❌ No se encontró progreso para el logro especificado. Tenemos que crear uno nuevo.');
-			const nuevo_logro = {
-				"id": uuidv4(),
-				"usuario_id": user.idNumber,
-				"logro_id": idLogro,
-				"progreso": 10,
-				"estado": "COMPLETADO",
-				"ultima_actualizacion": new Date(),
-			}; 
-			yield api.post__('progreso_logros/registrar', nuevo_logro);
-			console.log('✅ Nuevo logro creado:', nuevo_logro);
-		}
-	}*/ //descomentar al activar puntos
-
-
-	//validar Co2 mayor o igual a 1000 y que no exista registro de progreso logro con los 1000 grs
-
-	/*
-	let tablaCo2 = 'bc_indicadores_trip/usuario';
-	let co2Indicadores = yield api.get_tabla(tablaCo2, user.idNumber);
-	console.log('los indicadores por usuario para ver Co2 acomulado', co2Indicadores);
-
-	const totalCO2 = co2Indicadores.reduce((sum, item) => sum + parseFloat(item.ind_co2 || '0'), 0);
-
-	console.log(`✅ Total CO2 acumulado: ${totalCO2}`);
-
-	if (totalCO2 >= 1000) {
-		const idLogro = 204; // Puedes definir el ID específico del logro para CO2 aquí
-		const data_logro = {
-		usuario_id: user.idNumber,
-		logro_id: idLogro,
-		estado: 'COMPLETADO',
-		};
-
-		const get_progreso_logro = yield api.get_logro_progreso('progreso_logros/logro_progreso', data_logro);
-		const progreso_actual = get_progreso_logro?.data ?? [];
-
-		console.log('✔ Progreso consulta tamaño:', progreso_actual.length);
-
-		if (progreso_actual.length === 1) {
-		console.log('✔ Ya completó este logro de CO₂:', progreso_actual);
-		}
-
-		if (progreso_actual.length === 0) {
-			console.log('❌ No se encontró progreso para el logro de CO₂. Se creará uno nuevo.');
-			
-			const nuevo_logro = {
-				id: uuidv4(),
-				usuario_id: user.idNumber,
-				logro_id: idLogro,
-				progreso: 1000, // Puedes registrar el progreso equivalente si deseas
-				estado: 'COMPLETADO',
-				ultima_actualizacion: new Date(),
-			};
-
-			yield api.post__('progreso_logros/registrar', nuevo_logro);
-			console.log('✅ Nuevo logro CO₂ creado:', nuevo_logro);
-			
-		}
-	} else {
-		console.log('⛔ CO₂ acumulado insuficiente para el logro.');
-	}*/
-
-	//Logro de 5 viajes por semana
-	// Convertir fechas del logro a objetos Date
-	//yield progreso_logro_distancia_10k__(indicador_.distancia);
-	//yield progreso_logro_co2__(user.idNumber);
-	//yield progreso_logro_cinco_viajes__();
 }
 function* indicadores_prestamo() {
 	yield takeLatest(INDICADORES_TRIP, indicadores_prestamo__);
@@ -1558,10 +1597,13 @@ function* get_vehycle_id_vp__(action) {
 	let tabla = 'vp_vehiculos_usuario/id'
 	let vehiculo = yield api.viewVehiculosId(tabla, vp_id);
 	console.log('vehiculos Electrico liviano seleccionado', vehiculo);
+	console.log('vehiculos Electrico liviano seleccionado tamano', vehiculo.data);
 	if (!vehiculo.error) {
-		yield put({ type: GET_VEHYCLE_ID_FETCH, payload: vehiculo });
+		if (vehiculo.data !== null) {
+			yield put({ type: GET_VEHYCLE_ID_FETCH, payload: vehiculo });
+		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', vehiculo.error)
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(vehiculo.error))
 	}
 }
 function* get_vehycle_id_vp() {
@@ -1676,8 +1718,25 @@ function* reset_app() {
 	yield takeLatest(RESET_APP, reset_app__);
 }
 
+// Guardar reg pp
+function* save_register_pp__(action) {
+	let data = action.data;
+	console.log('data pp', data);
+	let saveregpp = yield api.guardandoRegistroExt('bc_registros_pp/registrar', data);
+	console.log('saveregpp', saveregpp)
+	if (!saveregpp.error) {
+		yield put({ type: SAVE_REGISTRO_PP_OK });
+	} else {
+		console.log('ERROR DE LA SAGA 3G: ', JSON.stringify(saveregpp.error))
+	}
+}
+function* save_register_pp() {
+	yield takeLatest(SAVE_REGISTRO_PP, save_register_pp__);
+}
+
 export const sagas = [
 	save_register_ext(),
+	save_register_pp(),
 	saveDataUserGlobal(),
 	saveDataCronoGlobal(),
 	viewRentActive(),
@@ -1685,6 +1744,7 @@ export const sagas = [
 	validateUser(),
 	validateHorarios(),
 	reserveActive(),
+	viewRentActivePP(),
 	viewPenalizations(),
 	calcularDistancia(),
 	verEstacionesEmpresa(),
@@ -1701,6 +1761,7 @@ export const sagas = [
 	saveHistClavesBc(),
 	saveComentarioBc(),
 	savePuntosBc(),
+	restarPuntosBc(),
 	changeClaveBc(),
 	decrementarSegundos(),
 	reset_cambio_veh(),
@@ -1732,5 +1793,7 @@ export const sagas = [
 	get__empresas(),
 	progreso_logro_calificacion_exitosa(),
 	reset_app(),
-	completar_logro_progreso()
+	completar_logro_progreso(),
+	savePuntosBc_sinusuario(),
+	validateBikeAvailability()
 ];

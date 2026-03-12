@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Button,
   Pressable,
+  ActivityIndicator,
   Image
 } from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
@@ -29,6 +30,7 @@ import {
 } from './actions/actions3g';
 import { save_token_msn, ask_practice, ask_theoretical } from './actions/actionCarpooling';
 import { conectividad, validate_qr } from './actions/actionParqueadero';
+import { rentActivePP } from './actions/actions3g';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 //screen 5G
@@ -137,7 +139,10 @@ import Recompensas from './Containers/Perfil/Recompensas';
 import Catalogo from './Containers/Perfil/Catalogo';
 import ConfiguracionPerfil from './Containers/Perfil/ConfiguracionPerfil';
 import Referidos from './Containers/Perfil/Referidos';
+import PrestamoPersonalizado from './Containers/Perfil/PrestamoPersonalizado';
 import SupportPerfil from './Containers/Perfil/SupportPerfil';
+//Chatbot
+import Chatbot from './Containers/Chatbot/Chatbot';
 //4g
 import Home4G from './Containers/Movilidad4G/Home4G';
 import Reservar4G from './Containers/Movilidad4G/Reservar4G';
@@ -149,6 +154,12 @@ import RentaActiva from './Containers/Movilidad4G/RentaActiva';
 import ViajeActivo from './Containers/ViajeActivo/ViajeActivo';
 import FinalizarViaje from './Containers/ViajeActivo/FinalizarViaje';
 import TestAutoComplete from './Containers/Carpooling/TestAutoComplete';
+
+// New 5G Module
+import Home5G from './Containers/Movilidad5g/Home5G';
+import QrScanScreen5G from './Containers/Movilidad5g/QrScanScreen';
+import TripScreen5G from './Containers/Movilidad5g/TripScreen5G';
+import TravelExperience5G from './Containers/Movilidad5g/TravelExperience5G';
 
 function RootContainer(props) {
 
@@ -165,18 +176,25 @@ function RootContainer(props) {
   const [_carro_compartido, set_carro_compartido] = useState(false);
   const [_ruta_corporativa, set_ruta_corporativa] = useState(false);
   const [_vehiculo_particular, set_vehiculo_particular] = useState(false);
+  const [_prestamo_personalizado, set_prestamo_personalizado] = useState(false);
 
   const [correoInt, setCorreoInt] = useState('');
   const [logoDoc, setLogoDoc] = useState('');
   const [nombreUser, setNombreUsers] = useState('');
   const [calificacion, setCalificacion] = useState('');
 
-
   useEffect(() => {
     if (props.dataCarpooling.promedioCargado) {
       setCalificacion(props.dataCarpooling.calificacionPromedioUser);
     }
   }, [props.dataCarpooling.promedioCargado])
+
+  useEffect(() => {
+    if (props.dataRent.prestamoActivo) {
+      console.log('TIENE PP', props.dataRent.prestamo)
+      set_prestamo_personalizado(true);
+    }
+  }, [props.dataRent.prestamoActivo])
 
   useEffect(() => {
     if (props.perfil.empresaCargadas) {
@@ -221,21 +239,22 @@ function RootContainer(props) {
         }
 
         const user = await AsyncStorage.getItem('user');
-        const token = await AsyncStorage.getItem('tokenMSN');
+        const tokenMSN = await AsyncStorage.getItem('tokenMSN');
+        const authToken = await AsyncStorage.getItem('token'); // Wait for JWT too
 
         // Validar que ambos existan y sean válidos
-        if (user && token) {
+        if (user && tokenMSN && authToken) {
           try {
             const userData = JSON.parse(user);
-            const tokenData = JSON.parse(token);
+            const tokenData = JSON.parse(tokenMSN);
 
-            if (userData.idNumber && tokenData.token) {
+            if (userData.idNumber && tokenData.token && authToken) {
               console.log('✅ Token MSN detectado, iniciando guardado en DB...');
 
               // Marcar como guardado antes de despachar
               tokenSaved.current = true;
 
-              console.log('✈️ Despachando acción save_token_msn()...');
+              // Despachar acción
               dispatch(save_token_msn());
 
               // Detener el intervalo
@@ -261,26 +280,21 @@ function RootContainer(props) {
     };
 
     // 🔄 Verificar cada 500ms
-    let attempts = 0;
     checkTokenInterval = setInterval(() => {
-      attempts++;
-      if (attempts % 10 === 0) { // Cada 5 segundos
-        console.log(`⏳ Esperando token MSN... (${attempts * 0.5}s)`);
-      }
       checkAndSaveToken();
     }, 500);
 
-    // ⏱️ Timeout de seguridad: detener después de 60 segundos
+    // ⏱️ Timeout de seguridad: detener después de 10 segundos
     timeoutId = setTimeout(() => {
       if (checkTokenInterval) {
         clearInterval(checkTokenInterval);
       }
 
       if (!tokenSaved.current) {
-        console.warn('⚠️ Token MSN no encontrado después de 60 segundos');
+        console.warn('⚠️ Token MSN no encontrado después de 10 segundos');
         console.warn('⚠️ El usuario deberá reiniciar la app o el token se guardará en el próximo inicio');
       }
-    }, 60000);
+    }, 10000);
 
     // 🧹 Cleanup al desmontar
     return () => {
@@ -301,6 +315,8 @@ function RootContainer(props) {
     await dispatch(getempresa(correo));
     await dispatch(ask_practice());
     await dispatch(ask_theoretical());
+
+    await dispatch(rentActivePP(infoUser.DataUser.idNumber))
     //dispatch(save_token_msn());
     //dispatch(conectividad(isConnected));
     //dispatch(getDesafios('ACTIVO'));
@@ -391,14 +407,14 @@ function RootContainer(props) {
 
     return (
       <View style={styles.container}>
-        {/*<Text style={styles.status}>
-                {isConnected ? 'Conectado' : 'Sin conexión'}
-            </Text>*/}
-        {/*isConnected && (
-                <Text style={styles.type}>
-                Tipo de conexión: {connectionType}
-                </Text>
-            )*/}
+        <Text style={styles.status}>
+          {isConnected ? 'Conectado' : 'Sin conexión'}
+        </Text>
+        {isConnected && (
+          <Text style={styles.type}>
+            Tipo de conexión: {connectionType}
+          </Text>
+        )}
       </View>
     );
   };
@@ -414,165 +430,203 @@ function RootContainer(props) {
           isSignedIn
             ?
             <View>
-              <View style={estilos.logoBox}>
-                <View style={estilos.cajaA}>
-                  <Text style={estilos.texto1}>{nombreUser}</Text>
-                  {/*<Estrellas calificacion={calificacion}/>*/}
+              {
+                !props.perfil.empresaCargadas ?
+                  <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size="large" color={Colors.$primario} />
+                    <Text style={{ marginTop: 15, fontFamily: Fonts.$poppinsregular, color: Colors.$texto, textAlign: 'center' }}>
+                      Cargando módulos...
+                    </Text>
+                  </View>
+                  :
+                  <View>
+                    <View style={estilos.logoBox}>
+                      <View style={estilos.cajaA}>
+                        <Text style={estilos.texto1}>{nombreUser}</Text>
+                        {/*<Estrellas calificacion={calificacion}/>*/}
 
-                  {
-                    _perfil ?
+                        {
+                          _perfil ?
+                            <Pressable
+                              onPress={() => navigation.navigate('PerfilHome')}
+                              style={estilos.botonVerPerfil}
+                            >
+                              <Text style={estilos.textPerfil}>Ver perfil</Text>
+                            </Pressable> : null
+                        }
+
+                      </View>
+                      <View style={estilos.cajaB}>
+                        {
+                          logoDoc !== '' ?
+                            <Image
+                              style={estilos.logo}
+                              source={{ uri: logoDoc }}
+                            />
+                            :
+                            <></>
+                        }
+                      </View>
+                    </View >
+                    <View style={estilos.LineaHorizontal}></View>
+                    <Pressable
+                      onPress={() => navigation.navigate('Home')}
+                      style={estilos.botonItem}
+                    >
+                      <Text style={estilos.LineaVer}></Text>
+                      <Text style={estilos.textBoton}>Inicio</Text>
+                    </Pressable>
+
+                    {
+                      _prestamo_personalizado ?
+                        <Pressable
+                          onPress={() => navigation.navigate('PrestamoPersonalizado')}
+                          style={estilos.botonItem}
+                        >
+                          <Text style={estilos.textBoton}>Registrar viaje</Text>
+                        </Pressable>
+                        :
+                        <>
+                          {_5G ?
+                            (props.isValidatedPractise && props.isValidatedTheory ?
+                              <>
+                                <Pressable
+                                  onPress={() => getTests('Home5G', navigation)}
+                                  style={estilos.botonItem}
+                                >
+                                  <Text style={estilos.textBoton}>Movilidad 5G</Text>
+                                </Pressable>
+                              </>
+                              :
+                              <View style={estilos.botonItem}>
+                                <Text style={[estilos.textBoton, { color: 'gray', fontSize: 14 }]}>Movilidad 5G (Verificando...)</Text>
+                              </View>
+                            )
+                            : null
+                          }
+
+                          {_4G ?
+                            (props.isValidatedPractise && props.isValidatedTheory ?
+                              <Pressable
+                                onPress={() => getTests('Home4G', navigation)}
+                                style={estilos.botonItem}
+                              >
+                                <Text style={estilos.textBoton}>Movilidad 4G</Text>
+                              </Pressable>
+                              :
+                              <View style={estilos.botonItem}>
+                                <Text style={[estilos.textBoton, { color: 'gray', fontSize: 14 }]}>Movilidad 4G (Verificando...)</Text>
+                              </View>
+                            )
+                            : null
+                          }
+
+                          {_3G ?
+                            (props.isValidatedPractise && props.isValidatedTheory ?
+                              <Pressable
+                                onPress={() => getTests('Home3G', navigation)}
+                                style={estilos.botonItem}
+                              >
+                                <Text style={estilos.textBoton}>Movilidad 3G</Text>
+                              </Pressable>
+                              :
+                              <View style={estilos.botonItem}>
+                                <Text style={[estilos.textBoton, { color: 'gray', fontSize: 14 }]}>Movilidad 3G (Verificando...)</Text>
+                              </View>
+                            )
+                            : null
+                          }
+                          {(_5G || _4G || _3G) && (!props.isValidatedPractise || !props.isValidatedTheory) ?
+                            <Pressable
+                              onPress={() => validarUserCorreo()}
+                              style={[estilos.botonItem, { backgroundColor: '#f0f0f0', marginTop: 10, borderRadius: 10, alignSelf: 'center', width: '90%' }]}
+                            >
+                              <Text style={[estilos.textBoton, { color: Colors.$primario, textAlign: 'center', paddingLeft: 0 }]}>🔄 Recargar módulos</Text>
+                            </Pressable>
+                            : null
+                          }
+
+                        </>
+                    }
+
+                    {_carro_compartido ?
                       <Pressable
-                        onPress={() => navigation.navigate('PerfilHome')}
-                        style={estilos.botonVerPerfil}
+                        onPress={() => navigation.navigate('CarpoolingHome')}
+                        style={estilos.botonItem}
                       >
-                        <Text style={estilos.textPerfil}>Ver perfil</Text>
-                      </Pressable> : null
-                  }
-
-                </View>
-                <View style={estilos.cajaB}>
-                  {
-                    logoDoc !== '' ?
-                      <Image
-                        style={estilos.logo}
-                        source={{ uri: logoDoc }}
-                      />
+                        <Text style={estilos.textBoton}>Carro compartido {_carro_compartido}</Text>
+                      </Pressable>
                       :
                       <></>
-                  }
-                </View>
-              </View >
-              <View style={estilos.LineaHorizontal}></View>
-              <Pressable
-                onPress={() => navigation.navigate('Home')}
-                style={estilos.botonItem}
-              >
-                <Text style={estilos.LineaVer}></Text>
-                <Text style={estilos.textBoton}>Inicio</Text>
-              </Pressable>
+                    }
 
-              {/*_5G && props.isValidatedPractise && props.isValidatedTheory ?
-            <Pressable 
-              onPress={()  => getTests('QrCodeScreen', navigation)}
-              style={ estilos.botonItem }
-            >
-              <Text style={ estilos.textBoton }>Movilidad 5G</Text>
-            </Pressable>
-            :null
-            */}
+                    {_vehiculo_particular ?
+                      <Pressable
+                        onPress={() => navigation.navigate('MyVehiclesScreen')}
+                        style={estilos.botonItem}
+                      >
 
-              {/*_4G && props.isValidatedPractise && props.isValidatedTheory ?
-            <Pressable 
-              onPress={()  => getTests('Home4G', navigation)}
-              style={ estilos.botonItem }
-            >
-              <Text style={ estilos.textBoton }>Movilidad 4G</Text>
-            </Pressable>
-            :null
-            */}
+                        <Text style={estilos.textBoton}>Vehículo particular {_vehiculo_particular}</Text>
+                      </Pressable>
+                      :
+                      <></>
+                    }
 
-              {_3G ?
-                (props.isValidatedPractise && props.isValidatedTheory ?
-                  <Pressable
-                    onPress={() => getTests('Home3G', navigation)}
-                    style={estilos.botonItem}
-                  >
-                    <Text style={estilos.textBoton}>Movilidad 3G</Text>
-                  </Pressable>
-                  :
-                  <View style={estilos.botonItem}>
-                    <Text style={[estilos.textBoton, { color: 'gray', fontSize: 14 }]}>Movilidad 3G (Verificando...)</Text>
-                  </View>
-                )
-                : null
-              }
-              {(!props.perfil.empresaCargadas) || ((_3G) && (!props.isValidatedPractise || !props.isValidatedTheory)) ?
-                <Pressable
-                  onPress={() => validarUserCorreo()}
-                  style={[estilos.botonItem, { backgroundColor: '#f0f0f0', marginTop: 10, borderRadius: 10, alignSelf: 'center', width: '90%' }]}
-                >
-                  <Text style={[estilos.textBoton, { color: Colors.$primario, textAlign: 'center', paddingLeft: 0 }]}>🔄 Recargar módulos</Text>
-                </Pressable>
-                : null
-              }
+                    {_electrohub ?
+                      <Pressable
+                        onPress={() => navigation.navigate('Home_electrohub')}
+                        style={estilos.botonItem}
+                      >
+                        <Text style={estilos.textBoton}>ElectroHub{_electrohub}</Text>
+                      </Pressable>
+                      :
+                      <></>
+                    }
+                    {_parquadero ?
+                      <Pressable
+                        onPress={() => navigation.navigate('Home_parqueadero')}
+                        style={estilos.botonItem}
+                      >
+                        <Text style={estilos.textBoton}>Parqueaderos{_parquadero}</Text>
+                      </Pressable>
+                      :
+                      <></>
+                    }
 
-              {/*_carro_compartido ? 
-            <Pressable 
-              onPress={()  => navigation.navigate('CarpoolingHome')}
-              style={ estilos.botonItem }
-            >              
-              <Text style={ estilos.textBoton }>Carro compartido {_carro_compartido}</Text>
-            </Pressable>
-            :
-            <></>
-            */}
+                    {_perfil ?
+                      <Pressable
+                        onPress={() => navigation.navigate('Referidos')}
+                        style={estilos.botonItem}
+                      >
+                        <Text style={estilos.textBoton}>Referidos</Text>
+                      </Pressable> : null
+                    }
 
-              {/*_vehiculo_particular ?
-            <Pressable 
-              onPress={()  => navigation.navigate('MyVehiclesScreen')}
-              style={ estilos.botonItem }
-            >
-              
-              <Text style={ estilos.textBoton }>Vehículo particular {_vehiculo_particular}</Text>
-            </Pressable>  
-            :
-            <></>
-            */}
+                    <Pressable
+                      onPress={() => navigation.navigate('Soporte')}
+                      style={estilos.botonItem}
+                    >
+                      <Text style={estilos.textBoton}>Soporte</Text>
+                    </Pressable>
 
-              {/*_electrohub ?
-            <Pressable 
-              onPress={()  => navigation.navigate('Home_electrohub')}
-              style={ estilos.botonItem }
-            >
-              <Text style={ estilos.textBoton }>ElectroHub{_electrohub}</Text>
-            </Pressable>
-            :
-            <></>
-            */}
+                    <Pressable
+                      onPress={() => navigation.navigate('Salir')}
+                      style={estilos.botonItem}
+                    >
+                      <Text style={estilos.textBoton}>Salir</Text>
+                    </Pressable>
 
-              {/*_parquadero ?
-            <Pressable 
-              onPress={()  => navigation.navigate('Home_parqueadero')}
-              style={ estilos.botonItem }
-            >
-              <Text style={ estilos.textBoton }>Parqueaderos{_parquadero}</Text>
-            </Pressable>
-            :
-            <></>
-            */}
-
-              {_perfil ?
-                <Pressable
-                  onPress={() => navigation.navigate('Referidos')}
-                  style={estilos.botonItem}
-                >
-                  <Text style={estilos.textBoton}>Referidos</Text>
-                </Pressable> : null
-              }
-
-              <Pressable
-                onPress={() => navigation.navigate('Soporte')}
-                style={estilos.botonItem}
-              >
-                <Text style={estilos.textBoton}>Soporte</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => navigation.navigate('Salir')}
-                style={estilos.botonItem}
-              >
-                <Text style={estilos.textBoton}>Salir</Text>
-              </Pressable>
-
-              {/*<Pressable 
+                    {/*<Pressable 
               onPress={()  => navigation.navigate('TestAutoComplete')}
               style={ estilos.botonItem }
             >              
               <Text style={ estilos.textBoton }>TestAutoComplete</Text>
             </Pressable>*/}
 
-              {/*<NetworkStatus />*/}
+                    {<NetworkStatus />}
 
+                  </View>
+              }
             </View>
             :
             <></>
@@ -706,6 +760,7 @@ function RootContainer(props) {
           {/*<Drawer.Screen name="Finalizar3GScreen" component={Finalizar3GScreen} options={{ headerShown: false }}/>*/}
           <Drawer.Screen name="Ayuda3GScreen" component={Ayuda3GScreen} options={{ headerShown: false }} />
           {/*<Drawer.Screen name="Ajustes" component={SettingsScreen} />*/}
+          <Drawer.Screen name="Chatbot" component={Chatbot} options={{ headerShown: false }} />
           <Drawer.Screen name="Soporte" component={SupportScreen} options={{ headerShown: false }} />
           <Drawer.Screen name="Salir" component={ButtonSignOffComponent} options={{ headerShown: false }} />
           <Drawer.Screen name="FaqScreen" component={FaqScreen} options={{ headerShown: false }} />
@@ -724,6 +779,13 @@ function RootContainer(props) {
           <Drawer.Screen name="ValidarQrScreen" component={ValidarQrScreen} options={{ headerShown: false }} />
           <Drawer.Screen name="CargarDataUserVPScreen" component={CargarDataUserVPScreen} options={{ headerShown: false }} />
           <Drawer.Screen name="HistorialScreen" component={HistorialScreen} options={{ headerShown: false }} />
+
+          {/* New 5G Module Screens */}
+          <Drawer.Screen name="Home5G" component={Home5G} options={{ headerShown: false }} />
+          <Drawer.Screen name="QrScanScreen5G" component={QrScanScreen5G} options={{ headerShown: false }} />
+          <Drawer.Screen name="TripScreen5G" component={TripScreen5G} options={{ headerShown: false }} />
+          <Drawer.Screen name="TravelExperience5G" component={TravelExperience5G} options={{ headerShown: false }} />
+
           <Drawer.Screen name="CarpoolingHome" component={CarpoolingHome} options={{ headerShown: false }} />
           <Drawer.Screen name="CarpoolingDriverTrips" component={CarpoolingDriverTrips} options={{ headerShown: false }} />
           <Drawer.Screen name="CarpoolingAddTrip" component={CarpoolingAddTrip} options={{ headerShown: false }} />
@@ -758,6 +820,7 @@ function RootContainer(props) {
           <Drawer.Screen name="Recompensas" component={Recompensas} options={{ headerShown: false }} />
           <Drawer.Screen name="Catalogo" component={Catalogo} options={{ headerShown: false }} />
           <Drawer.Screen name="Referidos" component={Referidos} options={{ headerShown: false }} />
+          <Drawer.Screen name="PrestamoPersonalizado" component={PrestamoPersonalizado} options={{ headerShown: false }} />
           <Drawer.Screen name="ConfiguracionPerfil" component={ConfiguracionPerfil} options={{ headerShown: false }} />
           <Drawer.Screen name="Home4G" component={Home4G} options={{ headerShown: false }} />
           <Drawer.Screen name="Reservar4G" component={Reservar4G} options={{ headerShown: false }} />

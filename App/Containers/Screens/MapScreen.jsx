@@ -1,25 +1,25 @@
-import { 
-    Button, 
-    Image, 
-    Modal, 
-    Platform, 
-    SafeAreaView, 
-    Text, 
-    TouchableOpacity, 
+import {
+    Button,
+    Image,
+    Modal,
+    Platform,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
     View,
     Animated,
     Easing,
     StyleSheet,
     Dimensions
 } from 'react-native';
-import MapView, {  Marker, Callout, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Callout, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 import Moment from 'moment';
 import LottieView from 'lottie-react-native';
-import { 
-    getPermissions, 
-    getStations, 
+import {
+    getPermissions,
+    getStations,
 } from '../../actions/actions';
-import { 
+import {
     ask_practice,
     ask_theoretical,
     get_schedule
@@ -35,17 +35,18 @@ import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metr
 import { KeyboardAvoidingView } from 'react-native';
 import * as RootNavigation from '../../RootNavigation';
 import { AuthContext } from '../../AuthContext';
-import { request, PERMISSIONS } from 'react-native-permissions';
+import { PERMISSIONS } from 'react-native-permissions';
 import Fonts from '../../Themes/Fonts';
+import { Env } from "../../Utils/enviroments";
 
 const mapRef = React.createRef();
 
-function MapScreen (props){
+function MapScreen(props) {
 
-    const { isLogin, token, infoUser } = useContext( AuthContext )
+    const { isLogin, token, infoUser } = useContext(AuthContext)
 
     const dispatch = useDispatch();
-    const [ state, setState ] = useState({
+    const [state, setState] = useState({
         socket: null,
         position: {},
         isOpenBackgroundInfoModal: false,
@@ -57,23 +58,23 @@ function MapScreen (props){
 
     useEffect(() => {
 
-        if(Platform.OS == 'ios'){
+        if (Platform.OS == 'ios') {
             //props.getPermissions();
-           
+
             //Geolocation.requestAuthorization("always");
             //getPosition();
             dispatch(getPermissions());
             //PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
-          
-           
+
+
         }
         const rotateAnimation = Animated.loop(
-        Animated.timing(rotation, {
-            toValue: 1,
-            duration: 1000,
-            easing: Easing.linear,
-            useNativeDriver: true,
-        })
+            Animated.timing(rotation, {
+                toValue: 1,
+                duration: 1000,
+                easing: Easing.linear,
+                useNativeDriver: true,
+            })
         );
 
         rotateAnimation.start();
@@ -83,10 +84,10 @@ function MapScreen (props){
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
-    
-    useEffect(()=>{
+
+    useEffect(() => {
         verCoordenadas();
-    },[]);
+    }, []);
 
     const verCoordenadas = async () => {
         await getPosition()
@@ -99,55 +100,46 @@ function MapScreen (props){
         if (!props.isValidatedPractise) {
             dispatch(ask_practice());
         }
-    },[props.isValidatedPractise])
+    }, [props.isValidatedPractise])
 
     useEffect(() => {
         if (!props.isValidatedTheory) {
-            dispatch(ask_theoretical()); 
+            dispatch(ask_theoretical());
         }
-    },[props.isValidatedTheory])
+    }, [props.isValidatedTheory])
 
-    const verCoordenadas2 =  () => {
+    const verCoordenadas2 = () => {
         getPosition()
         dispatch(getStations());
     }
 
-    useFocusEffect( 
-        React.useCallback(() => { 
-           verCoordenadas();
-           dispatch(getStations());
+    useFocusEffect(
+        React.useCallback(() => {
+            verCoordenadas();
+            dispatch(getStations());
         }, [])
     );
-    
-    const [permissionChecked, setPermissionChecked] = useState(false);
 
-    
     useEffect(() => {
         const checkLocationPermission = async () => {
-          try {
-            if (Platform.OS === 'ios') {
-              const result = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-              if (result === 'granted') {
-                console.log('Permiso concedido');
-              } else {
-                console.log('Permiso denegado');
-                displayBackgroundInfoModal(true);
-              }
+            try {
+                if (Platform.OS === 'ios') {
+                    const result = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+                    if (result === 'granted') {
+                        console.log('Permiso concedido');
+                    } else {
+                        console.log('Permiso denegado');
+                    }
+                }
+            } catch (error) {
+                console.error('Error al solicitar permisos:', error);
             }
-          } catch (error) {
-            console.error('Error al solicitar permisos:', error);
-          } finally {
-            setPermissionChecked(true); // Evita que la solicitud se repita infinitamente
-          }
-        };
-      
-        if (!permissionChecked) {
-          checkLocationPermission();
         }
-      }, [permissionChecked]);
-        
-        
-  
+        checkLocationPermission();
+    });
+
+
+
 
     const displayBackgroundInfoModal = (value) => {
         setState({ ...state, isOpenBackgroundInfoModal: value })
@@ -187,51 +179,51 @@ function MapScreen (props){
     const openBackgroundInfoModal = () => {
         return (
             <Modal transparent={true} animationType="slide" visible={true}>
-                <KeyboardAvoidingView 
-                    behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
                     style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: 'rgba(52, 52, 52, 0.9)' }}
                 >
-                    <View style={{ 
-                        backgroundColor: "#fff", 
-                        borderRadius: 20, 
+                    <View style={{
+                        backgroundColor: "#fff",
+                        borderRadius: 20,
                         padding: moderateScale(20),
                         width: "90%",
                         alignItems: "center"
                     }}>
-                        <Image 
-                            style={{ width: moderateScale(250), height: moderateScale(80), padding: moderateScale(20) }} 
-                            source={Images.rideLoginBlack} 
+                        <Image
+                            style={{ width: moderateScale(250), height: moderateScale(80), padding: moderateScale(20) }}
+                            source={Images.rideLoginBlack}
                         />
-    
+
                         <Text style={{ textAlign: "center", color: Colors.$texto, fontSize: 20, fontFamily: Fonts.$poppinsmedium, marginTop: 20 }}>
                             Acceso a tu ubicación
                         </Text>
-    
+
                         <Text style={{ textAlign: "justify", color: Colors.$texto80, fontSize: 16, marginTop: 20, fontFamily: Fonts.$poppinsregular }}>
                             La aplicación requiere acceder a tu ubicación incluso cuando está no está en uso. Utilizaremos la información únicamente con la finalidad de entender tus patrones de movilidad y registrar tus viajes.
                         </Text>
-    
-                        <Image 
-                            style={{ marginTop: moderateScale(20), width: horizontalScale(180), height: verticalScale(160) }} 
-                            source={Images.mapa} 
+
+                        <Image
+                            style={{ marginTop: moderateScale(20), width: horizontalScale(180), height: verticalScale(160) }}
+                            source={Images.mapa}
                         />
-    
+
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: moderateScale(20) }}>
-                            <TouchableOpacity 
-                                style={{ backgroundColor: Colors.$primer, padding: moderateScale(10), borderRadius: moderateScale(5), marginHorizontal: 8 }} 
+                            <TouchableOpacity
+                                style={{ backgroundColor: Colors.$primer, padding: moderateScale(10), borderRadius: moderateScale(5), marginHorizontal: 8 }}
                                 onPress={() => displayBackgroundInfoModal(false)}
                             >
-                                <Text style={{fontSize : moderateScale(20)}}>Cancelar</Text>
+                                <Text style={{ fontSize: moderateScale(20) }}>Cancelar</Text>
                             </TouchableOpacity>
-    
-                            <TouchableOpacity 
-                                style={{ backgroundColor: Colors.$primer, padding: moderateScale(10), borderRadius: moderateScale(5), marginHorizontal: 8 }} 
-                                onPress={() => { 
+
+                            <TouchableOpacity
+                                style={{ backgroundColor: Colors.$primer, padding: moderateScale(10), borderRadius: moderateScale(5), marginHorizontal: 8 }}
+                                onPress={() => {
                                     dispatch(getPermissions());
                                     displayBackgroundInfoModal(false);
                                 }}
                             >
-                                <Text style={{fontSize : moderateScale(20)}}>Aprobar</Text>
+                                <Text style={{ fontSize: moderateScale(20) }}>Aprobar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -239,7 +231,7 @@ function MapScreen (props){
             </Modal>
         );
     };
-    
+
 
     // When get geo position fail 
     const geoFailed = (error) => {
@@ -256,126 +248,131 @@ function MapScreen (props){
     }*/
 
     return (
-    <>
-        {/*state.isOpenBackgroundInfoModal ? openBackgroundInfoModal() : <></>*/}
-        <SafeAreaView style={[{ flex: 1 }, { backgroundColor: Colors.$gray }]}>
-            { state.coordenadasCargadas ?
-            <MapView
-                ref={mapRef}
-                loadingEnabled={true}
-                showsMyLocationButton={true}
-                showsCompass={true}
-                showsScale={true}
-                showsUserLocation={true}
-                provider={Platform.OS == 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
-                style={{ flex: 1 }}
-                region={{
-                    latitude: state.position.lat ? state.position.lat : 0,
-                    longitude: state.position.lng ? state.position.lng : 0,
-                    latitudeDelta: 0.0421,
-                    longitudeDelta: 0.0421,
-                }}
-                onMapReady={() => {
-                    setState({ ...state, paddingTop: 5 })
-                }}
-            >
-                { 
-                    props.stations ? 
-                    <>
-                    {props.stations.map((station) => {
-                    return (<Marker
-                        key={station.id}
-                        coordinate={{
-                            latitude: Number(station.latitude),
-                            longitude: Number(station.longitude),
+        <>
+            {state.isOpenBackgroundInfoModal ? openBackgroundInfoModal() : <></>}
+            <SafeAreaView style={[{ flex: 1 }, { backgroundColor: Colors.$gray }]}>
+                {state.coordenadasCargadas ?
+                    <MapView
+                        ref={mapRef}
+                        loadingEnabled={true}
+                        showsMyLocationButton={true}
+                        showsCompass={true}
+                        showsScale={true}
+                        showsUserLocation={true}
+                        provider={Platform.OS == 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+                        style={{ flex: 1 }}
+                        region={{
+                            latitude: state.position.lat ? state.position.lat : 0,
+                            longitude: state.position.lng ? state.position.lng : 0,
+                            latitudeDelta: 0.0421,
+                            longitudeDelta: 0.0421,
                         }}
-                        description={"This is a marker in React Native"}
+                        onMapReady={() => {
+                            setState({ ...state, paddingTop: 5 })
+                        }}
                     >
-                        <View style={{ height: 30, width: 30, backgroundColor: station.electricBikes + station.mechanicBikes + station.cargoBikes == 0 ? "red" : "green", borderRadius: 100, justifyContent: "center" }}>
-                            <Text style={{ textAlign: "center", color: "white" }}>{station.electricBikes + station.mechanicBikes + station.cargoBikes}</Text>
-                        </View>
-                        <Image style={{ height: 40, width: 40, resizeMode: "contain" }} source={require('../../Resources/Images/garaje.png')} ></Image>
-                
-                        <Callout tooltip style={{ flex: 1, width: 250, height: 'auto', flexDirection: "column" }}>
-                            <View style={{ flex: 1, padding: 10 }}>
-                                <View style={{ flex: 0.4, backgroundColor: Colors.$adicional, borderTopRightRadius: 10, borderTopLeftRadius: 10, justifyContent: "center", paddingVertical: 10 }}>
-                                    <Text style={{ fontSize: 15, textAlign: "center",  color: "white", fontFamily: Fonts.$poppinsregular }}>{station.name}</Text>
-                                </View>
-                                <View style={{ flex: 0.7, backgroundColor: "#101010", paddingHorizontal: 20, borderBottomRightRadius: 10, borderBottomLeftRadius: 10, paddingTop: 10, paddingBottom: 15}}>
-                                    <Text style={{ fontSize: 10, textAlign: "left", color: "white" }}>Bicicletas disponibles: {station.electricBikes + station.mechanicBikes + station.cargoBikes?station.cargoBikes:0}</Text>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular,fontSize: 10, textAlign: "left", color: "white" }}>Eléctricas: {station.electricBikes}</Text>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Mecánicas: {station.mechanicBikes}</Text>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular,fontSize: 10, textAlign: "left", color: "white" }}>De carga: {station.cargoBikes?station.cargoBikes:0}</Text>
-                                    <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Capacidad de {station.bikesCapacity} bicicletas</Text>
-                                    <Text style={{fontFamily: Fonts.$poppinsregular,  fontSize: 10, textAlign: "left", color: "white" }}>Apertura: {Moment(station.openingTime).format("HH:mm a")}</Text>
-                                    <Text style={{fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Cierre: {Moment(station.closingTime).format("HH:mm a")}</Text>
-                                </View>
-                            </View>
-                        </Callout>
-                    </Marker>)
-                }
-                )}
-                    </>
+                        {
+                            Array.isArray(props.stations) && Env.modo === 'movil' ?
+                                <>{
+                                    props.stations.map((station) => {
+                                        return (
+                                            <Marker
+                                                key={station.id}
+                                                coordinate={{
+                                                    latitude: Number(station.latitude),
+                                                    longitude: Number(station.longitude),
+                                                }}
+                                                description={"This is a marker in React Native"}
+                                            >
+                                                <View style={{ height: 30, width: 30, backgroundColor: station.electricBikes + station.mechanicBikes + station.cargoBikes == 0 ? "red" : "green", borderRadius: 100, justifyContent: "center" }}>
+                                                    <Text style={{ textAlign: "center", color: "white" }}>{station.electricBikes + station.mechanicBikes + station.cargoBikes}</Text>
+                                                </View>
+                                                <Image style={{ height: 40, width: 40, resizeMode: "contain" }} source={require('../../Resources/Images/garaje.png')} ></Image>
+
+                                                <Callout tooltip style={{ flex: 1, width: 250, height: 'auto', flexDirection: "column" }}>
+                                                    <View style={{ flex: 1, padding: 10 }}>
+                                                        <View style={{ flex: 0.4, backgroundColor: Colors.$adicional, borderTopRightRadius: 10, borderTopLeftRadius: 10, justifyContent: "center", paddingVertical: 10 }}>
+                                                            <Text style={{ fontSize: 15, textAlign: "center", color: "white", fontFamily: Fonts.$poppinsregular }}>{station.name}</Text>
+                                                        </View>
+                                                        <View style={{ flex: 0.7, backgroundColor: "#101010", paddingHorizontal: 20, borderBottomRightRadius: 10, borderBottomLeftRadius: 10, paddingTop: 10, paddingBottom: 15 }}>
+                                                            <Text style={{ fontSize: 10, textAlign: "left", color: "white" }}>Bicicletas disponibles: {station.electricBikes + station.mechanicBikes + station.cargoBikes ? station.cargoBikes : 0}</Text>
+                                                            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Eléctricas: {station.electricBikes}</Text>
+                                                            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Mecánicas: {station.mechanicBikes}</Text>
+                                                            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>De carga: {station.cargoBikes ? station.cargoBikes : 0}</Text>
+                                                            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Capacidad de {station.bikesCapacity} bicicletas</Text>
+                                                            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Apertura: {Moment(station.openingTime).format("HH:mm a")}</Text>
+                                                            <Text style={{ fontFamily: Fonts.$poppinsregular, fontSize: 10, textAlign: "left", color: "white" }}>Cierre: {Moment(station.closingTime).format("HH:mm a")}</Text>
+                                                        </View>
+                                                    </View>
+                                                </Callout>
+                                            </Marker>)
+                                    })
+                                }</>
+                                : null
+                        }
+                    </MapView>
                     :
-                    <></>
+                    <View style={stylesLoader.container}>
+                        {!state.coordenadasCargadas ? verCoordenadas2() : <></>}
+                        <View style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: Dimensions.get('window').width,
+                            height: 'auto',
+                            position: "absolute",
+                            top: 0,
+                            zIndex: 1
+                        }}>
+                            {
+                                Env.modo === 'tablet' ?
+                                    ''
+                                    :
+                                    <LottieView source={require('../../Resources/Lotties/bicy_confetti.json')} autoPlay loop
+                                        style={{
+                                            width: Dimensions.get('window').width,
+                                            height: Dimensions.get('window').height,
+                                        }} />
+                            }
+
+                        </View>
+                    </View>
                 }
-            </MapView>
-            :
-            <View style={stylesLoader.container}>
-                { !state.coordenadasCargadas ? verCoordenadas2() : <></> }
-                <View style={{
-                    justifyContent: "center", 
-                    alignItems: "center", 
-                    width: Dimensions.get('window').width,
-                    height: 'auto', 
-                    position: "absolute",
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <LottieView source={require('../../Resources/Lotties/bicy_confetti.json')} autoPlay loop 
-                    style={{
-                      width: Dimensions.get('window').width,
-                      height: Dimensions.get('window').height,             
-                    }}/>
-                  </View>
-            </View>
-            }
-        </SafeAreaView>
-    </>
+            </SafeAreaView>
+        </>
     );
 }
 
 const stylesLoader = StyleSheet.create({
     container: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: Dimensions.get('window').width,
-      height: Dimensions.get('window').height,
-      backgroundColor: 'white'
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+        backgroundColor: 'white'
     },
     spinner: {
-      width: 50,
-      height: 50,
-      borderColor: '#333',
-      borderWidth: 3,
-      borderRadius: 25,
-      borderTopWidth: 0,
+        width: 50,
+        height: 50,
+        borderColor: '#333',
+        borderWidth: 3,
+        borderRadius: 25,
+        borderTopWidth: 0,
     },
     text: {
-      marginTop: 10,
-      fontSize: 16,
-      color: '#333',
+        marginTop: 10,
+        fontSize: 16,
+        color: '#333',
     },
-  })
+})
 
-function mapStateToProps(state){
+function mapStateToProps(state) {
     return {
         stations: state.mapReducer.stations,
         penalty: state.mapReducer.penalty,
         globalReducer: state.globalReducer,
         navigation: state.globalReducer,
-        isValidatedPractise : state.reducerCarpooling.userPractise_isValidated,
-        isValidatedTheory : state.reducerCarpooling.userTheoretical_isValidated,
+        isValidatedPractise: state.reducerCarpooling.userPractise_isValidated,
+        isValidatedTheory: state.reducerCarpooling.userTheoretical_isValidated,
     }
 }
 

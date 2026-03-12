@@ -20,10 +20,13 @@ export default {
     justifyContent: 'center',
   },
   contenedor: {
+    flex: 1,
     width: Dimensions.get('window').width,
+    backgroundColor: Colors.$blanco,
+    alignItems: 'center',
     position: 'relative',
     padding: 0,
-    marginTop: 100,
+    margin: 0,
   },
   contentTop: {
     backgroundColor: Colors.$blanco,
@@ -76,8 +79,8 @@ export default {
     marginBottom: 10,
   },
   title: {
-    fontFamily: Fonts.$montserratExtraBold,
-    fontSize: moderateScale(24),
+    fontFamily: Fonts.$poppinsmedium,
+    fontSize: 24,
     textAlign: 'center',
     color: Colors.$texto,
     marginBottom: 5,
@@ -111,9 +114,8 @@ export default {
     fontSize: 20,
     fontFamily: Fonts.$poppinsregular,
     color: Colors.$texto,
-    marginTop: 20,
-    marginBottom: 20,
-    zIndex: 1000
+    marginTop: 10,
+    marginBottom: 10,
   },
   titleSelect2: {
     width: '100%',
@@ -121,7 +123,7 @@ export default {
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontFamily: Fonts.$montserratExtraBold,
     color: Colors.$texto,
     marginTop: 5,
@@ -146,14 +148,16 @@ export default {
     borderRadius: 5,
   },
   titleSelect4: {
-    width: '60%',
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: Fonts.$poppinsregular,
-    color: Colors.$texto80,
+    color: Colors.$texto,
+    marginTop: 10,
+    marginBottom: 10,
   },
   itemSelect: {
     backgroundColor: Colors.$primario,
@@ -204,50 +208,47 @@ export default {
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
-    backgroundColor: Colors.$primario,
-    borderRadius: 25
   },
   cajaBtnReservar: {
     marginBottom: 20,
     backgroundColor: Colors.$blanco,
     padding: 10,
-    alignItems: 'center',
   },
   btnRed: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 150,
+    backgroundColor: Colors.$primario,
+    width: moderateScale(180),
     height: 'auto',
-    borderRadius: 20,
+    borderRadius: 25,
   },
   btnBlack: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.$texto,
+    backgroundColor: Colors.$texto80,
     width: moderateScale(180),
     height: 'auto',
     borderRadius: 25,
   },
   btnTextColorWhite: {
     color: Colors.$blanco,
-    fontSize: 20,
+    fontSize: moderateScale(20),
   },
   btnTextColorBlack: {
     color: Colors.$blanco,
-    fontFamily: Fonts.$poppinsregular,
     fontSize: 20,
     padding: 10,
   },
   btnSaveColor: {
-    color: Colors.$texto,
-    fontSize: 20,
+    color: Colors.$blanco,
+    fontSize: 18,
     textAlign: 'center',
   },
   btnSaveColor2: {
     color: Colors.$blanco,
-    fontSize: 20,
+    fontSize: 18,
     textAlign: 'center',
   },
   cajaImgReserva: {
@@ -281,9 +282,8 @@ export default {
     textAlign: 'center',
   },
   denegado: {
-    fontFamily: Fonts.$size26,
-    fontSize: moderateScale(16),
-    backgroundColor: Colors.$tercer,
+    fontFamily: Fonts.$poppinsregular,
+    fontSize: 18,
     color: Colors.$texto,
     width: '80%',
     marginBottom: 5,
@@ -292,7 +292,7 @@ export default {
   },
   aceptado: {
     fontFamily: Fonts.$size26,
-    fontSize: 20,
+    fontSize: moderateScale(20),
     color: Colors.$primario,
     marginBottom: 8,
     width: '80%',
@@ -301,80 +301,32 @@ export default {
     borderRadius: 5,
   },
   textVehiculo: {
-    fontSize: 20,
-    color: Colors.$texto,
+    fontSize: moderateScale(20),
+    color: Colors.$inactiva,
   },
   btnVehiculos: {
-    width: 100,
-    height: 100,
-    borderRadius: 15,
-    margin: 5,
+    width: 95,
+    height: 95,
+    backgroundColor: Colors.$blanco,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.$blanco
+    margin: 5,
+    borderRadius: 18,
   },
   btnVehiculosSelect: {
-    width: 100,
-    height: 100,
-    borderRadius: 15,
+    width: 95,
+    height: 95,
+    backgroundColor: Colors.$adicional,    
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
     margin: 5,
-    alignItems: 'center',
-    justifyContent: 'center',    
-    backgroundColor: Colors.$adicional
+    padding: 5,
   },
-  cajaTextVehiuclosDisponible: {
+  cajaTextVehiuclos: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: Colors.$disponible
-  },
-  cajaTextVehiuclosReservada: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: Colors.$reservada
-  },
-  cajaTextVehiuclosPrestada: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: Colors.$prestada
-  },
-  cajaTextVehiuclosInactiva: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: Colors.$inactiva
-  },
-  cajaTextVehiuclosTaller: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: Colors.$taller
-  },
-  cajaTextVehiuclosSinEstado: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: 'white'
   },
   iconBici: {
     width: 40,
@@ -386,32 +338,29 @@ export default {
     height: 150,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   subcajaCuentaRegresiva: {
     flexDirection: 'column',
     alignItems: 'center',
-    backgroundColor: Colors.$texto,
-    margin: 5,
-    padding: 10,
+    backgroundColor: Colors.$primario,
     borderRadius: 10,
-    marginBottom: 20,
-    height: 70,
-    justifyContent: 'center',
+    padding: 10,
+    marginBottom: verticalScale(20),
   },
   numeroCuentaRegrasiva: {
     fontSize: 20,
     color: Colors.$blanco,
-    fontFamily: Fonts.$poppinsregular,
-    height: 30,
+    fontFamily: Fonts.$poppinsmedium,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     margin: 10,
   },
   subtextoCuentaR: {
-    fontSize: 10,
+    fontSize: 12,
     textAlign: 'center',
-    fontFamily: Fonts.$poppinsregular,
+    fontFamily: Fonts.$poppinslight,
     color: Colors.$blanco,
   },
   input: {
@@ -468,19 +417,19 @@ export default {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 100,
+    marginTop: 10,
     paddingLeft: 10,
   },
   boxPrincipalItemsReserva: {
     flex: 1,
     width: Dimensions.get('window').width,
-    minHeight: Dimensions.get('window').height*.5,
+    minHeight: Dimensions.get('window').height*.6,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
     backgroundColor: Colors.$blanco,
-    paddingTop: 20
+    paddingTop: 30,
   },
   boxPrincipalItems: {
     flex: 1,
@@ -505,10 +454,13 @@ export default {
   },
   fichaReserva: {
     textAlign: 'center',
+    width: Dimensions.get('window').width,
+    alignItems: 'center',
   },
   textTituloClave3: {
     color: 'black',
     fontSize: 20,
+    fontFamily: Fonts.$poppinsregular
   },
   vpsoporte: {
     width: horizontalScale(40),
@@ -540,7 +492,4 @@ export default {
   textBoton: {
     fontSize: 20,
   },
-  DISPONIBLE: {
-    backgroundColor: 'red'
-  }
 };

@@ -23,7 +23,8 @@ import {
     SAVE_FORM_PREOPERACIONAL,
     GENERAR_CODIGO_REFERIDO,
     BUSCAR_CODIGO_REFERIDO,
-    OTORGAR_PUNTOS_REFERENTE
+    OTORGAR_PUNTOS_REFERENTE,
+    RESET_PREOPERACIONALES
 } from '../types/perfil'
 
 export function getPuntos() {
@@ -176,5 +177,11 @@ export function otorgarPuntosReferente(cod) {
     cod: cod
   }
 } 
+
+export function reset_preoperacional() {
+  return {
+    type: RESET_PREOPERACIONALES
+  }
+}
 
 

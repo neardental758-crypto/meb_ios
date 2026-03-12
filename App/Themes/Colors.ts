@@ -1,8 +1,32 @@
 import { Env } from "../Utils/enviroments";
 let colores : any = ''
 
-if (Env.plantilla === 'meb') {
+if (Env.plantilla === 'davivienda') {
   colores = {
+    $primario: '#a1bc31',
+    $primario80: 'rgba(161, 188, 49, 0.8)',
+    $primario50: 'rgba(161, 188, 49, 0.5)',
+    $primario20: 'rgba(161, 188, 49, 0.2)',
+    $secundario: '#C4C4C4',
+    $secundario80: 'rgba(196, 196, 196, 0.8)',
+    $secundario50: 'rgba(196, 196, 196, 0.5)',
+    $secundario20: 'rgba(196, 196, 196, 0.2)',
+    $texto: '#333333',
+    $texto80: 'rgba(51, 51, 51, 0.8)',
+    $texto50: 'rgba(51, 51, 51, 0.5)',
+    $texto20: 'rgba(51, 51, 51, 0.2)',
+    $blanco: '#FFFFFF',
+    $adicional: '#00A6E0',
+    $adicional80: 'rgba(0, 166, 224, 0.8)',
+    $adicional50: 'rgba(0, 166, 224, 0.5)',
+    $adicional20: 'rgba(0, 166, 224, 0.2)',
+  }
+}else if (Env.plantilla === 'ride') {
+  colores = {
+    /*$primario: '#ffdf00',
+    $primario80: 'rgba(161, 56, 51, 0.8)',
+    $primario50: 'rgba(161, 56, 51, 0.5)',
+    $primario20: 'rgba(161, 56, 51, 0.2)',*/
     $primario: '#a1bc31',
     $primario80: 'rgba(161, 188, 49, 0.8)',
     $primario50: 'rgba(161, 188, 49, 0.5)',
@@ -25,35 +49,26 @@ if (Env.plantilla === 'meb') {
     $prestada: '#FF9800',
     $taller: '#f44336',
     $inactiva: 'black',
-  }
-}else if (Env.plantilla === 'ride') {
-  colores = {
-    /*$primario: '#ffdf00',
-    $primario80: 'rgba(218, 56, 51, 0.8)',
-    $primario50: 'rgba(218, 56, 51, 0.5)',
-    $primario20: 'rgba(218, 56, 51, 0.2)',*/
-    $primario: '#da3833',
-    $primario80: 'rgba(255, 98, 77, 0.8)',
-    $primario50: 'rgba(255, 98, 77, 0.5)',
-    $primario20: 'rgba(255, 98, 77, 0.2)',
-    $secundario: '#C4C4C4',
-    $secundario80: 'rgba(196, 196, 196, 0.8)',
-    $secundario50: 'rgba(196, 196, 196, 0.5)',
-    $secundario20: 'rgba(196, 196, 196, 0.2)',
-    $texto: '#333333',
-    $texto80: 'rgba(51, 51, 51, 0.8)',
-    $texto50: 'rgba(51, 51, 51, 0.5)',
-    $texto20: 'rgba(51, 51, 51, 0.2)',
-    $blanco: '#FFFFFF',
-    $adicional: '#00A6E0',
-    $adicional80: 'rgba(0, 166, 224, 0.8)',
-    $adicional50: 'rgba(0, 166, 224, 0.5)',
-    $adicional20: 'rgba(0, 166, 224, 0.2)',
-    $disponible: '#4CAF50',
-    $reservada: '#FFEB3B',
-    $prestada: '#FF9800',
-    $taller: '#f44336',
-    $inactiva: 'black',
+    $parqueo_color_primario: '#db9e01',
+    $parqueo_color_primaro_80: 'rgba(219, 158, 1, 0.8)',
+    $parqueo_color_primaro_50: 'rgba(219, 158, 1, 0.5)',
+    $parqueo_color_primaro_20: 'rgba(219, 158, 1, 0.2)',
+    $parqueo_color_secundario: '#C4C4C4',
+    $parqueo_color_secundario_80: 'rgba(196, 196, 196, 0.8)',
+    $parqueo_color_secundario_50: 'rgba(196, 196, 196, 0.5)',
+    $parqueo_color_secundario_20: 'rgba(196, 196, 196, 0.2)',
+    $parqueo_color_fondo: '#2d2c2c',
+    $parqueo_color_fondo_80: 'rgba(45, 44, 44, 0.8)',
+    $parqueo_color_fondo_50: 'rgba(45, 44, 44, 0.5)',
+    $parqueo_color_fondo_20: 'rgba(45, 44, 44, 0.2)',
+    $parqueo_color_texto: '#ffffff',
+    $parqueo_color_texto_80: 'rgba(255, 255, 255, 0.8)',
+    $parqueo_color_texto_50: 'rgba(255, 255, 255, 0.5)',
+    $parqueo_color_texto_20: 'rgba(255, 255, 255, 0.2)',
+    $parqueo_color_adicional: '#36c16b',
+    $parqueo_color_adicional_80: 'rgba(54, 193, 107, 0.8)',
+    $parqueo_color_adicional_50: 'rgba(54, 193, 107, 0.5)',
+    $parqueo_color_adicional_20: 'rgba(54, 193, 107, 0.2)'
   }
 }
 

@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Dimensions,
     Text,
+    TextInput,
+    FlatList,
+    Keyboard,
     Pressable,
     View,
     StyleSheet,
@@ -9,6 +12,7 @@ import {
     Image,
     ScrollView
 } from 'react-native';
+import { moderateScale } from '../../Themes/Metrics';
 import { connect, useDispatch } from 'react-redux';
 import DatePicker from 'react-native-date-picker';
 import Images from '../../Themes/Images';
@@ -18,13 +22,24 @@ import { Env } from "../../../keys";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 const keyMap = Env.key_map_google;
 
-export function FiltrosCarpooling({ date, setDate, checkCash, checkDaviPlata, checkCarro, checkMoto, closeModal, setModalEditPago, modalVehiculoEdit, showTripsChange, dataCarpooling,  setPosition1,  setPosition2 }) {
+export function FiltrosCarpooling({ date, setDate, checkCash, checkDaviPlata, checkCarro, checkMoto, closeModal, setModalEditPago, modalVehiculoEdit, showTripsChange, dataCarpooling,  setPosition1,  setPosition2, pago }) {
     const [ btnpuntoPC, setbtnpuntoPC ] = useState(false);
     const [ btnpuntoPO, setbtnpuntoPO ] = useState(false);
     const [ searchQuery, setSearchQuery ] = useState('');
     const [ searchQueryDestiny, setSearchQueryDestiny ] = useState('');
     const [ key1, setKey1 ] = useState(0);
     const [ key2, setKey2 ] = useState(50);
+
+     // Estados para el autocompletado
+    const mapRef = useRef(null);
+    const [searchText, setSearchText] = useState('');
+    const [searchTextDestiny, setSearchTextDestiny] = useState('');
+    const [predictions, setPredictions] = useState([]);
+    const [showPredictions, setShowPredictions] = useState(false);
+    // NUEVO ESTADO: Para saber qué input está activo
+    const [activeInput, setActiveInput] = useState(null); // 'origin' o 'destination'
+
+
     const sendNewTrips = () => {
       showTripsChange();
       closeModal();
@@ -54,10 +69,144 @@ export function FiltrosCarpooling({ date, setDate, checkCash, checkDaviPlata, ch
           setPosition2({lat: '',lng: ''});
         }
       }, [btnpuntoPO]);
+
+    // MODIFICADO: Separar useEffect para cada input de búsqueda
+    // Efecto para buscar predicciones del input de Salida
+    useEffect(() => {
+      if (activeInput === 'origin' && searchText.length > 2) {
+        fetchPredictions(searchText);
+      } else if (activeInput === 'origin') { // Borrar predicciones si el texto es muy corto o se ha borrado
+        setPredictions([]);
+        setShowPredictions(false);
+      }
+    }, [searchText, activeInput]); // Solo escucha cambios en searchText si activeInput es 'origin'
+  
+    // Efecto para buscar predicciones del input de Destino
+    useEffect(() => {
+      if (activeInput === 'destination' && searchTextDestiny.length > 2) {
+        fetchPredictions(searchTextDestiny);
+      } else if (activeInput === 'destination') { // Borrar predicciones si el texto es muy corto o se ha borrado
+        setPredictions([]);
+        setShowPredictions(false);
+      }
+    }, [searchTextDestiny, activeInput]); // Solo escucha cambios en searchTextDestiny si activeInput es 'destination'
+  
+  
+    const fetchPredictions = async (input) => {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${keyMap}&components=country:co&language=es`
+        );
+        const json = await response.json();
+  
+        if (json.status === 'OK' && json.predictions) {
+          setPredictions(json.predictions);
+          setShowPredictions(true);
+        } else {
+          setPredictions([]);
+          setShowPredictions(false);
+        }
+      } catch (error) {
+        console.error('Error fetching predictions:', error);
+      }
+    };
+  
+    // MODIFICADO: fetchPlaceDetails para usar `inputType`
+    const fetchPlaceDetails = async (placeId, inputType) => {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${keyMap}&fields=geometry,name,formatted_address&language=es`
+        );
+        const json = await response.json();
+  
+        if (json.status === 'OK' && json.result) {
+          const { geometry, name, formatted_address } = json.result;
+          const { lat, lng } = geometry.location;
+  
+          const latitude = parseFloat(lat);
+          const longitude = parseFloat(lng);
+  
+          if (!isNaN(latitude) && !isNaN(longitude)) {
+  
+            if (mapRef.current) {
+              mapRef.current.animateToRegion({
+                latitude: latitude,
+                longitude: longitude,
+                latitudeDelta: 0.0421,
+                longitudeDelta: 0.0421,
+              }, 1000);
+            }
+  
+            // Usa inputType para decidir qué estado actualizar
+            if (inputType === 'origin') {
+              setPosition1({
+                lat: latitude,
+                lng: longitude,
+                latitudeDelta: 0.0421,
+                longitudeDelta: 0.0421,
+              });
+              setSearchQuery(formatted_address); // Actualiza el placeholder
+              setSearchText(formatted_address); // Actualiza el valor del TextInput
+            } else if (inputType === 'destination') {
+              setPosition2({
+                lat: latitude,
+                lng: longitude,
+                latitudeDelta: 0.0421,
+                longitudeDelta: 0.0421,
+              });
+              setSearchQueryDestiny(formatted_address); // Actualiza el placeholder
+              setSearchTextDestiny(formatted_address); // Actualiza el valor del TextInput
+            }
+            setActiveInput(null); // Resetear el input activo después de seleccionar una dirección
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching place details:', error);
+      }
+    };
+  
+    // MODIFICADO: handleSelectPrediction para pasar `activeInput`
+    const handleSelectPrediction = (prediction) => {
+      // setSearchText(prediction.description); // Ya no es necesario aquí, se hará en fetchPlaceDetails
+      setShowPredictions(false);
+      setPredictions([]);
+      Keyboard.dismiss();
+      fetchPlaceDetails(prediction.place_id, activeInput); // Pasa el input activo
+    };
+  
+    const renderPrediction = ({ item }) => (
+      <Pressable
+        style={estilos.predictionItem}
+        onPress={() => handleSelectPrediction(item)}
+        activeOpacity={0.7}
+      >
+        <View>
+          <Text style={estilos.predictionMain}>
+            {item.structured_formatting?.main_text || item.description}
+          </Text>
+          {item.structured_formatting?.secondary_text && (
+            <Text style={estilos.predictionSecondary}>
+              {item.structured_formatting.secondary_text}
+            </Text>
+          )}
+        </View>
+      </Pressable>
+    );
+
+
   return(
-  <ScrollView style={styles.container2}>
   <View
-    
+    style={{
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo semitransparente
+      position: 'absolute', // Asegura que el fondo cubra toda la pantalla
+      top: 0,
+      left: 0,
+    }}
   >
   <Pressable  
     onPress={closeModal}
@@ -68,16 +217,16 @@ export function FiltrosCarpooling({ date, setDate, checkCash, checkDaviPlata, ch
   </Pressable>
     <View
       style={{
-        width: '100%',
+        width: '90%',
         height: 'auto', // Ajusta la altura al contenido
         backgroundColor: Colors.$blanco,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 40,
+        padding: 20,
       }}
     >
-      <Text style={{fontSize: 16, fontFamily: Fonts.$poppinsregular, marginBottom:20}}>Posiciones</Text>	
+      <Text style={{fontSize: 16, fontFamily: Fonts.$poppinsmedium}}>Posiciones</Text>	
       <View style={[styles.box2, {marginBottom: 15}]}>
           <Pressable 
               onPress={() => {
@@ -98,63 +247,118 @@ export function FiltrosCarpooling({ date, setDate, checkCash, checkDaviPlata, ch
                 </View>  
             </Pressable>         
       </View>
-              <GooglePlacesAutocomplete
-                key={key1}
-                styles={{
-                  container: { flex: 0, position: "relative", width: Dimensions.get("window").width*.8 , zIndex: 5, top : 10, left: 15 },
-                  listView: { backgroundColor: "white", zIndex: 5, width: "100%" },
-                  textInput: { color: "black" }
+      
+      <View style={{
+          flex: 1,
+          position: 'absolute',
+          top: 100,
+          width: Dimensions.get('window').width,
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1
+        }}>
+          <View style={estilos.searchContainer}>
+            <TextInput
+              style={estilos.searchInput}
+              placeholder={searchQuery === '' ? 'Salida' : searchQuery}
+              placeholderTextColor={Colors.$texto}
+              value={searchText}
+              onChangeText={(text) => {
+                setSearchText(text);
+                setActiveInput('origin'); // AGREGADO: Establecer el input activo
+              }}
+              onFocus={() => {
+                setActiveInput('origin'); // AGREGADO: Establecer el input activo al enfocar
+                if (predictions.length > 0) {
+                  setShowPredictions(true);
+                }
+              }}
+            />
+            {/* AGREGADO: Botón para limpiar el input de Salida */}
+            {searchText.length > 0 && (
+              <Pressable
+                style={[estilos.clearButton, { top: 10 }]} // Ajusta la posición si es necesario
+                onPress={() => {
+                  setSearchText('');
+                  setSearchQuery('');
+                  setPosition1(null);
+                  setPredictions([]);
+                  setShowPredictions(false);
+                  setActiveInput(null); // AGREGADO: Resetear activeInput
                 }}
-                placeholder={dataCarpooling.directionNameUser && btnpuntoPC ? dataCarpooling.directionNameUser : "Punto de salida"}
-                fetchDetails={true}
-                textInputProps={{
-                  value: searchQuery,
-                  onChangeText: setSearchQuery,
-                  placeholderTextColor: "gray",
+              >
+                <Text style={estilos.clearButtonText}>✕</Text>
+              </Pressable>
+            )}
+
+            <TextInput
+              style={[estilos.searchInput, { marginTop: 10 }]} // Ajusta el margen superior para el segundo input
+              placeholder={searchQueryDestiny === '' ? 'Destino' : searchQueryDestiny}
+              placeholderTextColor={Colors.$texto}
+              value={searchTextDestiny}
+              onChangeText={(text) => {
+                setSearchTextDestiny(text);
+                setActiveInput('destination'); // AGREGADO: Establecer el input activo
+              }}
+              onFocus={() => {
+                setActiveInput('destination'); // AGREGADO: Establecer el input activo al enfocar
+                if (predictions.length > 0) {
+                  setShowPredictions(true);
+                }
+              }}
+            />
+            {/* AGREGADO: Botón para limpiar el input de Destino */}
+            {searchTextDestiny.length > 0 && (
+              <Pressable
+                style={[estilos.clearButton, { top: 70 }]} // Ajusta la posición según la altura del primer input
+                onPress={() => {
+                  setSearchTextDestiny('');
+                  setSearchQueryDestiny('');
+                  setPosition2(null);
+                  setPredictions([]);
+                  setShowPredictions(false);
+                  setActiveInput(null); // AGREGADO: Resetear activeInput
                 }}
-                onPress={(data, details = null) => {
-                  if (details) {
-                    setPosition1({ lat: details.geometry.location.lat, lng: details.geometry.location.lng });
-                  }
-                }}
-                query={{ key: keyMap, language: 'es', components: 'country:co'}}
-                redefinedPlaces={[]}
-              />
-              <GooglePlacesAutocomplete
-                key={key2}
-                styles={{
-                  container: { flex: 0, position: "relative", top : 10, width: Dimensions.get("window").width*.8, zIndex: 4, left: 15  },
-                  listView: { backgroundColor: "white", zIndex: 4, width: "100%" },
-                  textInput: { color: "black" }
-                }}
-                placeholder={dataCarpooling.directionNameUser && btnpuntoPO ? dataCarpooling.directionNameUser : "Destino"}
-                fetchDetails={true}
-                textInputProps={{
-                  value: searchQueryDestiny,
-                  onChangeText: setSearchQueryDestiny,
-                  placeholderTextColor: "gray",
-                }}
-                onPress={(data, details = null) => {
-                  if (details) {
-                    setPosition2({ lat: details.geometry.location.lat, lng: details.geometry.location.lng });
-                  }
-                }}
-                query={{ key: keyMap, language: 'es', components: 'country:co'}}
-                redefinedPlaces={[]}
-              />
-    <View style={{marginTop: 85, flexDirection : 'column', alignItems : 'center', justifyContent : 'center', width: Dimensions.get('window').width*.8}}>
-    <Text style={{fontSize: 16, fontFamily: Fonts.$poppinsmedium}}>Método de pago</Text>
-    <View style={[styles.box3, {backgroundColor: Colors.$blanco, justifyContent: 'space-around'}]}>
-            <View style={styles.cajaRow2}>
-                { checkDaviPlata ? <Image source={Images.logodaviplata} style={styles.imgPago}/> : <></>} 
-                { checkCash ? <Image source={Images.iconobillete} style={styles.imgPago}/> : <></>}
-            </View>
-            <Pressable
-                onPress={() => {setModalEditPago(true)}}
-            >
-            <Image source={Images.e_icon} style={{width: 40, height: 40}}/>
-        </Pressable>
-    </View>
+              >
+                <Text style={estilos.clearButtonText}>✕</Text>
+              </Pressable>
+            )}
+
+          </View>
+
+           {showPredictions && predictions.length > 0 && (
+                <View style={estilos.predictionsContainer}>
+                  <FlatList
+                    data={predictions}
+                    renderItem={renderPrediction}
+                    keyExtractor={(item, index) => `${item.place_id}-${index}`}
+                    keyboardShouldPersistTaps="always"
+                    nestedScrollEnabled={true}
+                    scrollEnabled={true}
+                  />
+                </View>
+              )}
+        </View>      
+
+
+
+
+    <View style={{marginTop: 150, flexDirection : 'column', alignItems : 'center', justifyContent : 'center', width: Dimensions.get('window').width*.8}}>
+      { pago === 'ACTIVO+PAGOS' ?
+      <>
+      <Text style={{fontSize: 16, fontFamily: Fonts.$poppinsmedium}}>Método de pago</Text>
+      <View style={[styles.box3, {backgroundColor: Colors.$blanco, justifyContent: 'space-around'}]}>
+              <View style={styles.cajaRow2}>
+                  { checkDaviPlata ? <Image source={Images.logodaviplata} style={styles.imgPago}/> : <></>} 
+                  { checkCash ? <Image source={Images.iconobillete} style={styles.imgPago}/> : <></>}
+              </View>
+              <Pressable
+                  onPress={() => {setModalEditPago(true)}}
+              >
+              <Image source={Images.e_icon} style={{width: 40, height: 40}}/>
+          </Pressable>
+      </View>
+      </>:null}
     <Text style={{fontSize: 16, fontFamily: Fonts.$poppinsmedium}}>Medio de transporte</Text>
     <View style={[styles.box3, {backgroundColor: Colors.$blanco, justifyContent: 'space-around'}]}>
             <View style={{ width: '60%', flexDirection: 'row'}}>
@@ -190,20 +394,129 @@ export function FiltrosCarpooling({ date, setDate, checkCash, checkDaviPlata, ch
             </View>
           </View>
     </View>
-  </View>
-  </ScrollView>
+    </View>
   )
 }
 
+const estilos = StyleSheet.create({
+    searchContainer: {
+      marginHorizontal: moderateScale(25),
+      marginTop: moderateScale(10),
+      marginBottom: 0,
+      position: 'relative',
+    },
+    searchInput: {
+      backgroundColor: Colors.$blanco,
+      borderWidth: 0.8,
+      borderColor: Colors.$secundario,
+      borderRadius: moderateScale(15),
+      paddingHorizontal: moderateScale(15),
+      paddingVertical: moderateScale(12),
+      fontSize: 18,
+      color: 'black',
+      width: Dimensions.get('window').width*.9
+    },
+    clearButton: {
+      position: 'absolute',
+      right: 10,
+      padding: 5,
+      zIndex: 2, // Asegura que el botón esté por encima del TextInput
+    },
+    clearButtonText: {
+      fontSize: 20,
+      color: '#999',
+    },
+    predictionsContainer: {
+      marginHorizontal: moderateScale(25),
+      marginTop: 5,
+      marginBottom: 10,
+      backgroundColor: 'white',
+      borderWidth: 1,
+      borderColor: '#ddd',
+      borderRadius: moderateScale(5),
+      maxHeight: 200,
+      overflow: 'hidden',
+      elevation: 5,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      zIndex: 4
+    },
+    predictionItem: {
+      padding: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: '#f0f0f0',
+      backgroundColor: 'white',
+    },
+    predictionMain: {
+      fontSize: 16,
+      color: '#333',
+      fontWeight: '600',
+      marginBottom: 4,
+    },
+    predictionSecondary: {
+      fontSize: 13,
+      color: '#666',
+    },
+    inputDirCasa: {
+        width: Dimensions.get("window").width,
+        backgroundColor: Colors.$blanco,
+        fontSize: 20,
+        paddingLeft: 20,
+        color: Colors.$texto,
+    },
+    btnCenter: {
+        width: Dimensions.get("window").width*.5,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.$primario,
+        height: 50,
+        marginTop: 20
+    },
+    btnSaveColor: {
+        color: '#fff',
+        fontSize: 20,
+    },
+    contenedor: {
+        flex: 1,
+        minHeight: Dimensions.get("window").height,
+        width: Dimensions.get("window").width,
+        backgroundColor: Colors.$blanco,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cajaBtnVerRuta: {
+        flex: 1,
+        minHeight: Dimensions.get("window").height,
+        width: Dimensions.get("window").width,
+        position: 'absolute',
+        top: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        alignContent: 'center',
+        justifyContent: 'center',
+        zIndex: 100,
+    },
+    cajaCargando: {
+        color: Colors.$blanco,
+        width: Dimensions.get("window").width,
+        textAlign: 'center',
+    },
+    containerMap: {
+        flex : 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical : 15
+    },
+    map: {
+        flex: 1,
+        width: '90%',
+        height: '100%',
+    },
+})
+
 const styles = StyleSheet.create({
-  container2: {
-    flex: 1,
-    width: '100%',
-    marginTop: 0,
-    paddingTop:20,
-    padding: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
     contenedor: {
       flex: 1,
       width: Dimensions.get('window').width,
@@ -558,7 +871,7 @@ const styles = StyleSheet.create({
       backgroundColor : Colors.$primario,
       borderRadius : 20,
       width: 150,
-      height: 40
+      height: 30
     },
     btnSecundario : {
       alignItems: "center",
@@ -566,7 +879,7 @@ const styles = StyleSheet.create({
       backgroundColor : Colors.$secundario,
       borderRadius : 20,
       width: 150,
-      height: 40
+      height: 30
     },
     cajaMapa: {
       width: Dimensions.get("window").width,
@@ -656,8 +969,8 @@ const styles = StyleSheet.create({
     btnAtrasActivo:{
       position: 'absolute',
       zIndex: 6,
-      top: 1, 
-      right: 2,
+      top: 15, 
+      right: 25,
       width: 50,
       height: 50,
       alignItems: 'center',

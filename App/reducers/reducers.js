@@ -1,8 +1,8 @@
-import { 
-  APP_INIT, 
-  SAVE_USER_LOGIN, 
+import {
+  APP_INIT,
+  SAVE_USER_LOGIN,
   //SET_PASSWORD_ERROR, 
-  SET_TOKEN 
+  SET_TOKEN
 } from '../types/types';
 
 import { LOGOUT } from '../types/userTypes';
@@ -17,6 +17,7 @@ import reducerParqueadero from './reducerParqueadero';
 import reducerCarpooling from './reducerCarpooling';
 import reducerPerfil from './reducerPerfil';
 import tripReducer from './tripReducer';
+import movilidad5gReducer from './movilidad5gReducer';
 
 const initialState = {
   //nav: null,
@@ -67,6 +68,7 @@ const rootReducer = {
   reducerParqueadero,
   reducerCarpooling,
   reducerPerfil,
-  tripReducer
+  tripReducer,
+  movilidad5gReducer
 }
 export default rootReducer;

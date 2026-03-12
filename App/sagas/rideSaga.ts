@@ -37,7 +37,7 @@ import Geolocation from 'react-native-geolocation-service';
 //import SocketService from '../Services/socket.service';
 import { api } from "../api/api.service";
 //import { v4 as uuidv4 } from 'uuid';
-import BluetoothService from "../Services/bluetooth.service2";
+import { bluetooth } from "../Services/bluetooth.service2";
 import * as RootNavigation from '../RootNavigation';
 
 
@@ -46,7 +46,7 @@ import * as RootNavigation from '../RootNavigation';
 
 //IMPORT REDUX SAGA
 
-let bluetooth = new BluetoothService();
+// let bluetooth = new BluetoothService(); // Removed local instantiation
 
 // IMPORT API SERVICE 
 
@@ -71,7 +71,7 @@ async function validatePermissionsAndroid() {
                 }
             );
 
-            const grantedBluetooth = await PermissionsAndroid.request(
+            const grantedBluetoothScan = await PermissionsAndroid.request(
                 PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
                 {
                     title: "Bycycle APP permisos de Bluetooth",
@@ -82,13 +82,37 @@ async function validatePermissionsAndroid() {
                 }
             );
 
+            const grantedBluetoothConnect = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+                {
+                    title: "Bycycle APP permisos de Bluetooth",
+                    message: "Para poder conectar con el dispositivo, debe aceptar los permisos",
+                    buttonNeutral: "Pregúntame luego",
+                    buttonNegative: "Cancelar",
+                    buttonPositive: "Aceptar"
+                }
+            );
+
+            const grantedLocation = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    title: "Bycycle APP permisos de Ubicación",
+                    message: "La ubicación es necesaria para escanear dispositivos Bluetooth",
+                    buttonNeutral: "Pregúntame luego",
+                    buttonNegative: "Cancelar",
+                    buttonPositive: "Aceptar"
+                }
+            );
+
             if (
                 grantedCamera === PermissionsAndroid.RESULTS.GRANTED &&
-                grantedBluetooth === PermissionsAndroid.RESULTS.GRANTED
+                grantedBluetoothScan === PermissionsAndroid.RESULTS.GRANTED &&
+                grantedBluetoothConnect === PermissionsAndroid.RESULTS.GRANTED &&
+                grantedLocation === PermissionsAndroid.RESULTS.GRANTED
             ) {
-                console.log('permisos correctamente de camara y bluetooth');
+                console.log('permisos correctamente de camara, bluetooth y ubicacion');
             } else {
-                Alert.alert("Error", "Para poder usar todas nuestras funcionalidades, debe aceptar los permisos necesarios.");
+                Alert.alert("Error", "Para poder usar todas nuestras funcionalidades, debe aceptar todos los permisos necesarios.");
             }
         } catch (err) {
             console.warn(err);
@@ -101,7 +125,7 @@ function* showError(action: any) {
     Alert.alert("Error", action.payload);
 }
 
-function* verifyLockStatus(id: any, userId:any): any {
+function* verifyLockStatus(id: any, userId: any): any {
     console.log("VerifyLockStatus ÑÑÑÑÑÑÑÑÑÑÑÑ");
     let lockInfo = yield select((state) => state.rideReducer.lock);
     let filter = {
@@ -222,7 +246,7 @@ function* verifyCameraPermissionsSagas() {
     });
 }
 
-function* startTrip(action:any): any {
+function* startTrip(action: any): any {
     //se guarda el registro de viaje
     //console.log("startTrip :::::INTENTANDO LLEGAR IDUSER POR ACA::::::::: ", action.payload);
     //let navigation = yield select((state) => state.globalReducer.nav._navigation); // SE COMENTO
@@ -240,7 +264,7 @@ function* startTrip(action:any): any {
         userId: action.payload, //no está llegando
         bikeId: lockInfo.bikeId,
         startStationId: stationInfo.id,
-        organizationId: lockInfo.organizationId 
+        organizationId: lockInfo.organizationId
     };
     //console.log('en startTrip despues del body ', body);
     /**
@@ -251,6 +275,24 @@ function* startTrip(action:any): any {
         "userId": undefined}
      */
     let response = yield api.postData('startTrip', body);
+    console.log('La respuesta al guardar el trip', response)
+
+
+    let user = yield getItem('user');
+    let preoperacionales = yield select((state) => state.reducerPerfil.form_preoperacional);
+    let formPre = {
+        "id": new Date().getTime(),
+        "usuario": user.idNumber,
+        "idViaje": response.id,
+        "modulo": '5G',
+        "respuestas": preoperacionales.respuestas,
+        "comentario": preoperacionales.comentario
+    }
+    console.log('ANtes de guardar preoperacional', formPre)
+    //Acá agregamos el registro de preoperacional
+    let preoperacional = yield api.guardandoPreoperacionales('bc_preoperacionales/registrar', formPre);
+    console.log('UUUUU la respuesta de preoperacionales al guaradr', preoperacional)
+
     //console.log('LA RESPUESTA DE LA FUNCION STARTRIP ::::', response);
     if (response.createdAt) {
         yield put({ type: SET_LOADING_LOCK, payload: false });
@@ -260,7 +302,7 @@ function* startTrip(action:any): any {
         //PUT NAVIGATION TO CURRENT TRIP SCREEN
     } else {
         yield put({ type: MODAL_QR_ERROR_STATUS, modalQrStatus: true });
-    }
+    }//descomentar
 }
 
 function* validateQr(action: any): any {
@@ -268,11 +310,12 @@ function* validateQr(action: any): any {
     //const navigation = yield select((state) => state.globalReducer.nav._navigation); // SE COMENTO
     if (action.payload?.qrNumber && regExp.test(action.payload.qrNumber) && action.payload.qrNumber.length == 7) {
         yield put({ type: SET_LOADING, payload: true });
-        yield put({ type: VALIDATE_TRIP, payload: { 
-            qrNumber: action.payload.qrNumber,
-            id: action.id.iduser,
-            org: action.org.organizationId
-            } 
+        yield put({
+            type: VALIDATE_TRIP, payload: {
+                qrNumber: action.payload.qrNumber,
+                id: action.id.iduser,
+                org: action.org.organizationId
+            }
         });
     } else {
         yield put({ type: SET_ERROR_MESSAGE, payload: "Este codigo parece no ser correcto, intentelo de nuevo." });
@@ -454,31 +497,31 @@ function* validationEndTrip(action: any): any {
 function* endTrip(action: any): any {
     yield put({ type: appTypes.setLoadingEnd, payload: true });
     let userTripInformation = yield select((state) => state.rideReducer.userTripInformation);
-    
+
     let user = yield getItem('user');
     const indicadoresString = yield AsyncStorage.getItem('indicadores');
     const indicadores = indicadoresString ? JSON.parse(indicadoresString) : {}; // Verifica y parsea solo si no es nulo
     console.log('ACTION....INDICADORES', indicadores);
     //Acá crear registro de los indicadores de impacto 5G
     let data_ind = {
-        "ind_id": new Date().getTime(), 
-        "ind_usuario": user.idNumber, 
-        "ind_viaje": action.trip.id, 
-        "ind_modulo": "5g", 
-        "ind_duracion": indicadores.duracion ?? null, 
-        "ind_distancia": indicadores.distancia ?? null, 
-        "ind_calorias": indicadores.calorias ?? null, 
+        "ind_id": new Date().getTime(),
+        "ind_usuario": user.idNumber,
+        "ind_viaje": action.trip.id,
+        "ind_modulo": "5g",
+        "ind_duracion": indicadores.duracion ?? null,
+        "ind_distancia": indicadores.distancia ?? null,
+        "ind_calorias": indicadores.calorias ?? null,
         "ind_co2": indicadores.co2 ?? null
     }
-	let tabla = 'bc_indicadores_trip/registrar';    
+    let tabla = 'bc_indicadores_trip/registrar';
     console.log('la data_ind: ', data_ind);
 
-	let saveIndicadores = yield api.guardandoIndicadores(tabla, data_ind);
+    let saveIndicadores = yield api.guardandoIndicadores(tabla, data_ind);
 
     console.log('LA RESPUESTA DE SAVE INDICADORES', saveIndicadores);
 
     let apiResponse = yield api.endTrip(action.trip, action.endStationId, userTripInformation);
-    
+
     if (apiResponse?.error) {
         Alert.alert("Error", "No hemos podido terminar el viaje");
         yield put({ type: appTypes.setLoadingEnd, payload: false });
@@ -511,23 +554,23 @@ function* verifyLockResume(): any {
     }
 }
 
-function* getActiveTripChecklist(action: any): any { 
+function* getActiveTripChecklist(action: any): any {
     //console.log('EN LA SAGA getActiveCheckList ')
     yield put({ type: appTypes.setLoadingEnd, payload: false });
     yield put(setEndTripValidation({
-                        userInRange: "loading",
-                        lockInRange: "loading",
-                        lockIsClosed: "loading"
-                    })); 
+        userInRange: "loading",
+        lockInRange: "loading",
+        lockIsClosed: "loading"
+    }));
     //let userInfo = yield select((state) => state.globalReducer.user);
     //console.log('la info del user en ride saga check list :::::CHECKLIST', userInfo);
     //let userId = userInfo.id;
-    
+
     let user = yield getItem('user');
     //console.log('la info del user en ride saga check list :::::CHECKLIST', user);
     let userId = user.id;
 
-    
+
     let filter = {
         where: {
             userId: userId,
@@ -538,12 +581,12 @@ function* getActiveTripChecklist(action: any): any {
     let trips = yield api.get("trips", filter);
     let tripsFinishing = trips.filter((trip: any) => trip.state == 'finishing');
     let tripsActive = trips.filter((trip: any) => trip.state == 'active');
-    console.log("getActiveTripChecklist",{user,trips})
+    console.log("getActiveTripChecklist", { user, trips })
 
     if (tripsActive.length > 0) {
         yield put({ type: GET_ACTIVE_TRIP_SUCCESS, payload: tripsActive[0] });
         //yield put({ type: CHECK_LOCATION_PERMISSIONS }); //se comento 23 feb probando
-    } else if (tripsFinishing.length > 0) {        
+    } else if (tripsFinishing.length > 0) {
         RootNavigation.navigate('travelExperienceScreen');
     } else {
         //RootNavigation.navigate("Home");
@@ -553,24 +596,24 @@ function* getActiveTripChecklist(action: any): any {
 function* validateUserLocation(action: any): any {//checklistlocation(stationId, trips)
     let trip = yield select((state) => state.userReducer.actualTrip);
     let apiResponse = yield api.validationEndTripC(trip, action.location);
-    console.log("validateUserLocation ::::::::::::::::::",{trip,apiResponse})
+    console.log("validateUserLocation ::::::::::::::::::", { trip, apiResponse })
     if (apiResponse?.error) {
         yield put(setButtonStartValidation(true));
         yield put(setEndTripValidation({
-                    userInRange: "no",
-                    lockInRange: "waiting",
-                    lockIsClosed: "waiting"
-                }));
+            userInRange: "no",
+            lockInRange: "waiting",
+            lockIsClosed: "waiting"
+        }));
         yield delay(100);
         Alert.alert("Error validacion", apiResponse.error);
     } else {
         yield put(setEndTripValidation({
-                    userInRange: "yes",
-                    lockInRange: "loading",
-                    lockIsClosed: "loading"
-                }));
-        yield put(appRideActions.setChecklistlocation({trip, closestStationId: apiResponse.closestStationId}));
-        yield put({type: appRideTypes.startLockValidations});                
+            userInRange: "yes",
+            lockInRange: "loading",
+            lockIsClosed: "loading"
+        }));
+        yield put(appRideActions.setChecklistlocation({ trip, closestStationId: apiResponse.closestStationId }));
+        yield put({ type: appRideTypes.startLockValidations });
     }
 }
 //CHECKLIST SAGAS
@@ -578,21 +621,21 @@ function* checkLocationPermissions(action: any): any {
     let location: any;
     console.log("checkLocationPermissions");
     yield put(setEndTripValidation({
-                    userInRange: "loading",
-                    lockInRange: "loading",
-                    lockIsClosed: "loading"
-                }));
+        userInRange: "loading",
+        lockInRange: "loading",
+        lockIsClosed: "loading"
+    }));
     try {
         location = yield geoLocation();
-        console.log("checkLocationPermissions location",location)
+        console.log("checkLocationPermissions location", location)
         yield put(appRideActions.checkBluetoothPermissions(location));
     } catch (error) {
-        console.log("checkLocationPermissions error",error)
+        console.log("checkLocationPermissions error", error)
         yield put(setEndTripValidation({
-                    userInRange: "waiting",
-                    lockInRange: "waiting",
-                    lockIsClosed: "waiting"
-                }));
+            userInRange: "waiting",
+            lockInRange: "waiting",
+            lockIsClosed: "waiting"
+        }));
         yield put(setButtonStartValidation(true));
         Alert.alert("Error de geolocación", "Asegurate de permitir acceso a tu ubicación e intentalo nuevamente")
     }
@@ -602,15 +645,15 @@ function* checkBluetoothPermissions(action: any): any {
     //descomentar
     let bluetoothState = yield select((state) => state.rideReducer.bluetoothState);
     //let bluetoothState = true;
-    console.log("checkBluetoothPermissions",{bluetoothState});
+    console.log("checkBluetoothPermissions", { bluetoothState });
     if (bluetoothState) {
         yield put(appRideActions.validateUserLocation(action.location));
     } else {
         yield put(setEndTripValidation({
-                    userInRange: "waiting",
-                    lockInRange: "waiting",
-                    lockIsClosed: "waiting"
-                }));
+            userInRange: "waiting",
+            lockInRange: "waiting",
+            lockIsClosed: "waiting"
+        }));
         yield put(setButtonStartValidation(true));
         Alert.alert("Error de conexión al bluetooth", "Debe encender el bluetooth de su dispositivo para poder continuar")
     }
@@ -620,19 +663,19 @@ function* startLockValidations(action: any): any {
     let trip = yield select((state) => state.userReducer.actualTrip);
     let endTripValidation = yield select((state) => state.rideReducer.endTripValidation);
     let locks = yield api.get("locks", { where: { bikeId: trip.bikeId } });
-    console.log("startLockValidations",{trip,endTripValidation,locks});
-    if(locks.length>0){
+    console.log("startLockValidations", { trip, endTripValidation, locks });
+    if (locks.length > 0) {
         bluetooth.scanForLock(endTripValidation, locks[0].mac);
-    }else{
+    } else {
         yield put(setEndTripValidation({
-                    userInRange: "yes",
-                    lockInRange: "waiting",
-                    lockIsClosed: "waiting"
-                }));
+            userInRange: "yes",
+            lockInRange: "waiting",
+            lockIsClosed: "waiting"
+        }));
         yield put(setButtonStartValidation(true));
         Alert.alert("Error validacion", "Candado de la bicicleta no registrado, contacta soporte");
     }
-    
+
 }
 //agregado para ruedaporibague 
 function* openBluetoothTrip(action: any): any {
@@ -642,6 +685,15 @@ function* openBluetoothTrip(action: any): any {
     bluetooth.waitUntilDeviceState(action.lock.mac, action.lock.id);
 }
 
+function* resetLock(action: any): any {
+    console.log("resetLock Saga - Action data:", { mac: action.mac, id: action.id, imei: action.imei });
+    if (!action.imei) {
+        console.error("resetLock Saga error: IMEI is missing in the action payload!");
+        // Alert the user or log to monitoring service here if needed
+    }
+    yield call(validatePermissionsAndroid);
+    bluetooth.resetLock(action.mac, action.id, action.imei);
+}
 
 //SAGAS EXPORT
 function* startLockValidationsSagas() {
@@ -709,6 +761,10 @@ function* openBluetoothTripSagas() {
     yield takeLatest(appRideTypes.openBluetoothTrip, openBluetoothTrip);
 }
 
+function* resetLockSagas() {
+    yield takeLatest(appRideTypes.resetLock, resetLock);
+}
+
 export const sagas = [
     checkLocationPermissionsSagas(),
     validateUserLocationSagas(),
@@ -729,4 +785,5 @@ export const sagas = [
     verifyLockResumeSagas(),
     //agregado para ruedaporibague 
     openBluetoothTripSagas(),
+    resetLockSagas(),
 ]

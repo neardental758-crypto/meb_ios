@@ -37,7 +37,7 @@ import {
   SET_CURRENT_TRIP,
   POST_USER_FEEDBACK,
   POST_IMG_EXPERIENCE,
-  SET_NEW_TRIP,  
+  SET_NEW_TRIP,
   GET_STATIONS_FROM_ORGANIZATION
 } from '../types/types';
 import { VERIFY_LOCK_STATUS_TRIP, SET_STATUS_LOCK } from '../types/tripTypes';
@@ -139,7 +139,7 @@ function* validateUser(action) {
             password: action.password,
           }); //save username and password in stora
         }
-        
+
         //PhoneTokenService.updatePhoneToken(true);
         const token = yield select((state) => state.globalReducer.token);
         console.log('Que token tenemos ::::: ', token);
@@ -189,7 +189,7 @@ function* validationLogin(action) {
       password: action.login.password,
       token: action.login.token, //pasamos por las action el tipo de token
     });
-    
+
   } else {
     console.log('En globalSagas con errorres')
     yield delay(100);
@@ -198,25 +198,32 @@ function* validationLogin(action) {
 }
 
 function* loginUser(action) {
-  /* we obtain the app token pass it the username and password */
+  /* Login via MySQL - retorna token + datos del usuario directamente */
   const data = yield login(action.email, action.password, action.token);
-  if (data) {
-    if (data.token) {
-      yield put({ type: SET_TOKEN, token: data.token });
-      yield put({
-        type: GET_USER_DATA,
-        userId: data.id_user,
-        password: action.password,
-        token: action.token,
-      });
-    } else {
-      yield put({ type: appTypes.setLoadingLogin, payload: false });
-      yield delay(500);
-      Alert.alert(
-        'Alerta',
-        'Usuario o contraseña incorrecto, Intente de nuevoo',
-      );
+  if (data && data.token) {
+    yield put({ type: SET_TOKEN, token: data.token });
+
+    // Guardar usuario en storage con los datos que vienen del MySQL login
+    const userToStore = {
+      ...data.user,
+      email: action.email,
+      password: action.password,
+    };
+
+    if (action.token === 'token') {
+      yield setItem('user', userToStore);
+    } else if (action.token === 'tokenOut') {
+      yield setItem('user2', userToStore);
     }
+
+    yield setItem(action.token, data.token);
+    yield put({ type: SAVE_USER_LOGIN, user: data.user });
+
+    if (action.token === 'token') {
+      RootNavigation.navigate('IsLoginScreen');
+    }
+    yield delay(300);
+    yield put({ type: appTypes.setLoadingLogin, payload: false });
   } else {
     yield put({ type: appTypes.setLoadingLogin, payload: false });
     yield delay(500);
@@ -248,26 +255,26 @@ function* changeForgotPassword(action) {
   let forgot = yield noapi.postForgotEmail(action.email);
   console.log('forgot', forgot);
   console.log('documento', forgot.idNumber);
-  
+
   const tempPass = generarClaveTemporal();
   if (!forgot.error) {
-      let request = {
+    let request = {
       //'password': action.clave,
       'password': tempPass,
     }
     let updateUser = yield api.patchField_sin_token('users', forgot.id, request);
 
     if (updateUser && updateUser.ok && (updateUser.status === 200 || updateUser.status === 204)) {
-        // ✅ Aquí fue exitoso el cambio → ahora llamar fetch para enviar correo
-        yield api.enviar_recuperacion_password('bc_usuarios/correo_password_meb', forgot.email, request.password);
+      // ✅ Aquí fue exitoso el cambio → ahora llamar fetch para enviar correo
+      yield api.enviar_recuperacion_password('bc_usuarios/correo_password_ride', forgot.email, request.password);
 
-        Alert.alert(
-          'Alerta',
-          'Tu nueva contraseña se envió al correo registrado.',
-        );
-      } else {
-        Alert.alert('Error', 'No se pudo actualizar la contraseña.');
-      }
+      Alert.alert(
+        'Alerta',
+        'Tu nueva contraseña se envió al correo registrado.',
+      );
+    } else {
+      Alert.alert('Error', 'No se pudo actualizar la contraseña.');
+    }
   } else {
     Alert.alert('Alerta', 'El usuario no existe');
   }
@@ -279,9 +286,15 @@ function* getStationsFunction(action) {
   //let userData = yield select((state) => state.tripReducer.newTrip[0].organizationId);
   //console.log('esto es lo que se va para traer estaciones en getStationFunction:: 644940fbd1dc6d02b890c728', userData);
   //console.log('DATA USER DESDE AUTCONTEXT _____________::::_______________', infoUser)
-  
+
   //let org = action.orgID
   let stations = yield api.getStationsByFilter(user.organizationId);
+
+  // Evitar error de Redux "A non-serializable value was detected"
+  if (stations && stations.error) {
+    stations = { error: 'Network request failed o error de conexión MongoDB' };
+  }
+
   yield put({ type: GET_STATIONS_SUCCESS, payload: stations });
 }
 
@@ -320,11 +333,11 @@ function* activeTripFunction() {
     RootNavigation.goBack();
   } else {
     yield put({ type: GET_ACTIVE_TRIP_SUCCESS, payload: trip[0] });
-    if(!trip[0].lockOpenConfirmation){
-      yield put ({ type: SET_STATUS_LOCK, statusLock: {lockStatus: "closed"}})
-      yield put ({type: VERIFY_LOCK_STATUS_TRIP});
-    }else{
-      yield put ({ type: SET_STATUS_LOCK, statusLock: {lockStatus: "open"}})
+    if (!trip[0].lockOpenConfirmation) {
+      yield put({ type: SET_STATUS_LOCK, statusLock: { lockStatus: "closed" } })
+      yield put({ type: VERIFY_LOCK_STATUS_TRIP });
+    } else {
+      yield put({ type: SET_STATUS_LOCK, statusLock: { lockStatus: "open" } })
     }
 
   }
@@ -386,10 +399,10 @@ function* getPermissionsFunction() {
             buttonPositive: "Aceptar"
         }
       );*/
-      
-      if (  granted === PermissionsAndroid.RESULTS.GRANTED /*&&
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED /*&&
             grantedNotifications === PermissionsAndroid.RESULTS.GRANTED*/) {
-              console.log('permisos correctamente de localizacion');
+        console.log('permisos correctamente de localizacion');
       } else {
         yield put({ type: GET_GEOLOCATION_PERMISSIONS });
       }
@@ -415,16 +428,16 @@ function* notificationPermissionsFunction() {
       const grantedNotifications = yield PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         {
-            title: "Bycycle APP permisos de Notications",
-            message: "Para poder utilizar la función de Noticicaciones, debe aceptar los permisos",
-            buttonNeutral: "Pregúntame luego",
-            buttonNegative: "Cancelar",
-            buttonPositive: "Aceptar"
+          title: "Bycycle APP permisos de Notications",
+          message: "Para poder utilizar la función de Noticicaciones, debe aceptar los permisos",
+          buttonNeutral: "Pregúntame luego",
+          buttonNegative: "Cancelar",
+          buttonPositive: "Aceptar"
         }
       );
-      
-      if (  grantedNotifications === PermissionsAndroid.RESULTS.GRANTED) {
-              console.log('permisos correctamente de notificaciones');
+
+      if (grantedNotifications === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('permisos correctamente de notificaciones');
       } else {
         yield put({ type: NOTIFICATION_PERMISSIONS });
       }
@@ -528,22 +541,35 @@ function* postUserFeedback(action) {
   console.log('FEEDBACK EN GLOBALSAGAS::::', feedback);
   const currentTrip = yield select((state) => state.othersReducer.currentTrip);
   console.log('CURRENTETRINP EN GLOBALSAGAS::::', currentTrip);
-  const newFeedback = {
-    ...feedback,
-    img: action.urlImg,
-    tripId: currentTrip.id,
-    
+  if (feedback.actualTrip && typeof feedback.actualTrip === 'number') {
+    // 5G Flow
+    const newFeedback = {
+      com_usuario: feedback.document,
+      com_prestamo: feedback.actualTrip,
+      com_fecha: new Date().toISOString(),
+      com_comentario: feedback.comment,
+      com_calificacion: String(feedback.rating),
+      com_estado: 'ACTIVO',
+      img: action.urlImg,
+    };
+    yield api.postMysql('bc_comentarios_rentas/registrar', newFeedback);
+  } else {
+    // Legacy Flow (3G/4G)
+    const newFeedback = {
+      ...feedback,
+      img: action.urlImg,
+      tripId: currentTrip.id,
+    };
+    yield api.post('feedbacks', newFeedback);
+    yield api.patchField('trips', currentTrip.id, { state: 'finished' });
   }
-  console.log('NUEVO FEEDBACK EN GLOBALSAGAS::::', newFeedback);
-  const restApiPost = yield api.post('feedbacks', newFeedback)
-  const patchField = yield api.patchField('trips', currentTrip.id, { state: 'finished' });
 
   //const navigation = yield select((state) => state.globalReducer.nav._navigation,);
   yield put({ type: appTypes.setLoadingEnd, payload: false });
 
   if (Env.modo === 'movil') {
     RootNavigation.navigate('Home');
-  } 
+  }
   //RootNavigation.navigate('Home');
 }
 
@@ -645,10 +671,13 @@ function* routingHasTrip() {
     let trip = yield api.get('trips', {
       where: { and: [{ userId: user.id }, { state: { inq: ['active', 'finishing'] } }] },
     });
-    let tripActive = trip.find((tripActive) => tripActive.state == "active")
-    let tripFinishing = trip.find((tripFinishing) => tripFinishing.state == "finishing")
-    //console.log('DATA USuARIO ESSESESES::::: USER::::', user)
-    //console.log('DATA DEL TRIPPPPPP ESS :::::trip:::..', trip)
+    let safeTripList = Array.isArray(trip) ? trip : [];
+
+    let tripActive = safeTripList.find((t) => t.state == "active");
+    let tripFinishing = safeTripList.find((t) => t.state == "finishing");
+
+    console.log('DATA USuARIO ESSESESES::::: USER::::', user)
+    console.log('DATA DEL TRIPPPPPP ESS :::::trip:::..', trip)
     //let navigation = yield select((state) => state.globalReducer.nav._navigation,);
     if (tripActive) {
       console.log("Encontró viaje activo");

@@ -1,8 +1,9 @@
-import { 
+import {
   SAVE_REGISTER_EXT,
   SAVE_DATA_USER,
   SAVE_DATA_CRONO,
   RENT_ACTIVE,
+  RENT_ACTIVE_PP,
   GET_FALLAS,
   VALIDATE_USER_RENTA,
   VALIDATE_HORARIOS_EMPRESA,
@@ -60,7 +61,13 @@ import {
   GET_EMPRESAS,
   CALIFICACION_EXITOSA,
   RESET_APP,
-  COMPLETAR_PROGRESO_LOGRO
+  COMPLETAR_PROGRESO_LOGRO,
+  RESTAR_PUNTOS_BC,
+  SAVE_PUNTOS_BC_SINUSUARIO,
+  SAVE_REGISTRO_PP,
+  RESET_PP,
+  RESET_BICICLETA_YA_PRESTADA,
+  VALIDATE_BIKE_AVAILABILITY
 } from '../types/G3types';
 
 export function saveRegisterExt(dataRex) {
@@ -84,14 +91,21 @@ export function saveDataCrono(data) {
     data: data
   };
 }
-  
+
 export function rentActive(cc) {
   return {
     type: RENT_ACTIVE,
     cc: cc
   };
 }
-  
+
+export function rentActivePP(cc) {
+  return {
+    type: RENT_ACTIVE_PP,
+    cc: cc
+  };
+}
+
 export function getFallas() {
   return {
     type: GET_FALLAS
@@ -125,14 +139,14 @@ export function viewPenalizaciones(cc) {
     cc: cc
   }
 }
- 
+
 export function calcularDistancia(coordenadas) {
   return {
     type: CALCULATE_DIST,
     coordenadas: coordenadas
   }
 }
- 
+
 export function viewEstacion(empresa) {
   return {
     type: GET_ESTACIONES,
@@ -191,17 +205,19 @@ export function changeVehicleReserva(data, doc, veh) {
   };
 }
 
-export function savePrestamo(data,vehiculo, reservaId, estacion) {
+export function savePrestamo(data, vehiculo, reservaId, estacion, fechavence) {
   console.log('haciendo prestamo data', data)
   console.log('haciendo prestamo vehiculo', vehiculo)
   console.log('haciendo prestamo reservaId', reservaId)
   console.log('haciendo prestamo estacion', estacion)
+  console.log('haciendo prestamo fecha vence', fechavence)
   return {
     type: SAVE_PRESTAMO_BC,
     data: data,
     vehiculo: vehiculo,
     reservaId: reservaId,
-    estacion: estacion
+    estacion: estacion,
+    fechavence: fechavence
   };
 }
 
@@ -222,13 +238,12 @@ export function cambiarEstadoPrestamo(data, vehiculo, estadoV) {
   };
 }
 
-export function cambiarEstadoPrestamo_2(data, vehiculo, estadoV, nuevaEstacion) {
+export function cambiarEstadoPrestamo_2(data, vehiculo, estadoV) {
   return {
     type: CHANGE_ESTADO_PRESTAMO_RIDE,
     data: data,
     vehiculo: vehiculo,
-    estadoV: estadoV,
-    nuevaEstacion: nuevaEstacion
+    estadoV: estadoV
   };
 }
 
@@ -238,7 +253,7 @@ export function reset_renta() {
   }
 }
 
-export function cancelar__() { 
+export function cancelar__() {
   return {
     type: SAGA_CANCELLED
   }
@@ -273,6 +288,22 @@ export function savePuntos(data) {
   };
 }
 
+export function savePuntos_sinUsuario(data) {
+  console.log('la data en action de puntos', data)
+  return {
+    type: SAVE_PUNTOS_BC_SINUSUARIO,
+    data: data
+  };
+}
+
+export function restarPuntos(data) {
+  console.log('la data en action de restar puntos', data)
+  return {
+    type: RESTAR_PUNTOS_BC,
+    data: data
+  };
+}
+
 export function changeClave(data) {
   return {
     type: CHANGE_CLAVE_BC,
@@ -282,7 +313,7 @@ export function changeClave(data) {
 
 // actions vehículos particulares
 
-export function getType_vp(){
+export function getType_vp() {
   console.log('tipo v action')
   return {
     type: GET_TYPE_VP,
@@ -461,13 +492,13 @@ export function indicadores_trip(mod, idTrip, indicador) {
   }
 }
 
-export function saliendo_modulo(){
+export function saliendo_modulo() {
   return {
     type: SALIENDO_MODULO
   }
 }
 
-export function entrando_modulo(){
+export function entrando_modulo() {
   return {
     type: ENTRANDO_MODULO
   }
@@ -507,3 +538,28 @@ export const completar_progreso__logro = (id) => {
   };
 }
 
+export const save_reg_pp = (data) => {
+  return {
+    type: SAVE_REGISTRO_PP,
+    data: data
+  };
+}
+
+export const reset_pp = () => {
+  return {
+    type: RESET_PP
+  }
+}
+
+export const resetBicicletaYaPrestada = () => {
+  return {
+    type: RESET_BICICLETA_YA_PRESTADA
+  }
+}
+
+export const validateBikeAvailability = (bicicletaId) => {
+  return {
+    type: VALIDATE_BIKE_AVAILABILITY,
+    bicicletaId: bicicletaId
+  }
+}

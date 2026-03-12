@@ -43,7 +43,6 @@ import { AuthContext } from '../../AuthContext';
 import { useFocusEffect } from '@react-navigation/native';
 import estilos from './styles/reservas.style';
 import { Env } from "../../Utils/enviroments";
-import { getPuntos, getProductos, getDesafios, getLogros, saveProgresoLogro, getLogrosProgreso, changeProgreso } from '../../actions/actionPerfil';
 
 function Home3G(props) {
   
@@ -118,15 +117,10 @@ function Home3G(props) {
   },[])*/
 
   useEffect(() => {
-    dispatch(getLogrosProgreso(infoUser.DataUser.idNumber));
-    dispatch(getLogros('ACTIVO'));
-       console.log("valor de dataLogrosProgreso");
-       console.log(props.perfil.dataProgresoLogros)
-    //dispatch(save_token_msn()); //para guardar token msn -- descomentar
+    console.log('data user en home 3g', infoUser.DataUser.organizationId)
     userActivo(infoUser.DataUser.idNumber);
     verPenalizaciones(infoUser.DataUser.idNumber);
-    console.log("props de dataRent");
-    //console.log(props.dataRent);
+    console.log('la datade la empresa es en HOME3G', props.perfil.dataempresa[0]._3G)
   },[])
 
   useEffect(()=>{
@@ -276,11 +270,14 @@ function Home3G(props) {
             <></>
             :
             <View style={styles.containerButtons}>
-              <Pressable 
-                onPress={() => { rentar() }} 
-                style={styles.button}>
-                <Text style={styles.textButton}>Rentar</Text>
-              </Pressable>
+              {
+                props.dataRent.dataRentaVerificada ?
+                <Pressable 
+                  onPress={() => { rentar() }} 
+                  style={styles.button}>
+                  <Text style={styles.textButton}>Rentar</Text>
+                </Pressable>:null
+              }
             </View>         
           }
           
@@ -338,13 +335,12 @@ const styles = StyleSheet.create({
       height: 250, 
     },
     cajaCabeza: {
-      backgroundColor: Colors.$primario,
       justifyContent: 'space-around',
       alignItems: 'center', 
       borderRadius: 1,
       width: Dimensions.get('window').width,
       position: 'absolute',
-      top: 20
+      top: 0
     },
     logoGif: {
       width: 120,
@@ -362,7 +358,7 @@ const styles = StyleSheet.create({
     },
     btnAtras:{
         position: 'absolute',
-        top: 10, 
+        top: 30, 
         left: 10,
         width: 50,
         height: 50,

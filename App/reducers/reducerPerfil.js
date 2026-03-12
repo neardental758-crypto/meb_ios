@@ -30,7 +30,8 @@ import {
     GET_USER_MYSQL_OK,
     SAVE_FORM_PREOPERACIONAL,
     BUSCAR_CODIGO_REFERIDO_SUCCESS,
-    OTORGAR_PUNTOS_REFERENTE_SUCCESS
+    OTORGAR_PUNTOS_REFERENTE_SUCCESS,
+    RESET_PREOPERACIONALES
 } from '../types/perfil';
 
 export const initialState = {
@@ -224,6 +225,12 @@ export default reducerPerfil = (state = initialState, action) => {
             ...state,
             form_preoperacional: action.form,
             form_preoperacional_estado: true
+          };
+        case RESET_PREOPERACIONALES:
+          return {
+            ...state,
+            form_preoperacional: {},
+            form_preoperacional_estado: false
           };
         case BUSCAR_CODIGO_REFERIDO_SUCCESS:
           return {

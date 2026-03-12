@@ -48,10 +48,10 @@ function LoginComponent(props) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const { isLogin, dataUser } = useContext(AuthContext)
 
-  useEffect(() => {
+  /*useEffect(() => {
     console.log('en login = props.loaderLogin', props.loaderLogin)
     console.log('que es esto en el login', props.authenticated)
-  }, [])
+  },[])*/
 
   const closeModal = () => {
     setState({ ...state, modalVisible: false });
@@ -130,7 +130,7 @@ function LoginComponent(props) {
   else {
     return (
       <View style={estilos.container}>
-        <ImageBackground source={Images.forest} style={estilos.backgroundImage}>
+        <ImageBackground source={Images.fondoMeb} style={estilos.backgroundImage}>
           <Pressable onPress={() => openChat()} style={estilos.fabBot}>
             <View style={estilos.tooltipContainer}>
               <Text style={estilos.tooltipText}>¿Necesitas ayuda?</Text>
@@ -139,12 +139,8 @@ function LoginComponent(props) {
               <Image source={Images.robot_bike} style={estilos.robotIcon} />
             </Animated.View>
           </Pressable>
-          <KeyboardAwareScrollView
-            enableOnAndroid
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={estilos.keyboardAwareScrollView}
-          >
-            <View style={{ flexDirection: 'column', backgroundColor: 'white', height: "auto", borderTopLeftRadius: 35, borderTopRightRadius: 35 }}>
+          <KeyboardAwareScrollView enableOnAndroid contentContainerStyle={estilos.keyboardAwareScrollView}>
+            <View style={{ flexDirection: 'column', backgroundColor: 'white', height: height / 2, borderTopLeftRadius: 35, borderTopRightRadius: 35 }}>
               <View style={{ backgroundColor: 'transparent', paddingEnd: horizontalScale(40), paddingStart: horizontalScale(40), marginTop: moderateScale(30) }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                   <Image style={estilos.imageLeft} source={Images.userLogin} />
@@ -329,7 +325,7 @@ const estilos = StyleSheet.create({
   loginInput: {
     width: '85%',
     fontFamily: Fonts.$poppinsregular,
-    fontSize: 16,
+    fontSize: moderateScale(16),
     alignSelf: 'center',
     paddingLeft: 15,
     paddingVertical: 8,
@@ -372,7 +368,7 @@ const estilos = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   borderButtonText: {
     color: Colors.$texto,
@@ -390,8 +386,6 @@ const estilos = StyleSheet.create({
     fontSize: moderateScale(18),
   },
   container: {
-    width: Dimensions.get('window').width,
-    minHeight: Dimensions.get('window').height,
   },
   backgroundImage: {
     height: height * .95,
@@ -403,7 +397,7 @@ const estilos = StyleSheet.create({
   },
   fabBot: {
     position: 'absolute',
-    top: moderateScale(5),
+    top: moderateScale(40),
     right: horizontalScale(20),
     zIndex: 100,
     width: moderateScale(100),
@@ -436,7 +430,6 @@ const estilos = StyleSheet.create({
     color: Colors.$blanco,
     fontWeight: '600',
   },
-
 })
 
 function mapStateToProps(state) {

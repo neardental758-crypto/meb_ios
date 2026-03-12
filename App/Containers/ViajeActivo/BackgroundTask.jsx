@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { 
-    View, 
-    Text, 
-    Button, 
+import {
+    View,
+    Text,
+    Button,
     Alert,
     PermissionsAndroid,
     StyleSheet,
@@ -11,8 +11,7 @@ import {
     Image,
     Modal,
     AppState,
-    Platform,
-    Linking
+    Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
@@ -27,23 +26,22 @@ import Geolocation from 'react-native-geolocation-service';
 import * as RootNavigation from '../../RootNavigation';
 import { Env } from "../../../keys";
 import { TimeComponent } from './TimeComponent';
-import { NativeModules, NativeEventEmitter } from 'react-native';
+import { NativeModules } from 'react-native';
 
-//const { ForegroundServiceModule } = NativeModules;
-//const { LocationServiceModule } = NativeModules;
-//const { SharedPreferencesModule } = NativeModules;
+const { LocationServiceModule } = NativeModules;
+const { SharedPreferencesModule } = NativeModules;
 const mapRef = React.createRef();
 const keyMap = Env.key_map_google;
 
-export function BackgroundTask (props) {
+export function BackgroundTask(props) {
     const { size = 25, terminadoTrip, estacionPrestamo, time, minutes, iniciar, indicadores, modo } = props;
     const [isRunning, setIsRunning] = useState(false);
     const [segundos, setSegundos] = useState(0);
     const [minutos, setMinutos] = useState(0);
     const [horas, setHoras] = useState(0);
     const [coordinatesNative, setCoordinatesNative] = useState([]);
-    const [distanceNative, setDistanceNative] = useState(0);
-    const [tiempoViaje, setTiempoViaje ] = useState(0);
+    const [distanceNative, setDistanceNative] = useState(null);
+    const [tiempoViaje, setTiempoViaje] = useState(0);
     const [posicionInit, setPosicionInit] = useState([]);
     const [latActual, setLatActual] = useState('');
     const [lngActual, setLngActual] = useState('');
@@ -56,162 +54,119 @@ export function BackgroundTask (props) {
     const [enMovimiento, setEnMovimiento] = useState(false);
     const [modalDetener, setModalDetener] = useState(false);
     const [viajeDetenido, setViajeDetenido] = useState(false);
-    const [ state , setState ] = useState({});
+    const [state, setState] = useState({});
     const [appState, setAppState] = useState(AppState.currentState);
 
-    //funciones nativas android
-    //const startLocationService = () => { LocationServiceModule.startService() };
-    const stopLocationService = () => { LocationServiceModule.stopService() };
-    const getStoredCoordinates = async () => {
-        try {
-        //const coordinates = await ForegroundServiceModule.getStoredCoordinates();
-        console.log('Coordenadas guardadas:', coordinates);
-        } catch (error) {
-        console.error('Error al obtener coordenadas', error);
+    const startLocationService = () => {
+        if (Platform.OS === 'android') {
+            LocationServiceModule.startService(false)
         }
     };
-
-    //funciones nativas ios
-    const startTracking_nativo_ios = () => {
-        //ForegroundServiceModule.startService();
-    };
-      
-    const stopTracking_nativo_ios = () => {
-        //ForegroundServiceModule.stopService();
-    };
-
-   
-    const getStoredCoordinates_ios = async () => {
-        try {
-            const coordinates = await ForegroundServiceModule.getStoredCoordinates();
-            console.log('Última ubicación:', coordinates);
-    
-            setCoordinatesNative((prevCoords) => [
-                ...prevCoords,
-                {
-                    latitude: coordinates.latitude,
-                    longitude: coordinates.longitude,
-                }
-            ]);
-            
-            await getStoredDistance_ios();
-        } catch (error) {
-            console.error('Error al obtener coordenadas', error);
+    const stopLocationService = () => {
+        if (Platform.OS === 'android') {
+            LocationServiceModule.stopService()
         }
     };
-
-    const getStoredDistance_ios = async () => {
-        try {
-          const distance = await NativeModules.ForegroundServiceModule.getStoredDistance();
-          console.log("Distancia desde iOS:", distance); // Verifica que aquí siempre haya un número
-      
-          if (typeof distance === "number" && !isNaN(distance)) {
-            setDistanceNative(distance);
-            console.log("Guardando en distancia nativa:", distanceNative);
-            console.log("Cordenadasssss" ,coordinatesNative);
-          } else {
-            console.warn("El valor obtenido no es un número válido");
-          }
-        } catch (error) {
-          console.error("Error obteniendo la distancia:", error);
-        }
-      };
-    
 
     const syncCoordinatesDistance = async () => {
-        if (Platform.OS === 'android' ) {
         try {
             const storedCoordinates = await SharedPreferencesModule.getCoordinates();
             const storedDistance = await SharedPreferencesModule.getDistance();
-            
+
             // Validar que se obtengan datos válidos
             if (!storedCoordinates || !storedDistance) {
-                console.warn('No se encontraron coordenadas o distancia almacenada.');
+                //console.warn('No se encontraron coordenadas o distancia almacenada.');
                 return;
             }
-    
+
             try {
                 // Parsear las coordenadas
                 const parsedCoordinates = JSON.parse(storedCoordinates);
-    
+
                 // Validar que las coordenadas sean un array
                 if (!Array.isArray(parsedCoordinates)) {
                     console.error('Las coordenadas no están en el formato correcto.');
                     return;
                 }
-    
+
                 // Transformar las coordenadas al formato requerido por Polyline
                 const transformedCoordinates = parsedCoordinates.map(coordinate => ({
-                    latitude: coordinate.lat,
-                    longitude: coordinate.lng,
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude,
                 }));
-    
+
                 // Convertir la distancia en número si es necesario
                 const parsedDistance = parseFloat(storedDistance);
                 if (isNaN(parsedDistance)) {
                     console.error('La distancia no es un número válido.');
                     return;
                 }
-    
+
                 // Actualizar el estado con las coordenadas transformadas y la distancia
                 setCoordinatesNative(transformedCoordinates);
                 setDistanceNative(parsedDistance);
-    
+
             } catch (error) {
                 console.error('Error al procesar las coordenadas o la distancia:', error);
             }
-    
+
         } catch (error) {
             console.error('Error al sincronizar las coordenadas y la distancia:', error);
         }
-        }
-
-        if (Platform.OS === 'ios' ) {
-            //await getStoredCoordinates_ios();
-        }
-        
     };
 
     const sincronizarDatosNativos = () => {
         const intervaloDatos = setInterval(() => {
-            //syncCoordinatesDistance(); // Llama a la función que sincroniza las coordenadas y la distancia
+            syncCoordinatesDistance(); // Llama a la función que sincroniza las coordenadas y la distancia
             getPosition();
-        }, 10000); // Cada 5 segundos
-    
+        }, 5000); // Cada 5 segundos
+
         return () => clearInterval(intervaloDatos); // Limpia el intervalo al desmontar el componente
     };
+
+    /*const permisosSP = async () => {
+        try {
+            const granted = await PermissionsAndroid.requestMultiple([
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+              PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+              PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+            ]);
+        
+            if (
+              granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
+              granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
+              granted['android.permission.ACCESS_BACKGROUND_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
+            ) {
+              console.log('All location permissions granted');
+            } else {
+              console.log('Location permissions denied');
+            }
+          } catch (err) {
+            console.warn(err);
+          }
+    }*/
+
 
     const permisosSP_1 = async () => {
         try {
             // Verificar que estamos en Android y en la API 33 o superior
-            if (Platform.OS === 'android' ) {
+            if (Platform.OS === 'android') {
                 const granted = await PermissionsAndroid.requestMultiple([
                     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                     PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
                 ]);
-    
+
                 if (
                     granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
-                    granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED 
+                    granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
                 ) {
                     console.log('All location and notification permissions granted');
                 } else {
                     console.log('Permissions denied');
                 }
             } else {
-                try {
-                    await ForegroundServiceModule.startService();
-                } catch (error) {
-                    console.error("Permiso denegado:", error);
-                    Alert.alert(
-                        "Permiso de Ubicación Requerido",
-                        "Para registrar recorridos, necesitas permitir el acceso a la ubicación.",
-                        [
-                            { text: "Cancelar", style: "cancel" },
-                            { text: "Abrir Configuración", onPress: () => Linking.openSettings() }
-                        ]
-                    );
-                }
+                // Para versiones anteriores o plataformas distintas de Android
+                console.log('No additional permissions needed');
             }
         } catch (err) {
             console.warn(err);
@@ -220,76 +175,65 @@ export function BackgroundTask (props) {
     const permisosSP_2 = async () => {
         try {
             // Verificar que estamos en Android y en la API 33 o superior
-            if (Platform.OS === 'android' ) {
+            if (Platform.OS === 'android') {
                 const granted = await PermissionsAndroid.requestMultiple([
                     PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
                     PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
                 ]);
-    
+
                 if (
                     granted['android.permission.ACCESS_BACKGROUND_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
-                    granted['android.permission.POST_NOTIFICATIONS'] === PermissionsAndroid.RESULTS.GRANTED 
+                    granted['android.permission.POST_NOTIFICATIONS'] === PermissionsAndroid.RESULTS.GRANTED
                 ) {
                     console.log('All location and notification permissions granted');
                 } else {
                     console.log('Permissions denied');
                 }
             } else {
-                try {
-                    await ForegroundServiceModule.startService();
-                } catch (error) {
-                    console.error("Permiso denegado:", error);
-                    Alert.alert(
-                        "Permiso de Ubicación Requerido",
-                        "Para registrar recorridos, necesitas permitir el acceso a la ubicación.",
-                        [
-                            { text: "Cancelar", style: "cancel" },
-                            { text: "Abrir Configuración", onPress: () => Linking.openSettings() }
-                        ]
-                    );
-                }
+                // Para versiones anteriores o plataformas distintas de Android
+                console.log('No additional permissions needed');
             }
         } catch (err) {
             console.warn(err);
         }
     };
-          
+
     useEffect(() => {
         console.log('entrando al efecto para ver si estamos en primer o segundo plano')
         const handleAppStateChange = async (nextAppState) => {
-          // Verificar el estado del rastreo en AsyncStorage
-          const isTrackingActive = await AsyncStorage.getItem('isTrackingActive');
-          const trackingActive = isTrackingActive === 'true'; // Convertir el valor a booleano
-        console.log('que viene el el isTrackingActive', isTrackingActive)
-          if (appState.match(/inactive|background/) && nextAppState === 'active') {
-            console.log('La aplicación ha pasado al primer plano');
-            // Recuperar datos solo si el rastreo está activo
-            
-            if (trackingActive) { 
-                console.log('el el trackingActive active', trackingActive)
-                await setViajeActivo(true);
-                await setIsRunning(true);
+            // Verificar el estado del rastreo en AsyncStorage
+            const isTrackingActive = await AsyncStorage.getItem('isTrackingActive');
+            const trackingActive = isTrackingActive === 'true'; // Convertir el valor a booleano
+            console.log('que viene el el isTrackingActive', isTrackingActive)
+            if (appState.match(/inactive|background/) && nextAppState === 'active') {
+                console.log('La aplicación ha pasado al primer plano');
+                // Recuperar datos solo si el rastreo está activo
+
+                if (trackingActive) {
+                    console.log('el el trackingActive active', trackingActive)
+                    await setViajeActivo(true);
+                    await setIsRunning(true);
+                }
+            } else if (nextAppState === 'background') {
+                console.log('La aplicación se está moviendo a segundo plano o cerrando');
             }
-          } else if (nextAppState === 'background') {
-            console.log('La aplicación se está moviendo a segundo plano o cerrando');
-          }
-          setAppState(nextAppState);
+            setAppState(nextAppState);
         };
-      
+
         const subscription = AppState.addEventListener('change', handleAppStateChange);
         return () => {
-          subscription.remove();
+            subscription.remove();
         };
     }, [appState]);
 
     const verifyTripActive = async () => {
         const isTrackingActive = await AsyncStorage.getItem('isTrackingActive');
-            
-        if (isTrackingActive) { 
+
+        if (isTrackingActive) {
             console.log('el el trackingActive active', isTrackingActive)
             await setViajeActivo(true);
             await setIsRunning(true);
-        } 
+        }
     }
 
     useEffect(() => {
@@ -313,17 +257,17 @@ export function BackgroundTask (props) {
 
     useFocusEffect(
         React.useCallback(() => {
-          if (mapRef.current && latActual && lngActual) {
-            mapRef.current.animateToRegion(
-              {
-                latitude: latActual,
-                longitude: lngActual,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              },
-              1000 // Duración de la animación en ms
-            );
-          }
+            if (mapRef.current && latActual && lngActual) {
+                mapRef.current.animateToRegion(
+                    {
+                        latitude: latActual,
+                        longitude: lngActual,
+                        latitudeDelta: 0.005,
+                        longitudeDelta: 0.005,
+                    },
+                    1000 // Duración de la animación en ms
+                );
+            }
         }, [latActual, lngActual])
     );
 
@@ -346,15 +290,15 @@ export function BackgroundTask (props) {
         try {
             const posicionInicialGuardada = await AsyncStorage.getItem('posicionInicial');
             if (!posicionInicialGuardada) {  // Solo guarda si no existe
-                await getPosition();
-    
+                const position = await getPositionParam(); // Await strictly
+
                 const datosPI = {
-                    lat: latActual,
-                    lng: lngActual,
-                    dir: await getAddressFromCoordinates(latActual, lngActual)
+                    lat: position.latitude,
+                    lng: position.longitude,
+                    dir: await getAddressFromCoordinates(position.latitude, position.longitude)
                 };
                 console.log('Guardando posición inicial :::::', datosPI);
-                
+
                 await AsyncStorage.setItem('posicionInicial', JSON.stringify(datosPI));
                 setPosicionInit(datosPI); // Establecer en el estado
             } else {
@@ -388,22 +332,22 @@ export function BackgroundTask (props) {
                 const intervalo = setInterval(() => {
                     const tiempoActual = Date.now();
                     const tiempoTranscurrido = Math.floor((tiempoActual - startTime) / 1000); // En segundos
-    
+
                     const lasHoras = Math.floor(tiempoTranscurrido / 3600); // Calcula las horas
                     const losMinutos = Math.floor((tiempoTranscurrido % 3600) / 60); // Calcula los minutos
                     const losSegundos = tiempoTranscurrido % 60; // Calcula los segundos
-    
+
                     // Formatear con ceros iniciales si el valor es menor a 10
                     const formatoHoras = lasHoras < 10 ? `0${lasHoras}` : lasHoras;
                     const formatoMinutos = losMinutos < 10 ? `0${losMinutos}` : losMinutos;
                     const formatoSegundos = losSegundos < 10 ? `0${losSegundos}` : losSegundos;
-    
+
                     // Actualizar el cronómetro con formato hh:mm:ss
                     setTiempoViaje(`${formatoHoras}:${formatoMinutos}:${formatoSegundos}`);
                     setMinutos(losMinutos); // Puedes eliminar esto si ya no necesitas guardar solo los minutos
                     setHoras(lasHoras);
                 }, 1000); // Actualiza cada segundo
-    
+
                 return () => clearInterval(intervalo); // Limpia el intervalo al desmontar el componente
             }
         } catch (error) {
@@ -421,15 +365,14 @@ export function BackgroundTask (props) {
     const startTracking = async () => {
         try {
             console.log('iniciando rastreo nativo')
-            await setIsRunning(true)  
+            await setIsRunning(true)
             await guardarposicionInicial();
             await guardarTiempo();
             await setViajeActivo(true);
-            //await startLocationService(); inicia rastreo en android
-            await startTracking_nativo_ios(); //inicia rastreo en ios 
+            await startLocationService();
             await AsyncStorage.setItem('isTrackingActive', 'true'); // Marcar que el rastreo está activo
         } catch (err) {
-          console.log('Error al iniciar el rastreo:', err);
+            console.log('Error al iniciar el rastreo:', err);
         }
     };
 
@@ -449,27 +392,19 @@ export function BackgroundTask (props) {
             console.log('Error al limpiar los datos de rastreo:', err);
         }
     };
-    
-    const  convertirATotalMinutos = (tiempo) => {
+
+    const convertirATotalMinutos = (tiempo) => {
         const [horas, minutos, segundos] = tiempo.split(':').map(Number);
         return horas * 60 + minutos;
     }
 
     const stopTracking = async () => {
-        /*const indicadores_ = {
-            "pre_id": pre_id
-            "pre_duracion": {
-                "distancia": distanceNative,
-                "calorias": Number((minutos + (horas*60)) * 3.3),
-                "co2": Number((distanceNative / 1000) * 1.84)
-            }
-        }*/
-
-        if (modo === 'movil') { 
+        console.log('deteniendo el rastreo nativo ____')
+        if (modo === 'movil') {
             let tiempo___ = 0;
-            if (time === 'null'){
+            if (time === 'null') {
                 tiempo___ = convertirATotalMinutos(tiempoViaje)
-            }else{
+            } else {
                 tiempo___ = convertirATotalMinutos(time)
             }
             const indicadores_ = {
@@ -478,9 +413,9 @@ export function BackgroundTask (props) {
                 "duracion": tiempo___ ?? 0,  // Evitar valores undefined
                 "co2": Number(((distanceNative / 1000) * 1.84).toFixed(2))  // Limitar decimales
             };
-            
+
             console.log('indicadores__', indicadores_);
-            
+
             try {
                 await AsyncStorage.setItem('indicadores', JSON.stringify(indicadores_));
                 // Verifica que el valor se ha guardado correctamente
@@ -489,37 +424,34 @@ export function BackgroundTask (props) {
             } catch (error) {
                 console.error("Error storing indicadores:", error);
             }
-            
+
             //await indicadores(indicadores_);
-        }    
-        
+        }
+
         try {
             console.log('deteniendo rastreo');
             await terminadoTrip(true)
             await setViajeDetenido(true)
-            await setModalDetener(false)
+            //await setModalDetener(false)
             await setIsRunning(false);
             await setDirLlegada(getAddressFromCoordinates(latActual, lngActual));
-            await setDeteniendo(true)
-            //await stopLocationService(); //detiene rastreo en android
-            await stopTracking_nativo_ios(); //detiene rastreo en ios
+            //await setDeteniendo(true)
+            await stopLocationService();
             await AsyncStorage.setItem('isTrackingActive', 'false');
             //await clearTrackingData()
         } catch (err) {
             console.log('Error al detener el rastreo:', err);
         }
-    };    
+    };
 
     const pauseTracking = async () => {
-        console.log('pausando')
         try {
-          if (isRunning) {
-            //await stopLocationService(); // detiene rastreo en android
-            await startTracking_nativo_ios(); //detiene rastreo en ios
-            setIsRunning(false);
-          }
+            if (isRunning) {
+                await stopLocationService();
+                setIsRunning(false);
+            }
         } catch (err) {
-          console.log('Error al pausar el rastreo:', err);
+            console.log('Error al pausar el rastreo:', err);
         }
     };
 
@@ -527,39 +459,41 @@ export function BackgroundTask (props) {
         if (iniciar) {
             startTracking();
         }
-    },[iniciar])
+    }, [iniciar])
 
-    useEffect(()=> {
-        permisosSP_1();
-        permisosSP_2();
-        getPosition();
-    },[])
+    useEffect(() => {
+        if (modo === 'movil') {
+            permisosSP_1();
+            permisosSP_2();
+            getPosition();
+        }
+    }, [])
 
-    
+
 
     //funcion para obtener dirección a partir de latitud, longitud
     const getAddressFromCoordinates = async (latitude, longitude) => {
         try {
-          const apiKey = keyMap; // Reemplaza con tu clave de API
-          const response = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
-          );
-          const data = await response.json();
-          if (data.results.length > 0) {
-            console.log('la direccion inicial es: ', data.results[0].formatted_address)
-            return data.results[0].formatted_address;
-            //setDireccionInicial(data.results[0].formatted_address);
-            
-          } else {
-            console.log('No se encontró ninguna dirección para las coordenadas proporcionadas.');
-            return null;
-          }
+            const apiKey = keyMap; // Reemplaza con tu clave de API
+            const response = await fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+            );
+            const data = await response.json();
+            if (data.results.length > 0) {
+                console.log('la direccion inicial es: ', data.results[0].formatted_address)
+                return data.results[0].formatted_address;
+                //setDireccionInicial(data.results[0].formatted_address);
+
+            } else {
+                console.log('No se encontró ninguna dirección para las coordenadas proporcionadas.');
+                return null;
+            }
         } catch (error) {
-          console.log('Error al obtener la dirección:', error);
-          return null;
+            console.log('Error al obtener la dirección:', error);
+            return null;
         }
     };
-    
+
     // Función para calcular la distancia entre dos puntos de coordenadas
     const calculateDistance = (start, end) => {
         const { latitude: lat1, longitude: lon1 } = start;
@@ -569,8 +503,8 @@ export function BackgroundTask (props) {
         const dLat = ((lat2 - lat1) * Math.PI) / 180;
         const dLon = ((lon2 - lon1) * Math.PI) / 180;
         const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos((lat1 * Math.PI) / 180) *
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
             Math.cos((lat2 * Math.PI) / 180) *
             Math.sin(dLon / 2) *
             Math.sin(dLon / 2);
@@ -579,7 +513,25 @@ export function BackgroundTask (props) {
         return distance;
     };
 
-    const getPosition = () =>{
+    const getPositionParam = () => {
+        return new Promise((resolve, reject) => {
+            Geolocation.getCurrentPosition(
+                (positionActual) => {
+                    let { latitude, longitude } = positionActual.coords;
+                    setLatActual(latitude);
+                    setLngActual(longitude);
+                    resolve({ latitude, longitude });
+                },
+                (error) => {
+                    console.log("error de ubicación", error)
+                    reject(error);
+                },
+                geoSetup
+            );
+        });
+    }
+
+    const getPosition = () => {
         Geolocation.getCurrentPosition(
             geoSuccess,
             geoFailed,
@@ -598,41 +550,40 @@ export function BackgroundTask (props) {
     }
 
     geoSetup = Platform.OS == "android" ?
-    {
-        enableHighAccuracy: true,
-        timeout: 100000
-    } : 
-    {
-        enableHighAccuracy: true,
-        timeout: 100000,
-        maximumAge: 3600000
-    }
+        {
+            enableHighAccuracy: true,
+            timeout: 100000
+        } :
+        {
+            enableHighAccuracy: true,
+            timeout: 100000,
+            maximumAge: 3600000
+        }
 
-  return (
-    <View style={styles.contenedor}>
-        {/*modalDetener ? openModalDetener() : <></>*/}
-        <View style={styles.cajaMapa}>
-            <MapView
-                ref={mapRef}
-                loadingEnabled={true}
-                showsMyLocationButton={true}
-                showsCompass={true}
-                showsScale={true}
-                showsUserLocation={true}
-                provider={Platform.OS == 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
-                style={ styles.mapa }
-                region={{
-                    latitude: latActual ? latActual : 0,
-                    longitude: lngActual ? lngActual : 0,
-                    latitudeDelta: 0.0323,
-                    longitudeDelta: 0.0321,
-                }}
-                onMapReady={() => {
-                    setState({ ...state,  paddingTop: 5 })
-                }}
-            > 
-            
-            {/*posicionInit.length > 1 && (
+    return (
+        <View style={styles.contenedor}>
+            <View style={styles.cajaMapa}>
+                <MapView
+                    ref={mapRef}
+                    loadingEnabled={true}
+                    showsMyLocationButton={true}
+                    showsCompass={true}
+                    showsScale={true}
+                    showsUserLocation={true}
+                    provider={Platform.OS == 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+                    style={styles.mapa}
+                    region={{
+                        latitude: latActual ? latActual : 0,
+                        longitude: lngActual ? lngActual : 0,
+                        latitudeDelta: 0.0323,
+                        longitudeDelta: 0.0321,
+                    }}
+                    onMapReady={() => {
+                        setState({ ...state, paddingTop: 5 })
+                    }}
+                >
+
+                    {/*posicionInit.length > 1 && (
                 <Marker
                 key='1'
                 coordinate={{
@@ -642,9 +593,9 @@ export function BackgroundTask (props) {
                 description={"Posicion inicial"}
                 style={{ height: 40, width: 40, resizeMode: "contain" }} 
             />
-            )*/}  
-            
-            {/*<Marker
+            )*/}
+
+                    {/*<Marker
                 key='1'
                 coordinate={{
                     latitude: Number(latActual),
@@ -654,165 +605,162 @@ export function BackgroundTask (props) {
                 style={{ height: 40, width: 40, resizeMode: "contain" }} 
             />*/}
 
-            {coordinatesNative.length > 0 && (
-                <Polyline
-                    coordinates={coordinatesNative}
-                    strokeColor={Colors.$primario} // color de la línea
-                    strokeWidth={10}    // ancho de la línea
-                />
-            )}
+                    {coordinatesNative.length > 0 && (
+                        <Polyline
+                            coordinates={coordinatesNative}
+                            strokeColor={Colors.$primario} // color de la línea
+                            strokeWidth={10}    // ancho de la línea
+                        />
+                    )}
 
-            </MapView>
-        </View>
+                </MapView>
+            </View>
 
-        <View style={styles.cajaCabeza}>
-            <Text style={styles.title}>
-            {
-                isRunning ? 'Viaje Activo' : 'Viaje Pausado'
-            }    
-            </Text>        
-        </View> 
+            <View style={[styles.cajaCabeza, { top: 0, marginTop: -20 }]}>
+                <Text style={styles.title}>
+                    {
+                        isRunning ? 'Viaje Activo' : 'Viaje Pausado'
+                    }
+                </Text>
+            </View>
 
-        <View style={{
-            width: Dimensions.get('window').width*.8,
-            minHeight: Dimensions.get('window').height*.4,
-            marginBottom: 20,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-            flexWrap: 'wrap',
-            top: -20,
-        }}>
+            <View style={{
+                width: Dimensions.get('window').width * .9,
+                marginBottom: 20,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                flexWrap: 'wrap',
+                marginTop: 10,
+            }}>
 
-            {<View style={styles.subcajaIndicadoress}>
-                <View style={styles.row_}>
-                    <View style={styles.barraCaja}>
-                        <Image source={Images.vpini} style={[styles.iconBici2]}/>
-                    </View> 
-                    <Text style={styles.textCaja}>Salida</Text>                               
-                </View>
-                <View style={styles.cajaInfo}>
-                    <View style={[styles.cajaInternaInfo]}
-                    >
-                        <Text style={[styles.textos, {
-                            width: 140,
-                            height: 30,
-                            fontSize: 12,
-                            textAlign: 'center',
-                            fontFamily: Fonts.$poppinslight
-                        }]}>{posicionInit.dir ? posicionInit.dir : estacionPrestamo}</Text>
+                {<View style={[styles.subcajaIndicadoress, { height: 'auto', minHeight: 140, paddingVertical: 15 }]}>
+                    <View style={styles.row_}>
+                        <View style={styles.barraCaja}>
+                            <Image source={Images.vpini} style={[styles.iconBici2]} />
+                        </View>
+                        <Text style={styles.textCaja}>Salida</Text>
                     </View>
-                </View>
-                <View style={styles.row_}>
-                    <View style={styles.barraCaja}>
-                        <Image source={Images.vpllegada} style={[styles.iconBici2]}/>
-                    </View> 
-                    <Text style={styles.textCaja}>Llegada</Text>                               
-                </View>
-                <View style={styles.cajaInfo}>
-                    <View style={[styles.cajaInternaInfo]}
-                    >
-                        <Text style={[styles.textos, {
-                            width: 140,
-                            height: 30,
-                            fontSize: 12,
-                            fontFamily: Fonts.$poppinslight
-                        }]}>{dirLlegada}</Text>
+                    <View style={styles.cajaInfo}>
+                        <View style={[styles.cajaInternaInfo]}>
+                            <Text style={[styles.textos, {
+                                width: 140,
+                                height: 30,
+                                fontSize: 12,
+                                textAlign: 'center',
+                                fontFamily: Fonts.$poppinslight
+                            }]}>{posicionInit.dir ? posicionInit.dir : estacionPrestamo}</Text>
+                        </View>
                     </View>
-                </View>
-            </View>} 
-            
-            {
-                minutes === 'null' ?
-                <Tarjeta 
-                    icono={Images.vpCalorias}
-                    titulo={'Calorías (kcal)'}
-                    texto1={minutos ? ((minutos + (horas*60)) * 3.3).toFixed(2) : 0}
-                    texto2={'Kcal'}
-                    elcolor={Colors.$primario}
-                />
-                :
-                <Tarjeta 
-                    icono={Images.vpCalorias}
-                    titulo={'Calorías (kcal)'}
-                    texto1={(minutes*6.8).toFixed(2)}
-                    texto2={'Kcal'}
-                    elcolor={Colors.$primario}
-                />
-            }
-            
 
-            { 
-                time === 'null' ?
-                <Tarjeta 
-                    icono={Images.vpTiempo}
-                    titulo={'Tiempo (h:m:s)'}
-                    texto1={tiempoViaje ? tiempoViaje : 0}
-                    texto2={'Min'}
+                    <View style={[styles.row_, { marginTop: 10 }]}>
+                        <View style={styles.barraCaja}>
+                            <Image source={Images.vpllegada} style={[styles.iconBici2]} />
+                        </View>
+                        <Text style={styles.textCaja}>Llegada</Text>
+                    </View>
+                    <View style={styles.cajaInfo}>
+                        <View style={[styles.cajaInternaInfo]}>
+                            <Text style={[styles.textos, {
+                                width: 140,
+                                height: 30,
+                                fontSize: 12,
+                                textAlign: 'center',
+                                fontFamily: Fonts.$poppinslight
+                            }]}>{dirLlegada ? dirLlegada : '- - -'}</Text>
+                        </View>
+                    </View>
+                </View>}
+
+                {
+                    minutes === 'null' ?
+                        <Tarjeta
+                            icono={Images.vpCalorias}
+                            titulo={'Calorías (kcal)'}
+                            texto1={minutos ? ((minutos + (horas * 60)) * 3.3).toFixed(2) : 0}
+                            texto2={'Kcal'}
+                            elcolor={Colors.$primario}
+                        />
+                        :
+                        <Tarjeta
+                            icono={Images.vpCalorias}
+                            titulo={'Calorías (kcal)'}
+                            texto1={(minutes * 6.8).toFixed(2)}
+                            texto2={'Kcal'}
+                            elcolor={Colors.$primario}
+                        />
+                }
+
+
+                {
+                    time === 'null' ?
+                        <Tarjeta
+                            icono={Images.vpTiempo}
+                            titulo={'Tiempo (h:m:s)'}
+                            texto1={tiempoViaje ? tiempoViaje : 0}
+                            texto2={'Min'}
+                            elcolor={Colors.$adicional}
+                        />
+                        :
+                        <Tarjeta
+                            icono={Images.vpTiempo}
+                            titulo={'Tiempo (Min)'}
+                            texto1={time}
+                            texto2={''}
+                            elcolor={Colors.$disponible}
+                        />
+                }
+
+                <Tarjeta
+                    icono={Images.distancia_}
+                    titulo={'Distancia (Kms)'}
+                    texto1={distanceNative !== null ? (distanceNative / 1000).toFixed(2) : '00'}
+                    texto2={''}
                     elcolor={Colors.$adicional}
                 />
-                :
-                <Tarjeta 
-                    icono={Images.vpTiempo}
-                    titulo={'Tiempo (Min)'}
-                    texto1={time}
-                    texto2={''}
-                    elcolor={Colors.$disponible}
+                <TimeComponent />
+
+                <Tarjeta
+                    icono={Images.vpCo2}
+                    titulo={'Co2 (Grs)'}
+                    texto1={Number((distanceNative / 1000) * 1.84).toFixed(2)}
+                    texto2={'Co2'}
+                    elcolor={Colors.$primario}
                 />
-            }
-            
-            <Tarjeta 
-                icono={Images.distancia_}
-                titulo={'Distancia (Kms)'}
-                texto1={distanceNative !== null ? (distanceNative / 1000).toFixed(2) : '00'}
-                texto2={''}
-                elcolor={Colors.$adicional}
-            />
-            <TimeComponent />
-            
-            <Tarjeta 
-                icono={Images.vpCo2}
-                titulo={'Co2 (Grs)'}
-                texto1={Number((distanceNative / 1000) * 1.84).toFixed(2)}
-                texto2={'Co2'}
-                elcolor={Colors.$primario}
-            />   
-        </View>
-        
+            </View>
+
             {
-                !viajeDetenido ? 
-                <>
-                {
-                    isRunning ?
-                    <Pressable  
-                        onPress={() => { pauseTracking()}}
-                        style={styles.btnCenter1}>
-                        <View style={[styles.btnSaveOK2, {backgroundColor: Colors.$texto}]}>
-                            <Text style={styles.btnSaveColor}>Pausar</Text>
-                        </View>
-                    </Pressable>
+                !viajeDetenido ?
+                    <>
+                        {
+                            isRunning ?
+                                <Pressable
+                                    onPress={() => { pauseTracking() }}
+                                    style={styles.btnCenter1}>
+                                    <View style={[styles.btnSaveOK2, { backgroundColor: Colors.$texto }]}>
+                                        <Text style={styles.btnSaveColor}>Pausar</Text>
+                                    </View>
+                                </Pressable>
+                                :
+                                <View style={styles.row_center}>
+                                    <Pressable
+                                        onPress={() => { startTracking() }}
+                                        style={styles.btn_}>
+                                        <Text style={styles.btnSaveColor}>Reanudar</Text>
+                                    </Pressable>
+                                    <Pressable
+                                        onPress={() => { stopTracking() }}
+                                        style={styles.btn_}>
+                                        <Text style={styles.btnSaveColor}>Detener</Text>
+                                    </Pressable>
+                                </View>
+                        }
+                    </>
                     :
-                    <View style={styles.row_center}>
-                        <Pressable  
-                            onPress={() => { startTracking()}}
-                            style={styles.btn_}>
-                            <Text style={styles.btnSaveColor}>Reanudar</Text>                        
-                        </Pressable> 
-                        <Pressable  
-                            //onPress={() => { setModalDetener(true)}}
-                            onPress={() => { stopTracking()}}
-                            style={styles.btn_}>
-                            <Text style={styles.btnSaveColor}>Detener</Text>                        
-                        </Pressable>
-                    </View>  
-                } 
-                </>
-                :
-                <></>
+                    <></>
             }
-                       
-    </View>
-  );
+
+        </View>
+    );
 };
 const styles = StyleSheet.create({
     btnCenter1: {
@@ -830,7 +778,7 @@ const styles = StyleSheet.create({
         height: 'auto',
         borderRadius: 25,
         padding: 10,
-      },
+    },
     btnCenter: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -853,7 +801,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     contenedor: {
-        width:Dimensions.get("window").width,
+        width: Dimensions.get("window").width,
         alignItems: "center",
         backgroundColor: Colors.$blanco
     },
@@ -877,9 +825,9 @@ const styles = StyleSheet.create({
         position: 'relative',
         top: -20
     },
-    btnAtras:{
+    btnAtras: {
         position: 'absolute',
-        top: 10, 
+        top: 10,
         left: 10,
         width: 50,
         height: 50,
@@ -900,12 +848,12 @@ const styles = StyleSheet.create({
     },
     cajaMapa: {
         width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height*.7,
+        height: Dimensions.get("window").height * .55,
     },
     mapa: {
         flex: 1,
-        width: Dimensions.get("window").width,
-        height:  Dimensions.get("window").height,
+        width: '100%',
+        height: '100%',
     },
     subcajaIndicadoress: {
         width: 140,
@@ -926,7 +874,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    row_:{
+    row_: {
         width: "100%",
         height: 'auto',
         backgroundColor: Colors.$secundario50,
@@ -935,7 +883,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         borderRadius: 20
     },
-    row_center:{
+    row_center: {
         width: Dimensions.get("window").width,
         height: 'auto',
         backgroundColor: Colors.$blanco,
@@ -946,19 +894,19 @@ const styles = StyleSheet.create({
         marginBottom: 50
     },
     barraCaja: {
-        width: 30, 
-        height: 20, 
-        borderRadius: 15, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+        width: 30,
+        height: 20,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: Colors.$blanco
     },
-    cajaInfo: {        
+    cajaInfo: {
         width: 100,
         height: 'auto',
         alignItems: 'center',
-        justifyContent: 'center',  
-          
+        justifyContent: 'center',
+
     },
     textCaja: {
         fontSize: 14,
@@ -967,11 +915,11 @@ const styles = StyleSheet.create({
         paddingLeft: 5
     },
     textTitle: {
-        marginTop: 30, 
-        marginBottom: 20, 
-        textAlign: 'center', 
-        fontSize : 22, 
-        fontFamily : Fonts.$poppinsmedium,
+        marginTop: 30,
+        marginBottom: 20,
+        textAlign: 'center',
+        fontSize: 22,
+        fontFamily: Fonts.$poppinsmedium,
         alignSelf: "center",
         color: Colors.$texto80
     },
@@ -984,7 +932,7 @@ const styles = StyleSheet.create({
         height: 30,
     },
     btn_: {
-        width: Dimensions.get('window').width*.4,
+        width: Dimensions.get('window').width * .4,
         backgroundColor: Colors.$primario,
         borderRadius: 30,
         padding: 10

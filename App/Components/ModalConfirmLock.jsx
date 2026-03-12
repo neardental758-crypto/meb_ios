@@ -2,7 +2,8 @@ import {
     Text, 
     View,
     StyleSheet,
-    Pressable,  
+    Pressable, 
+    Platform 
 } from 'react-native';
 import { Alert } from 'react-native';
 import Colors from '../Themes/Colors';
@@ -18,6 +19,7 @@ import { changeStatusLock } from '../actions/tripActions';
 import LottieView from 'lottie-react-native';
 import { AuthContext } from '../AuthContext';
 import { Env } from "../Utils/enviroments";
+import { NativeModules } from 'react-native';
 
 function ModalConfirmLock (props) {
    
@@ -25,11 +27,18 @@ function ModalConfirmLock (props) {
     const dispatch = useDispatch();
     const { logout } = useContext( AuthContext );
 
+    const cerrarApp = () => {
+        if (Platform.OS === 'android') {
+            NativeModules.AppExit.exitApplication();
+        }
+    };
+
     const volver_ = async () => {
         await dispatch(changeStatusLock());
         if (Env.modo === 'tablet') {
             console.log('ESTAMOS EN TABLET ; VAMOS A CERRAR SESION');
             await logout(); 
+            await cerrarApp();
             return
         }
         modo(Env.modo)

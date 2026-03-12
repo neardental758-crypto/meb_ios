@@ -38,7 +38,7 @@ import {
     saveStateBicicletero,
     indicadores_trip,
 } from '../../actions/actions3g';
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 //import URL_mysql from './functions/url';
 //import { apimysql } from './functions/funciones'
 import estilos from './styles/rentas.style';
@@ -56,6 +56,9 @@ import { GuiaEstados } from '../../Components/movilidad4g/GuiaEstados';
 import { Mapa } from '../../Components/carpooling/Mapa';
 import { Tarjeta } from './Tarjeta';
 import { BackgroundTask } from './BackgroundTask';
+import { PermissionsAndroid } from 'react-native';
+import { NativeModules } from 'react-native';
+const { Notificacion2HorasModule } = NativeModules;
 
 function ViajeActivo (props) {
     const dispatch = useDispatch();
@@ -340,8 +343,6 @@ function ViajeActivo (props) {
     }
     const irFInRenta = async () => {
         //await dispatch(indicadores_trip(indicadoresTrip));
-        await setModalInfo(true);
-        await setViajeTerminado(false)
         await RootNavigation.navigate('FinalizarViaje')
     }
 
@@ -492,6 +493,53 @@ function ViajeActivo (props) {
         verState();
     }
 
+    // función que programa la notificación si no está activa
+    /*const programarNotificacion = async (fecha) => {
+    try {
+        console.log('Verificando si ya hay notificación activa...');
+
+        // revisamos en el storage si ya está activa
+        const activa = await AsyncStorage.getItem('notificacion2HorasActiva');
+
+        if (activa === 'true') {
+        console.log('⚠️ Ya existe una notificación activa, no se vuelve a programar.');
+        return;
+        }
+
+        // pedimos permiso (solo una vez es suficiente)
+        await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+
+        console.log('⏰ Programando notificación de 2 horas antes...');
+        Notificacion2HorasModule.programarNotificacion2Horas(fecha);
+
+        // guardamos bandera en storage
+        await AsyncStorage.setItem('notificacion2HorasActiva', 'true');
+        console.log('✅ Notificación marcada como activa en AsyncStorage');
+    } catch (error) {
+        console.error('Error programando notificación:', error);
+    }
+    };
+
+    useEffect(() => {
+    if (props.dataRent.fechaVecimiento) {
+        const fechaString = props.dataRent.fechaVecimiento;
+        console.log('FECHA DE VENCIMIENTO (string)', fechaString);
+
+        // ✅ Convertimos string → Date
+        const fecha = new Date(fechaString);
+
+        // ✅ Obtenemos timestamp en milisegundos
+        const fechaMillis = fecha.getTime();
+
+        console.log('FECHA DE VENCIMIENTO (Date)', fecha);
+        console.log('FECHA DE VENCIMIENTO (millis)', fechaMillis);
+
+        programarNotificacion(fechaMillis);
+    }
+    }, [props.dataRent.fechaVecimiento]);*/ //DESCOMENTAR PARA NOTIFICACIONES  HORAS
+
     useEffect(() => {
         if (props.perfil.empresa !== null) {
             console.log('la empresa ES:',props.perfil.empresa)
@@ -505,9 +553,11 @@ function ViajeActivo (props) {
         //console.log('dispositivo ', Platform.OS)
         //console.log('la distancia esSSSSSSSSSSSSS ::', props.dataRent.distanciaMt)
         getPosition();
-        //userActivo(infoUser.DataUser.idNumber);
+        userActivo(infoUser.DataUser.idNumber);
         verFallas();
         prestamoActivo(infoUser.DataUser.idNumber);
+        console.log('EEEEEEEEEE ',props.dataRent)
+        //console.log('props.dataRent.prestamo.data[0].pre_devolucion_fech', props.dataRent.prestamo.data[0].pre_devolucion_fecha)
         //reservasActivas(infoUser.DataUser.idNumber);
         //verPenalizaciones(infoUser.DataUser.idNumber);
         //cronometroVRenta();
@@ -687,8 +737,7 @@ function ViajeActivo (props) {
                         {
                         (props.dataRent.horarios.dia === state.dia) && 
                         (props.dataRent.horarios.hora === true) && 
-                        (props.dataRent.usuarioValido === true) &&
-                        (props.dataRent.penalizaciones === 0) ?
+                        (props.dataRent.usuarioValido === true) ?
                         <SafeAreaView style={estilos.contentCenter}>
     
                             <View style={estilos.cajaCod2}>

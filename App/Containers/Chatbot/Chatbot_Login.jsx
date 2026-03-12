@@ -34,29 +34,7 @@ function Chatbot_Login(props) {
     // URL del webhook de n8n para usuarios no autenticados
     const n8nChatbotUrl = 'https://n8n.srv1205652.hstgr.cloud/webhook/main_login';
 
-    useEffect(() => {
-        setMessages([
-            {
-                _id: 1,
-                text: '¡Hola! Bienvenido al soporte de MEB. ¿Cómo puedo ayudarte hoy?',
-                createdAt: new Date(),
-                user: {
-                    _id: 2,
-                    name: 'Soporte',
-                    avatar: 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png',
-                },
-                quickReplies: {
-                    type: 'radio',
-                    values: [
-                        { title: '📝 Problemas Registro', value: '1. Problemas con el registro o usuario' },
-                        { title: '🔑 Password no funciona', value: '2. Password no me funciona' },
-                        { title: '🔄 Cambio de Password', value: '3. Cambio de password' },
-                        { title: '👤 Hablar con Asesor', value: '4. Comunicarme con asesor' }
-                    ]
-                }
-            },
-        ]);
-    }, []);
+
 
     // Generar un ID de sesión único
     const [sessionId] = useState(() => Math.random().toString(36).substring(7) + new Date().getTime());
@@ -204,6 +182,11 @@ function Chatbot_Login(props) {
         }
     };
 
+    // Load initial menu from n8n
+    useEffect(() => {
+        sendMessageToN8n('hola');
+    }, []);
+
     const renderBubble = (props) => {
         return (
             <Bubble
@@ -342,7 +325,7 @@ const styles = StyleSheet.create({
     cajaCabeza: {
         backgroundColor: Colors.$primario,
         paddingBottom: 15,
-        paddingTop: Platform.OS === 'ios' ? 50 : 20, // Ajuste para el header
+        paddingTop: Platform.OS === 'ios' ? 10 : 20, // Ajuste para el header
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -384,7 +367,7 @@ const styles = StyleSheet.create({
     btnClose: {
         position: 'absolute',
         left: 20,
-        top: Platform.OS === 'ios' ? 50 : 25,
+        top: Platform.OS === 'ios' ? 15 : 25,
         zIndex: 10,
     },
     closeText: {

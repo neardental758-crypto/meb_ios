@@ -26,9 +26,9 @@ export default function ModalSolicitudEnviada({ onClose, closeDetailModal }){
     onClose();
   }
     return(
-        <View style={{ flex : 1, borderRadius: 20, marginVertical: Dimensions.get('window').height*.2 , marginHorizontal: 20, backgroundColor: 'white', justifyContent: "center", alignItems: "center",  width:360, height: 390 }}>
+        <View style={{ flex : 1, borderRadius: 20, marginVertical: Dimensions.get('window').height*.2 , marginHorizontal: 20, backgroundColor: 'white', justifyContent: "center", alignItems: "center" }}>
           <View style={{width : '70%', display : 'flex', justifyContent : 'center', marginTop : 25}}>
-          <Text style={{position : 'absolute', textAlign: "center", color: Colors.$cuarto, fontSize: 24, top : 100, left : 30 }}>¡Solicitud enviada exitosamente!</Text>
+          <Text style={{position : 'absolute', textAlign: "center", color: Colors.$cuarto, fontSize: 24, top : 100}}>¡Solicitud enviada exitosamente!</Text>
           </View>            
           <View>
             <Image 

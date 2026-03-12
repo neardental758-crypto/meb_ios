@@ -79,7 +79,7 @@ function CarpoolingDetallesTrip (props){
           <Modal transparent={true} animationType="slide">
             <View style={ stylesModal.cajaModal }>
               <View style={ stylesModal.cajaModal2 }>
-                {/*<CarpoolingChat idChat={idChat}/>*/}
+                <CarpoolingChat idChat={idChat}/>  
                 <View style={ stylesModal.cabezaModal}>
                   <Pressable  
                     onPress={() => setModalChat(false)}
@@ -147,12 +147,12 @@ function CarpoolingDetallesTrip (props){
                     Partida: { props.dataCarpooling.dataTripSelectRide.viajeSolicitado.lSalida }
                   </Text>                      
                 
-                {props.perfil.dataempresa[0]._carro_compartido === 'ACTIVO+PAGOS' ?
-                  <View style={styles.cajaRow2}>
+                  {props.perfil.dataempresa[0]._carro_compartido === 'ACTIVO+PAGOS' ?
+                    <View style={styles.cajaRow2}>
                     <Text style={styles.subTitle}>${props.dataCarpooling.dataTripSelectRide.viajeSolicitado.precio}</Text> 
                     <Image source={Images.logodaviplata} style={styles.imgPago}/>
                     <Image source={Images.iconobillete} style={styles.imgPago}/>
-                  </View> :null}     
+                  </View>:null}   
                 </View>
                 <View style={styles.cajaImgChat}>
                 <Pressable

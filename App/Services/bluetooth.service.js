@@ -123,11 +123,11 @@ export default class BluetoothService {
     }
 
     waitUntilDeviceState(uuid, id) {
-        //Alert.alert("entrando a waitUntilDevice");
+        Alert.alert("entrando a waitUntilDevice");
         this.id = id;
         this.initProcessVariables(); 
-        //Alert.alert("en wait until device id " + this.id);
-        //Alert.alert("en wait until device id " + id);
+        Alert.alert("en wait until device id " + this.id);
+        Alert.alert("en wait until device id " + id);
         
         this.scanForDevices(uuid, id);  
         this.listener = this.manager.onStateChange(async (state) => {

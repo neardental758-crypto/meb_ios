@@ -25,7 +25,7 @@ import Colors from '../../Themes/Colors';
 import Fonts from '../../Themes/Fonts';
 import { connect } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import RNPickerSelect from '@nejlyg/react-native-picker-select';
+import RNPickerSelect from  '@nejlyg/react-native-picker-select';
 import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metrics';
 import estilos from './styles/estilos.style';
 import estilosRegister from './styles/register.style';

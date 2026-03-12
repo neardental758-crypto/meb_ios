@@ -251,7 +251,6 @@ const cerrar_modadl = () => {
         }*/
 
         // Obtenemos duración de la reserva en minutos desde la DB
-        console.log('MINUTOS reserva', minutosReserva)
         const duracionMinutos = minutosReserva || 60;
 
         const horaFin = new Date(ahora.getTime() + duracionMinutos * 60000); // sumamos minutos
@@ -658,14 +657,14 @@ const styles = StyleSheet.create({
 
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {
-      fontSize: 18,
+      fontSize: moderateScale(13),
       paddingVertical: 8,
       borderBottomWidth: 1,
       backgroundColor: "transparent",
       paddingLeft: 15,
       marginLeft: 20,
       marginRight: 20,
-      borderColor: Colors.$secundario,
+      borderColor: '#8ac43f',
       borderWidth: 2,
       borderRadius: 25,
       marginTop: 15,

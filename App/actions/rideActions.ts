@@ -120,4 +120,13 @@ export const appRideActions = {
             lock: lock,
         };
     },
+    resetLock: function (mac: string, id: string, imei: string) {
+        console.log('RESETTING LOCK WITH MAC:', mac, 'AND ID:', id, 'IMEI:', imei);
+        return {
+            type: appRideTypes.resetLock,
+            mac: mac,
+            id: id,
+            imei: imei,
+        };
+    },
 };

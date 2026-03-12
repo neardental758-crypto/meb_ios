@@ -70,16 +70,8 @@ function CarpoolingTripInProcessPasajero (props){
     miPosition: {},
 });
   
-  const goBack = () => {  
-    if (props.dataCarpooling.rol === 'Conductor') {
-      RootNavigation.navigate('CarpoolingHome');
-    }
-
-    if (props.dataCarpooling.rol === 'Pasajero') {
-      RootNavigation.navigate('CarpoolingSolicitudesRider');
-    }
-  }
-  const next = () => { props.navigationProp.navigate('CarpoolingIndications');}
+  const goBack = () => { RootNavigation.navigate('CarpoolingSolicitudesRider') }
+  const next = () => { props.navigationProp.navigate('CarpoolingIndications') }
 
   const getPosition = () =>{
     Geolocation.getCurrentPosition(
@@ -141,12 +133,13 @@ function CarpoolingTripInProcessPasajero (props){
       RootNavigation.navigate('CarpoolingExperienceRide');
     }
 
-    if (isChecked) {
-      RootNavigation.navigate('CarpoolingExperienceRide');
-    }else{
-      Alert.alert('Falta el pago');
+    if (props.perfil.dataempresa[0]._carro_compartido === 'ACTIVO+PAGOS') {
+      if (isChecked) {
+        RootNavigation.navigate('CarpoolingExperienceRide');
+      }else{
+        Alert.alert('Falta el pago');
+      }
     }
-
   }
 
   const irChat = async (id) => {
@@ -442,14 +435,14 @@ const styles = StyleSheet.create({
     },
     btnAtrasActivo:{
       position: 'absolute',
-      top: 20, 
+      top: 40, 
       left: 5,
       width: 50,
       height: 50,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: 25,
-      zIndex: 1000
+      zIndex: 20000
     },
     textTitleACTIVA:{
       marginBottom: 20, 

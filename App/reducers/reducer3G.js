@@ -69,7 +69,13 @@ import {
   ENTRANDO_MODULO,
   GET_VEHYCLE_ID_FETCH,
   GET_EMPRESAS_OK,
-  RESET_APP_OK
+  RESET_APP_OK,
+  SAVE_REGISTRO_PP_OK,
+  RESET_PP,
+  BICICLETA_YA_PRESTADA,
+  RESET_BICICLETA_YA_PRESTADA,
+  VALIDATE_BIKE_AVAILABILITY,
+  VALIDATE_BIKE_AVAILABILITY_OK
 } from '../types/G3types';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -79,9 +85,9 @@ export const initialState = {
   DataUser: '',
   CronometroStorageVP: '',
   docUsuario: '',
+  usuarioRecorrido: '',
   empresaUsuario: '',
   usuarioValido: null,
-  usuarioValidoCarpooling: null,
   prestamo: false,
   prestamoActivo: false,
   prestamoError: false,
@@ -174,6 +180,9 @@ export const initialState = {
   viajesTotal5G: '',
   viajes5Gcargados: false,
   viajes5G: [],
+  viajes4G: [],
+  viajes4Gcargados: false,
+  viajesTotal4G: '',
   viajesTotalCarpooling: '',
   viajesCarpoolingcargados: false,
   viajesCarpooling: [],
@@ -187,7 +196,9 @@ export const initialState = {
   vel_select_cargado: false,
   empresas_mysql: [],
   empresas_mysql_cargadas: false,
-  dataRentaVerificada: false
+  dataRentaVerificada: false,
+  saveRegPP: false,
+  bicicletaYaPrestada: false
 };
 
 export default reducer3G = (state = initialState, action) => {
@@ -232,12 +243,12 @@ export default reducer3G = (state = initialState, action) => {
       return {
         ...state,
         prestamoError: true
-      }      
+      }
 
     case FETCH_FAILD_RENT:
       return {
         ...state,
-        prestamo: [{pre_retiro_estacion: '', pre_bicicleta: ''}],
+        prestamo: [{ pre_retiro_estacion: '', pre_bicicleta: '' }],
         dataRentaVerificada: true
       };
 
@@ -252,16 +263,15 @@ export default reducer3G = (state = initialState, action) => {
       return {
         ...state,
         docUsuario: action.payload.data.usu_documento,
+        usuarioRecorrido: action.payload.data.usu_recorrido,
         empresaUsuario: action.payload.data.usu_empresa,
         usuarioValido: action.payload.data.usu_habilitado === 1 ? true : false,
-        usuarioValidoCarpooling: action.payload.data.usu_modulo_carpooling,
       };
 
     case FETCH_NULL_USERR:
       return {
         ...state,
         usuarioValido: null,
-        usuarioValidoCarpooling: null,
       };
 
     case ADD_CLAVE_BICICLETERO:
@@ -383,7 +393,7 @@ export default reducer3G = (state = initialState, action) => {
         resevaCancelada: true,
         diaRentaTrans: '',
         horasRentaTrans: '',
-        minutosRentaTrans:'',
+        minutosRentaTrans: '',
         segundosRentaTrans: '',
       };
 
@@ -434,7 +444,7 @@ export default reducer3G = (state = initialState, action) => {
         segundosResta: action.payload.segundosR,
         reservaVencida: false,
       };
-    
+
     case SAVE_CRONO_RENTA:
       return {
         ...state,
@@ -462,7 +472,7 @@ export default reducer3G = (state = initialState, action) => {
         ...state,
         registerVPU_save: true,
       };
-    case RESET_REGISTER_VP: 
+    case RESET_REGISTER_VP:
       return {
         ...state,
         registerVPU_reset: false,
@@ -573,15 +583,15 @@ export default reducer3G = (state = initialState, action) => {
         CronometroStorageVP: {
           dataCronoCargada: false,
           CronometroStorageVP: {
-              segundos: 0,
-              minutos: 0,
-              horas : 0,
-              latAct: 0,
-              lngActual: 0
+            segundos: 0,
+            minutos: 0,
+            horas: 0,
+            latAct: 0,
+            lngActual: 0
           }
         }
       }
-    
+
     case SAVE_FOTO_TICKET:
       return {
         ...state,
@@ -596,113 +606,141 @@ export default reducer3G = (state = initialState, action) => {
         },
       };
 
-      case VERIFICAR_RECORRIDO_UNDEFINED:
-        return {
-          ...state,
-          tokenInvalido: true,
-        }
-    
-      case VERIFICAR_RECORRIDO_OK:
-        return {
-          ...state,
-          recorrido: 'ok'
-        }
-      case VERIFICAR_RECORRIDO_VACIO: 
-        return {
-          ...state,
-          recorrido: 'vacio'
-        }
-      case VERIFICAR_ESTADO_USER_3G:
-        return {
-          ...state,
-          estadoUser: action.payload
-        }
-      case BUSCAR_PUNTOS_TOTAL:
-        return {
-          ...state,
-          puntosSum: action.payload
-        }
-      case MIS_VIAJES_TOTAL: 
-        return {
-          ...state,
-          viajesTotalVP: action.payload,
-          viajesVP: action.misviajesVP,
-          viajesVpcargados: true,
-          viajesTotal3G: action.cantidadV3g,
-          viajes3G: action.misViajes3G,
-          viajes3Gcargados: true,
-          viajesTotal5G: action.totalViajes5G,
-          viajes5Gcargados: true,
-          viajes5G: action.misViajes5G,
-          viajesTotalCarpooling: action.totalViajesCarpooling,
-          viajesCarpoolingcargados: true,
-          viajesCarpooling: action.misViajesCarpooling,
-        }
-      case MIS_VIAJES_KMS:
-        return {
-          ...state,
-          viajesTotalVPkms: action.payload,
-        }
-      case RESET_DATA_RENTA_RIDE:
-        AsyncStorage.multiRemove([
-          'rutaCoordinates',
-          'distanciaRecorrida',
-          'elapsedTime',
-          'isTrackingActive',
-          'posicionInicial',
-          'startTime',
-          'indicadores'
-          ]);
-        return {
-          ...state,
-          prestamo: false,
-          prestamoActivo: false,
-          prestamoSave: false
-        }
-      case SAVE_COMENTARIOS_VP_OK: 
-        return {
-          ...state,
-          saveComentariosVp: true
-        }
-      case CLEAR_STATE_VP: 
-        return {
-          ...state,
-          saveComentariosVp: false,
-          savePuntos: false,
-          saveTripVP: false,
-        }
-      case INDICADORES_TRIP:
-        return {
-         ...state,
-          indicadores_: action.data
-        }
-      case SALIENDO_MODULO:
-        return {
-          ...state,
-          saliendo_mod: true,
-        } 
-      case ENTRANDO_MODULO:
-        return {
-          ...state,
-          saliendo_mod: false,
-        } 
-      case GET_VEHYCLE_ID_FETCH:
-        return {
-          ...state,
-          vel_select: action.payload,
-          vel_select_cargado: true
-        }    
-      case GET_EMPRESAS_OK:
-        return {
-          ...state,
-          empresas_mysql: action.payload,
-          empresas_mysql_cargadas: true
-        }
-      case RESET_APP_OK:
-        return {
-          state: undefined // Esto reinicia todo el store
-        }
+    case VERIFICAR_RECORRIDO_UNDEFINED:
+      return {
+        ...state,
+        tokenInvalido: true,
+      }
 
+    case VERIFICAR_RECORRIDO_OK:
+      return {
+        ...state,
+        recorrido: 'ok'
+      }
+    case VERIFICAR_RECORRIDO_VACIO:
+      return {
+        ...state,
+        recorrido: 'vacio'
+      }
+    case VERIFICAR_ESTADO_USER_3G:
+      return {
+        ...state,
+        estadoUser: action.payload
+      }
+    case BUSCAR_PUNTOS_TOTAL:
+      return {
+        ...state,
+        puntosSum: action.payload
+      }
+    case MIS_VIAJES_TOTAL:
+      return {
+        ...state,
+        viajesTotalVP: action.payload,
+        viajesVP: action.misviajesVP,
+        viajesVpcargados: true,
+        viajesTotal3G: action.cantidadV3g,
+        viajes3G: action.misViajes3G,
+        viajes3Gcargados: true,
+        viajes4G: action.misViajes4G,
+        viajes4Gcargados: true,
+        viajesTotal4G: action.totalViajes4G,
+        viajesTotal5G: action.totalViajes5G,
+        viajes5Gcargados: true,
+        viajes5G: action.misViajes5G,
+        viajesTotalCarpooling: action.totalViajesCarpooling,
+        viajesCarpoolingcargados: true,
+        viajesCarpooling: action.misViajesCarpooling,
+      }
+    case MIS_VIAJES_KMS:
+      return {
+        ...state,
+        viajesTotalVPkms: action.payload,
+      }
+    case RESET_DATA_RENTA_RIDE:
+      AsyncStorage.multiRemove([
+        'rutaCoordinates',
+        'distanciaRecorrida',
+        'elapsedTime',
+        'isTrackingActive',
+        'posicionInicial',
+        'startTime',
+        'indicadores'
+      ]);
+      return {
+        ...state,
+        prestamo: false,
+        prestamoActivo: false,
+        prestamoSave: false
+      }
+    case SAVE_COMENTARIOS_VP_OK:
+      return {
+        ...state,
+        saveComentariosVp: true
+      }
+    case CLEAR_STATE_VP:
+      return {
+        ...state,
+        saveComentariosVp: false,
+        savePuntos: false,
+        saveTripVP: false,
+      }
+    case INDICADORES_TRIP:
+      return {
+        ...state,
+        indicadores_: action.data
+      }
+    case SALIENDO_MODULO:
+      return {
+        ...state,
+        saliendo_mod: true,
+      }
+    case ENTRANDO_MODULO:
+      return {
+        ...state,
+        saliendo_mod: false,
+      }
+    case GET_VEHYCLE_ID_FETCH:
+      return {
+        ...state,
+        vel_select: action.payload,
+        vel_select_cargado: true
+      }
+    case GET_EMPRESAS_OK:
+      return {
+        ...state,
+        empresas_mysql: action.payload,
+        empresas_mysql_cargadas: true
+      }
+    case RESET_APP_OK:
+      return {
+        state: undefined // Esto reinicia todo el store
+      }
+    case SAVE_REGISTRO_PP_OK:
+      return {
+        ...state,
+        saveRegPP: true
+      }
+    case RESET_PP:
+      return {
+        ...state,
+        ssaveRegPP: false,
+        puntosCargados: false
+      }
+    case BICICLETA_YA_PRESTADA:
+      return {
+        ...state,
+        bicicletaYaPrestada: true
+      }
+    case RESET_BICICLETA_YA_PRESTADA:
+      return {
+        ...state,
+        bicicletaYaPrestada: false
+      }
+    case VALIDATE_BIKE_AVAILABILITY_OK:
+      return {
+        ...state,
+        bicicletaYaPrestada: action.payload // true si ya está prestada, false si está disponible
+      }
 
     default:
       return state;
