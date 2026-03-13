@@ -677,7 +677,7 @@ function CarpoolingAddTrip(props) {
       <MapView
         ref={mapRef}
         style={styles.map}
-        provider={PROVIDER_GOOGLE}
+        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
         loadingEnabled={true}
         showsMyLocationButton={true}
         showsCompass={true}

@@ -487,7 +487,7 @@ function RootContainer(props) {
                         </Pressable>
                         :
                         <>
-                          {_5G ?
+                          {/*_5G ?
                             (props.isValidatedPractise && props.isValidatedTheory ?
                               <>
                                 <Pressable
@@ -503,7 +503,7 @@ function RootContainer(props) {
                               </View>
                             )
                             : null
-                          }
+                          */}
 
                           {_4G ?
                             (props.isValidatedPractise && props.isValidatedTheory ?
@@ -536,7 +536,7 @@ function RootContainer(props) {
                             )
                             : null
                           }
-                          {(_5G || _4G || _3G) && (!props.isValidatedPractise || !props.isValidatedTheory) ?
+                          {(_4G || _3G) && (!props.isValidatedPractise || !props.isValidatedTheory) ?
                             <Pressable
                               onPress={() => validarUserCorreo()}
                               style={[estilos.botonItem, { backgroundColor: '#f0f0f0', marginTop: 10, borderRadius: 10, alignSelf: 'center', width: '90%' }]}
@@ -549,7 +549,7 @@ function RootContainer(props) {
                         </>
                     }
 
-                    {_carro_compartido ?
+                    {/*_carro_compartido ?
                       <Pressable
                         onPress={() => navigation.navigate('CarpoolingHome')}
                         style={estilos.botonItem}
@@ -558,9 +558,9 @@ function RootContainer(props) {
                       </Pressable>
                       :
                       <></>
-                    }
+                    */}
 
-                    {_vehiculo_particular ?
+                    {/*_vehiculo_particular ?
                       <Pressable
                         onPress={() => navigation.navigate('MyVehiclesScreen')}
                         style={estilos.botonItem}
@@ -570,9 +570,9 @@ function RootContainer(props) {
                       </Pressable>
                       :
                       <></>
-                    }
+                    */}
 
-                    {_electrohub ?
+                    {/*_electrohub ?
                       <Pressable
                         onPress={() => navigation.navigate('Home_electrohub')}
                         style={estilos.botonItem}
@@ -581,8 +581,9 @@ function RootContainer(props) {
                       </Pressable>
                       :
                       <></>
-                    }
-                    {_parquadero ?
+                    */}
+
+                    {/*_parquadero ?
                       <Pressable
                         onPress={() => navigation.navigate('Home_parqueadero')}
                         style={estilos.botonItem}
@@ -591,7 +592,7 @@ function RootContainer(props) {
                       </Pressable>
                       :
                       <></>
-                    }
+                    */}
 
                     {_perfil ?
                       <Pressable

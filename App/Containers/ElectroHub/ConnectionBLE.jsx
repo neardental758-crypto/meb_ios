@@ -11,27 +11,26 @@ import {
     PermissionsAndroid,
     DeviceEventEmitter
 } from 'react-native';
-import { 
+import {
     savePrestamo,
     cancelar__
 } from '../../actions/actionParqueadero';
 import { connect, useDispatch } from 'react-redux';
 import { AuthContext } from '../../AuthContext';
-import RNBluetoothClassic from 'react-native-bluetooth-classic';
 import Images from '../../Themes/Images';
 import Fonts from '../../Themes/Fonts';
 import Colors from '../../Themes/Colors';
 import LottieView from 'lottie-react-native';
 import * as RootNavigation from '../../RootNavigation';
-import { Env } from "../../Utils/enviroments"; 
+import { Env } from "../../Utils/enviroments";
 import { v4 as uuidv4 } from 'uuid';
 import { NativeModules } from 'react-native';
 const { ElectroHubBLEModule } = NativeModules;
 
 const ConnectionBLE = (props) => {
     const dispatch = useDispatch();
-    const { infoUser, logout } = useContext( AuthContext )
-    const { mac, macCargado, claveHC05, claveHC05Cargada, estaciones, numVehiculo, dataVehiculo, dataParqueo, finalizando_con, apagando, siParqueoActivo, horasParquear, saldo} = props;
+    const { infoUser, logout } = useContext(AuthContext)
+    const { mac, macCargado, claveHC05, claveHC05Cargada, estaciones, numVehiculo, dataVehiculo, dataParqueo, finalizando_con, apagando, siParqueoActivo, horasParquear, saldo } = props;
     const [connectedDevice, setConnectedDevice] = useState(null);
     const [devices, setDevices] = useState([]);
     const [conectado, setConectado] = useState(false); // valor inicial false
@@ -43,9 +42,9 @@ const ConnectionBLE = (props) => {
     async function pedirPermisosBLE() {
         if (Platform.OS === 'android') {
             await PermissionsAndroid.requestMultiple([
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+                PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
             ]);
         }
     }
@@ -58,7 +57,7 @@ const ConnectionBLE = (props) => {
             const result = await ElectroHubBLEModule.sendCommand(claveHC05);
             console.log("Comando:", result);
 
-            
+
         } catch (error) {
             console.error("Error BLE:", error);
         }
@@ -133,8 +132,8 @@ const ConnectionBLE = (props) => {
         const data = {
             id: uuidv4(),
             usuario: infoUser.DataUser.idNumber,
-            parqueadero: dataParqueo.parqueadero, 
-            lugar_parqueo: dataParqueo.id, 
+            parqueadero: dataParqueo.parqueadero,
+            lugar_parqueo: dataParqueo.id,
             vehiculo: dataVehiculo.vus_id,
             fecha: hoy_5.toJSON(),   // Si quieres ISO UTC completa, si prefieres local usa hoy.toLocaleString()
             inicio: formatoHora(inicio),
@@ -145,14 +144,14 @@ const ConnectionBLE = (props) => {
         };
 
         console.log('Data para el préstamo parqueadero:', data);
-        await dispatch(savePrestamo(data, dataVehiculo, dataParqueo, horasParquear, saldo)); 
+        await dispatch(savePrestamo(data, dataVehiculo, dataParqueo, horasParquear, saldo));
         await setBtnSeRento(true);
     }
 
 
     const rentar = async () => {
         console.log('entrando a rentar')
-        await guardarPrestamo();          
+        await guardarPrestamo();
     }
 
     useEffect(() => {
@@ -160,8 +159,8 @@ const ConnectionBLE = (props) => {
             //Alert.alert('ya estamos en el componente ble ')
             pedirPermisosBLE();
             conectarBLE();
-        }              
-    },[macCargado])  
+        }
+    }, [macCargado])
 
     useEffect(() => {
         if (apagando) {
@@ -169,115 +168,115 @@ const ConnectionBLE = (props) => {
             console.log('la macCargago', macCargado)
             pedirPermisosBLE();
             conectarBLE();
-        }              
-    },[apagando])  
+        }
+    }, [apagando])
 
     return (
         <View style={styles.container}>
             {
                 //valor inicial conectado
-                conectado ?   
-                <>
-                {
-                    finalizando_con ?
-                    <View style={styles.column_}>
-                        <LottieView source={require('../../Resources/Lotties/bicy_confetti.json')} autoPlay loop 
-                        style={{
-                            width: Dimensions.get('window').width*.5,
-                            height: 'auto'             
-                        }}/>
+                conectado ?
+                    <>
+                        {
+                            finalizando_con ?
+                                <View style={styles.column_}>
+                                    <LottieView source={require('../../Resources/Lotties/bicy_confetti.json')} autoPlay loop
+                                        style={{
+                                            width: Dimensions.get('window').width * .5,
+                                            height: 'auto'
+                                        }} />
 
-                    </View>
+                                </View>
+                                :
+                                <View style={styles.column_}>
+                                    <Text style={{ fontSize: 20, fontFamily: Fonts.$poppinsregular, color: Colors.$parqueo_color_texto }}>
+                                        {
+                                            !btnSeRento ?
+                                                '¿Se energizó el parqueadero?'
+                                                :
+                                                'Parqueo exitoso'
+                                        }
+
+                                    </Text>
+                                    <View style={styles.row_}>
+                                        {
+                                            !btnSeRento ?
+                                                <>
+                                                    <Pressable
+                                                        onPress={() => rentar()}
+                                                        //onPress={() => console.log(dataVehiculo)}
+                                                        style={styles.btnSI}
+                                                    >
+                                                        <View style={{
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}>
+                                                            <Text style={styles.textLiberar2}>SI</Text>
+                                                        </View>
+                                                    </Pressable>
+                                                    <Pressable
+                                                        onPress={() => { conectarBLE() }}
+                                                        style={[styles.btnSI, { backgroundColor: Colors.$parqueo_color_secundario }]}
+                                                    >
+                                                        <View style={{
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}>
+                                                            <Text style={[styles.textLiberar2, { color: Colors.$parqueo_color_fondo }]}>NO</Text>
+                                                        </View>
+                                                    </Pressable>
+                                                </>
+                                                :
+                                                <Text style={{ fontSize: 16, fontFamily: Fonts.$poppinsregular, color: Colors.$parqueo_color_texto_80 }}>Se ocupó un parqueadero</Text>
+                                        }
+                                    </View>
+                                </View>
+                        }
+                    </>
+
                     :
                     <View style={styles.column_}>
-                        <Text style={{fontSize: 20, fontFamily: Fonts.$poppinsregular, color: Colors.$parqueo_color_texto}}>
-                            {
-                                !btnSeRento ? 
-                                '¿Se energizó el parqueadero?'
-                                :
-                                'Parqueo exitoso'
-                            }
-                        
-                        </Text>
-                        <View style={styles.row_}>
-                            {
-                                !btnSeRento ?
-                                <>
-                                <Pressable
-                                    onPress={() => rentar()}
-                                    //onPress={() => console.log(dataVehiculo)}
-                                    style={styles.btnSI}
-                                >
-                                    <View style={{
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <Text style={styles.textLiberar2}>SI</Text>   
-                                    </View>                        
-                                </Pressable>
-                                <Pressable
-                                    onPress={() => {conectarBLE()}}
-                                    style={[styles.btnSI, {backgroundColor: Colors.$parqueo_color_secundario}]}
-                                >
-                                    <View style={{
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <Text style={[styles.textLiberar2, {color: Colors.$parqueo_color_fondo}]}>NO</Text>   
-                                    </View>                        
-                                </Pressable>
-                                </>
-                                :
-                                <Text style={{fontSize: 16, fontFamily: Fonts.$poppinsregular, color: Colors.$parqueo_color_texto_80}}>Se ocupó un parqueadero</Text>
-                            }
-                        </View>                    
-                    </View>
-                }
-                </>            
-                
-                :
-                <View style={styles.column_}>
-                    <Text style={styles.textos}>{ stateConect === 'conectando' ? 'Si estás finalizando y no te conectas, tu sesión terminará automáticamente al calificar.' : 'No se pudo conectar.'}</Text>
-                    <View style={{
-                        justifyContent: "center", 
-                        alignItems: "center", 
-                        width: Dimensions.get('window').width,
-                        height: 'auto', 
-                        marginTop: 5,
-                        marginBottom: 5
+                        <Text style={styles.textos}>{stateConect === 'conectando' ? 'Si estás finalizando y no te conectas, tu sesión terminará automáticamente al calificar.' : 'No se pudo conectar.'}</Text>
+                        <View style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: Dimensions.get('window').width,
+                            height: 'auto',
+                            marginTop: 5,
+                            marginBottom: 5
                         }}>
-                        {
-                            Env.modo === 'tablet' ?
-                            <Text style={{
-                                fontSize: 20,
-                                color: Colors.$parqueo_color_fondo,
-                                textAlign: 'center',  
-                                fontFamily: Fonts.$poppinsregular
-                            }}>Conectando.....</Text>
-                            :
-                            <LottieView source={require('../../Resources/Lotties/bicy_bluetooth.json')} autoPlay loop 
-                            style={{
-                                width: Dimensions.get('window').width*.4,
-                                height: Dimensions.get('window').width*.4              
-                            }}/>
-                        }
+                            {
+                                Env.modo === 'tablet' ?
+                                    <Text style={{
+                                        fontSize: 20,
+                                        color: Colors.$parqueo_color_fondo,
+                                        textAlign: 'center',
+                                        fontFamily: Fonts.$poppinsregular
+                                    }}>Conectando.....</Text>
+                                    :
+                                    <LottieView source={require('../../Resources/Lotties/bicy_bluetooth.json')} autoPlay loop
+                                        style={{
+                                            width: Dimensions.get('window').width * .4,
+                                            height: Dimensions.get('window').width * .4
+                                        }} />
+                            }
 
-                        <Pressable
-                            onPress={() => { conectarBLE() }}
-                            style={styles.btnEnviar}
-                        >
-                            <View style={{
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <Text style={styles.textLiberar2}>Conectar</Text> 
-                            </View>                        
-                        </Pressable>
-                    </View>   
-                </View> 
+                            <Pressable
+                                onPress={() => { conectarBLE() }}
+                                style={styles.btnEnviar}
+                            >
+                                <View style={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    <Text style={styles.textLiberar2}>Conectar</Text>
+                                </View>
+                            </Pressable>
+                        </View>
+                    </View>
             }
         </View>
     );
@@ -302,8 +301,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    row_ : {
-        width: Dimensions.get('window').width*.8,
+    row_: {
+        width: Dimensions.get('window').width * .8,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
@@ -332,7 +331,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     btnEnviar: {
-        width: Dimensions.get('window').width*.8,
+        width: Dimensions.get('window').width * .8,
         borderRadius: 20,
         padding: 5,
         backgroundColor: Colors.$parqueo_color_primario,
@@ -364,7 +363,7 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.$poppinsregular,
         fontSize: 20,
         color: Colors.$parqueo_color_texto,
-        width: Dimensions.get('window').width*.8,
+        width: Dimensions.get('window').width * .8,
         textAlign: 'center'
     }
 });

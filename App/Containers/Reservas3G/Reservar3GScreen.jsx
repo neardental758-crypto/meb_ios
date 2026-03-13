@@ -500,7 +500,7 @@ const cerrar_modadl = () => {
                 {
                     props.dataRent.bicicletas.data.map((data) => 
                         <Pressable 
-                            key={data.bic_numero}
+                            key={data.bic_id}
                             onPress={() => { 
                                 vehiculoseleccionado(data)
                             }} 

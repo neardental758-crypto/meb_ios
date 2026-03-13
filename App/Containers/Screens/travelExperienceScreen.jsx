@@ -108,9 +108,7 @@ function travelExperienceScreen (props){
                 'isTrackingActive',
                 'posicionInicial'
             ])
-            if (Platform.OS === 'android') {
-                await SharedPreferencesModule.clearCoordinates(); //Solo android
-            }
+            await SharedPreferencesModule.clearCoordinates();
             Alert.alert("Coordenadas nativas eliminadas exitosamente");
             console.log('Datos de rastreo eliminados');
             if (Env.modo === 'tablet') {

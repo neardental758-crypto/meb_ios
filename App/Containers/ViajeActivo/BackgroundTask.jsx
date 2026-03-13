@@ -58,14 +58,10 @@ export function BackgroundTask(props) {
     const [appState, setAppState] = useState(AppState.currentState);
 
     const startLocationService = () => {
-        if (Platform.OS === 'android') {
-            LocationServiceModule.startService(false)
-        }
+        LocationServiceModule.startService(false)
     };
     const stopLocationService = () => {
-        if (Platform.OS === 'android') {
-            LocationServiceModule.stopService()
-        }
+        LocationServiceModule.stopService()
     };
 
     const syncCoordinatesDistance = async () => {
@@ -80,8 +76,13 @@ export function BackgroundTask(props) {
             }
 
             try {
-                // Parsear las coordenadas
-                const parsedCoordinates = JSON.parse(storedCoordinates);
+                // En iOS el bridge suele retornar el objeto directamente, en Android lo retorna como string JSON.
+                let parsedCoordinates;
+                if (typeof storedCoordinates === 'string') {
+                    parsedCoordinates = JSON.parse(storedCoordinates);
+                } else {
+                    parsedCoordinates = storedCoordinates;
+                }
 
                 // Validar que las coordenadas sean un array
                 if (!Array.isArray(parsedCoordinates)) {

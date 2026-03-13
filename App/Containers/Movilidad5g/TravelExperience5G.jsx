@@ -75,6 +75,7 @@ function TravelExperience5G(props) {
                 'isTrackingActive',
                 'posicionInicial'
             ]);
+            await SharedPreferencesModule.clearCoordinates();
             console.log('Datos de rastreo eliminados');
 
             if (Env.modo === 'tablet') {

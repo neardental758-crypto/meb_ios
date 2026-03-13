@@ -35,7 +35,7 @@ import { horizontalScale, moderateScale, verticalScale } from '../../Themes/Metr
 import { KeyboardAvoidingView } from 'react-native';
 import * as RootNavigation from '../../RootNavigation';
 import { AuthContext } from '../../AuthContext';
-import { PERMISSIONS } from 'react-native-permissions';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import Fonts from '../../Themes/Fonts';
 import { Env } from "../../Utils/enviroments";
 

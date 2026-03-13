@@ -141,7 +141,7 @@ function FinalizarViaje(props) {
                 'isTrackingActive',
                 'posicionInicial'
             ])
-            //await SharedPreferencesModule.clearCoordinates(); // solo android
+            await SharedPreferencesModule.clearCoordinates();
             await ForegroundServiceModule.clearStoredData();
             //Alert.alert("Coordenadas nativas eliminadas exitosamente");
             console.log('Datos de rastreo eliminados');
