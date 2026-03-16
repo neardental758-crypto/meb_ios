@@ -55,7 +55,7 @@ function* validate_tyc__(action) {
 			yield put({ type: VALIDATE_TYC_OK, payload: tyc_parqueo.data.ultimo_vehiculo, data: tyc_parqueo.data});
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', register.error)
+		console.log('ERROR DE LA SAGA 3G: ', tyc_parqueo.error)
 	}
 	//yield put({ type: SUBIR_FOTO_AVION, eventImage: vpPhoto, data: data, tabla: tabla });
 }
@@ -86,7 +86,7 @@ function* aceptar_tyc__(action) {
 			yield put({ type: ACCEPT_TYC_OK, payload: tyc_accept.data});
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', register.error)
+		console.log('ERROR DE LA SAGA 3G: ', tyc_accept.error)
 	}
 	//yield put({ type: SUBIR_FOTO_AVION, eventImage: vpPhoto, data: data, tabla: tabla });
 }
@@ -111,7 +111,7 @@ function* save_vel__(action) {
 			yield put({ type: SAVE_VEL_OK, payload: action.id});
 		}
 	} else {
-		console.log('ERROR DE LA SAGA 3G: ', register.error)
+		console.log('ERROR DE LA SAGA 3G: ', cambio.error)
 	}
 }
 

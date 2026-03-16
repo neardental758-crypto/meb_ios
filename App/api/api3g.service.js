@@ -875,8 +875,26 @@ const correo_recompnesas = async (table, email, data) => {
     }
 }
 
+const postImgFile = async (formData, type = null) => {
+    let url = URLMysql + "upload";
+    if (type) {
+        url += `?type=${type}`;
+    }
+    try {
+        let res = await global.fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        return await res.json();
+    } catch (err) {
+        console.error("Error en postImgFile local3G:", err);
+        return { error: err };
+    }
+}
+
 export const api = {
     guardandoRegistroExt,
+    postImgFile,
     //validationRent,
     getFallas,
     //validationUser,

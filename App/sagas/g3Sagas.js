@@ -966,15 +966,15 @@ function* uploadImageS3(image, table) {
 	const file = {
 		uri: image.uri,
 		name: fileName + '.jpg',
-		type: image.type ? image.type : "image/jpg",
+		type: image.type ? image.type : "image/jpeg",
 	};
-	formData.append('upload', file);
-	const result = yield api.postFileHeaders(table, "upload", formData)
-	if (result.error == null) {
-		if (result.files[0] != null) {
-			return result.files[0].location;
-		}
+	formData.append('image', file);
+	const result = yield api.postImgFile(formData, table);
+	console.log('Respuesta carga imagen local VP:', result);
+	if (result && !result.error && result.imageUrl) {
+		return result.imageUrl;
 	}
+	return null;
 }
 
 function* uploadEventImage(action) {
@@ -984,7 +984,7 @@ function* uploadEventImage(action) {
 		console.log('entrando al IIIIIFFFFFFFFF ', action.eventImage.assets);
 		//aca se rompe
 		try {
-			const s3Route = yield uploadImageS3(action.eventImage.assets, "users");
+			const s3Route = yield uploadImageS3(action.eventImage.assets, "vp_vehiculos_usuario");
 			console.log('los que trae s3Route y enviar a save', s3Route)
 			if (s3Route) {
 				let newData = {

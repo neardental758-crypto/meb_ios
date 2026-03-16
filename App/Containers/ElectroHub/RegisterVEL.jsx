@@ -526,8 +526,9 @@ function RegisterVEL(props){
                         (props.dataRent.tipoVPCargadas === true) ? //estado inicial true
                         <>
                             {
-                            props.dataRent.tiposVP.data.map((data) =>
-                                data.tip_nombre === 'e-Bike' || data.tip_nombre === 'e-Scooter' || data.tip_nombre === 'e-Moto'?
+                            props.dataRent.tiposVP.data
+                            .filter(data => data.tip_nombre === 'e-Bike' || data.tip_nombre === 'e-Scooter' || data.tip_nombre === 'e-Moto')
+                            .map((data) =>
                                 <View
                                     key={data.tip_id}  
                                     //onPress={() => { vehicleSelect(data)}}
@@ -563,8 +564,7 @@ function RegisterVEL(props){
                                         </View>      
                                     </View>
                                 </View> 
-                                :
-                                <></>
+
                             )}                                                
                         </>
                         :
