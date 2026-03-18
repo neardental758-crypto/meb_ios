@@ -820,7 +820,7 @@ function* uploadEventImage(action) {
 			const imageAsset = action.eventImage.assets[0];
 
 			formData.append('image', {
-				uri: imageAsset.uri,
+				uri: Platform.OS === 'android' ? imageAsset.uri : imageAsset.uri.replace('file://', ''),
 				type: imageAsset.type,
 				name: imageAsset.fileName || `profile_image_${Date.now()}.jpg`,
 			});
@@ -846,8 +846,9 @@ function* uploadEventImage(action) {
 		}
 
 	} else {
-		yield put({ type: SAVE_LOADER, loader: false });
-		yield put({ type: FETCH_UPLOAD_EVENT_IMAGE_FAILURE });
+		console.log('[REGISTRO] No hay imagen para subir, procediendo sin imagen');
+		let formUser = yield select((state) => state.userReducer.formRegister);
+		yield put({ type: POST_USER, user: formUser, s3Route: null });
 	}
 }
 
@@ -1926,7 +1927,7 @@ function* edit_photo_perfil__(action) {
 
 		let formData = new FormData();
 		formData.append('image', {
-			uri: imageAsset.uri,
+			uri: Platform.OS === 'android' ? imageAsset.uri : imageAsset.uri.replace('file://', ''),
 			type: imageAsset.type,
 			name: imageAsset.fileName || `edit_profile_image_${Date.now()}.jpg`,
 		});

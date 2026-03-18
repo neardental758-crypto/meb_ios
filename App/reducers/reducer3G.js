@@ -395,6 +395,10 @@ export default reducer3G = (state = initialState, action) => {
         horasRentaTrans: '',
         minutosRentaTrans: '',
         segundosRentaTrans: '',
+        // Limpiando datos de reserva 4G para que no se muestre al volver al Home
+        vehiculoReserva: '',
+        dataVehiculoReserva: [],
+        vehiculoReservaCargada: false,
       };
 
     case CHANGE_ESTADO_PRESTAMO_OK:
