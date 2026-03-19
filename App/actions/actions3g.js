@@ -238,12 +238,13 @@ export function cambiarEstadoPrestamo(data, vehiculo, estadoV) {
   };
 }
 
-export function cambiarEstadoPrestamo_2(data, vehiculo, estadoV) {
+export function cambiarEstadoPrestamo_2(data, vehiculo, estadoV, nuevaEstacion) {
   return {
     type: CHANGE_ESTADO_PRESTAMO_RIDE,
     data: data,
     vehiculo: vehiculo,
-    estadoV: estadoV
+    estadoV: estadoV,
+    nuevaEstacion: nuevaEstacion
   };
 }
 

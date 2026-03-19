@@ -785,6 +785,7 @@ function* changePrestamoRide3g(action) {
 	let tabla = 'bc_prestamos/' + action.data.pre_id;
 	let data2 = {
 		"bic_id": action.vehiculo,
+		"bic_estacion": action.nuevaEstacion,
 		"bic_estado": action.estadoV
 	}
 	let tabla2 = 'bc_bicicletas/updateEstado';

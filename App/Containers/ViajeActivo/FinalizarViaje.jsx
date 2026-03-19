@@ -227,16 +227,17 @@ function FinalizarViaje(props) {
         if (digitos === 4) {
             if (props.dataRent.descripcionVehiculo !== 'microsistema') {
                 const data = {
-                    "bro_id": props.dataRent.prestamo.data[0].pre_retiro_bicicletero,
+                    "bro_id": props.dataRent.prestamo.data[0].pre_devolucion_bicicletero,
                     "bro_clave": state.claveNueva,
                     "bro_estacion": estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion,
                 }
                 await dispatch(changeClave(data));
             }
 
+            // microsistema: no se cambia la clave, la bici queda en DISPONIBLE directamente
             if (props.dataRent.descripcionVehiculo === 'microsistema') {
                 const data = {
-                    "bro_id": props.dataRent.prestamo.data[0].pre_retiro_bicicletero,
+                    "bro_id": props.dataRent.prestamo.data[0].pre_devolucion_bicicletero,
                     "bro_clave": props.dataRent.clave,
                     "bro_estacion": estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion,
                 }
@@ -373,9 +374,15 @@ function FinalizarViaje(props) {
             return;
         }
 
-        await setDevolviendo(true);
-        await cambiarEstadoPrestamo();
-        //actualizarProgreso(); // esto es para lo de los logros se comento 13 marzo 2025  
+        try {
+            await setDevolviendo(true);
+            await cambiarEstadoPrestamo();
+            //actualizarProgreso(); // esto es para lo de los logros se comento 13 marzo 2025  
+        } catch (error) {
+            console.error('Error al devolver vehículo:', error);
+            await setDevolviendo(false);
+            Alert.alert('Error', 'No se pudo finalizar el viaje. Por favor intenta de nuevo.');
+        }
     }
 
     const generarClave = () => {
