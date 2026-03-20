@@ -269,7 +269,7 @@ function FinalizarViaje(props) {
             "pun_motivo": "Devolucion exitosa"
         }
         await dispatch(savePuntos(data));
-        cambiarClave();
+        await cambiarClave();
     }
 
     const guardarComentario = async () => {
@@ -286,7 +286,7 @@ function FinalizarViaje(props) {
         }
         console.log('la data para guardar comentario :', dataComentario);
         await dispatch(saveComentario(dataComentario));
-        guardarPuntos();
+        await guardarPuntos();
 
     }
 
@@ -364,7 +364,7 @@ function FinalizarViaje(props) {
         }
         let otraEstacion = estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion;
         await dispatch(cambiarEstadoPrestamo_2(data, vehiculo, estadoV, otraEstacion));
-        guardarHistorialClaves();
+        await guardarHistorialClaves();
     }
 
     const devolverVehiculo = async () => {

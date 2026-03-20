@@ -58,19 +58,27 @@ export function BackgroundTask(props) {
     const [appState, setAppState] = useState(AppState.currentState);
 
     const startLocationService = () => {
-        LocationServiceModule.startService(false)
+        if (LocationServiceModule) {
+            LocationServiceModule.startService(false);
+        }
     };
     const stopLocationService = () => {
-        LocationServiceModule.stopService()
+        if (LocationServiceModule) {
+            LocationServiceModule.stopService();
+        }
     };
 
     const syncCoordinatesDistance = async () => {
         try {
+            // SharedPreferencesModule works on both Android and iOS (reads from UserDefaults on iOS)
+            if (!SharedPreferencesModule) {
+                return;
+            }
             const storedCoordinates = await SharedPreferencesModule.getCoordinates();
             const storedDistance = await SharedPreferencesModule.getDistance();
 
             // Validar que se obtengan datos válidos
-            if (!storedCoordinates || !storedDistance) {
+            if (!storedCoordinates || storedDistance === undefined) {
                 //console.warn('No se encontraron coordenadas o distancia almacenada.');
                 return;
             }
@@ -387,7 +395,9 @@ export function BackgroundTask(props) {
                 'posicionInicial',
                 'startTime'
             ])
-            await SharedPreferencesModule.clearCoordinates();
+            if (SharedPreferencesModule) {
+                await SharedPreferencesModule.clearCoordinates();
+            }
             console.log('Datos de rastreo eliminados');
         } catch (err) {
             console.log('Error al limpiar los datos de rastreo:', err);

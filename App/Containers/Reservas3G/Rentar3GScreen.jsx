@@ -628,7 +628,7 @@ function Rentar3GScreen(props) {
         RootNavigation.navigate('Home');
     }
     const irFInRenta = () => {
-        RootNavigation.navigate('Finalizar3GScreen')
+        RootNavigation.navigate('FinalizarViaje')
     }
 
     const cambiarEstadoPrestamo = () => {
