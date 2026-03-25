@@ -35,7 +35,7 @@ const clearToken = async () => {
 const fetchJSONWithToken = async (url, options = {}) => {
   const token = await get('token');
   let optionsWithToken = options;
-  if (token != null || token != "") {
+  if (token != null && token != "") {
     optionsWithToken = merge(options, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -52,7 +52,7 @@ const fetchJSONWithToken = async (url, options = {}) => {
 const fetchJSONWithtokenOut = async (url, options = {}) => {
   const tokenOut = await get('tokenOut');
   let optionsWithToken = options;
-  if (tokenOut != null || tokenOut != "") {
+  if (tokenOut != null && tokenOut != "") {
     optionsWithToken = merge({}, options, {
       headers: {
         Authorization: `Bearer ${tokenOut}`

@@ -164,7 +164,7 @@ function RegisterComponent(props) {
                   value={state.empresa}
                   onValueChange={(value) => { setState({ ...state, empresa: value }) }}
                   items={
-                    props.dataRent.empresas_mysql.data
+                    (props.dataRent.empresas_mysql?.data || [])
                       .filter(emp => emp.emp_estado === 'ACTIVA')
                       .map(dataEMP => ({
                         label: dataEMP.emp_nombre,

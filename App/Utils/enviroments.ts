@@ -5,8 +5,8 @@ interface EnvInteface {
 }
 
 export const Env: EnvInteface = {
-    //apiUrlMysql: "http://192.168.1.3:3002/api/", //develop - localhost
-    apiUrlMysql: "https://violet-goldfish-283275.hostingersite.com/api/", //produccion - localhost url   
+    //apiUrlMysql: "http://192.168.1.6:3002/api/", //develop - localhost
+    apiUrlMysql: "https://movilidadsostenible.cloud/api/", //produccion - localhost url   
     plantilla: 'ride', //ride, davivienda
     modo: 'movil', //tablet, movil
 }
