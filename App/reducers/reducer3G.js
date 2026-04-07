@@ -4,6 +4,8 @@ import {
   SAVE_DATA_CRONO_OK,
   RENT_ACTIVE,
   FETCH_SUCCESS_RENT,
+  FETCH_SUCCESS_RENT_PP,
+  FETCH_FAILD_RENT_PP,
   FETCH_SUCCESS_FAllAS,
   FETCH_SUCCESS_USERR,
   FETCH_NULL_USERR,
@@ -75,7 +77,8 @@ import {
   BICICLETA_YA_PRESTADA,
   RESET_BICICLETA_YA_PRESTADA,
   VALIDATE_BIKE_AVAILABILITY,
-  VALIDATE_BIKE_AVAILABILITY_OK
+  VALIDATE_BIKE_AVAILABILITY_OK,
+  RESET_VERIFICACIONES
 } from '../types/G3types';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -89,7 +92,9 @@ export const initialState = {
   empresaUsuario: '',
   usuarioValido: null,
   prestamo: false,
+  prestamoPP: false,
   prestamoActivo: false,
+  prestamoActivoPP: false,
   prestamoError: false,
   prestamoSave: false,
   fallas: false,
@@ -197,6 +202,7 @@ export const initialState = {
   empresas_mysql: [],
   empresas_mysql_cargadas: false,
   dataRentaVerificada: false,
+  dataReservaVerificada: false,
   saveRegPP: false,
   bicicletaYaPrestada: false
 };
@@ -239,6 +245,12 @@ export default reducer3G = (state = initialState, action) => {
         prestamoActivo: true,
         dataRentaVerificada: true
       };
+    case FETCH_SUCCESS_RENT_PP:
+      return {
+        ...state,
+        prestamoPP: action.payload,
+        prestamoActivoPP: true,
+      };
     case FETCH_ERROR_RENT:
       return {
         ...state,
@@ -250,6 +262,11 @@ export default reducer3G = (state = initialState, action) => {
         ...state,
         prestamo: [{ pre_retiro_estacion: '', pre_bicicleta: '' }],
         dataRentaVerificada: true
+      };
+    case FETCH_FAILD_RENT_PP:
+      return {
+        ...state,
+        prestamoActivoPP: false
       };
 
     case FETCH_SUCCESS_FAllAS:
@@ -303,12 +320,14 @@ export default reducer3G = (state = initialState, action) => {
         reservas: action.payload,
         tiempoRestante: action.tiempoRestante,
         reservaSave: true,
+        dataReservaVerificada: true,
       };
 
     case FETCH_FAILD_RESERVE:
       return {
         ...state,
         reservas: 0,
+        dataReservaVerificada: true,
       };
 
     case ADD_VEHICULOS_ESTACION:
@@ -674,7 +693,11 @@ export default reducer3G = (state = initialState, action) => {
         ...state,
         prestamo: false,
         prestamoActivo: false,
-        prestamoSave: false
+        prestamoActivoPP: false,
+        prestamoPP: false,
+        prestamoSave: false,
+        dataRentaVerificada: false,
+        dataReservaVerificada: false
       }
     case SAVE_COMENTARIOS_VP_OK:
       return {
@@ -744,6 +767,12 @@ export default reducer3G = (state = initialState, action) => {
       return {
         ...state,
         bicicletaYaPrestada: action.payload // true si ya está prestada, false si está disponible
+      }
+    case RESET_VERIFICACIONES:
+      return {
+        ...state,
+        dataRentaVerificada: false,
+        dataReservaVerificada: false
       }
 
     default:

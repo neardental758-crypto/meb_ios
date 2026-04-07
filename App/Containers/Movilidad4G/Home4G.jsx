@@ -8,7 +8,8 @@ import {
   Dimensions,
   ScrollView,
   ImageBackground,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Fonts from '../../Themes/Fonts';
@@ -33,7 +34,8 @@ import {
   cambiarEstadoReserva,
   decrementarSeg,
   saveStateBicicletero,
-  cancelar__
+  cancelar__,
+  resetVerificaciones
 } from '../../actions/actions3g';
 import { connect, useDispatch } from 'react-redux';
 import Colors from '../../Themes/Colors';
@@ -128,6 +130,7 @@ function Home4G(props) {
   }
 
   const refresh = async () => {
+    dispatch(resetVerificaciones());
     await reservasActivas(infoUser.DataUser.idNumber);
     await prestamoActivo(infoUser.DataUser.idNumber);
   }
@@ -442,6 +445,12 @@ function Home4G(props) {
                     </View>
 
                 }
+              </View>
+              :
+              (!props.dataRent.dataRentaVerificada || !props.dataRent.dataReservaVerificada) ?
+              <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 30 }}>
+                <ActivityIndicator size="large" color={Colors.$blanco} />
+                <Text style={{ fontFamily: Fonts.$poppinsregular, color: Colors.$blanco, marginTop: 10 }}>Verificando viajes...</Text>
               </View>
               :
               <View style={{

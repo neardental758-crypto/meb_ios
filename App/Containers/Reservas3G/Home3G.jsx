@@ -8,7 +8,8 @@ import {
   Dimensions,
   ImageBackground,
   Modal,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Fonts from '../../Themes/Fonts';
@@ -34,6 +35,7 @@ import {
   cambiarEstadoPrestamo,
   reseteoCambioVehiculo,
   saveStateBicicletero,
+  resetVerificaciones,
 } from '../../actions/actions3g';
 import { connect, useDispatch } from 'react-redux';
 import Colors from '../../Themes/Colors';
@@ -140,6 +142,7 @@ function Home3G(props) {
 
   useEffect(()=>{
     if (!props.dataRent.saliendo_mod) {
+      dispatch(resetVerificaciones());
       dispatch(rentActive(infoUser.DataUser.idNumber))
       dispatch(reserveActive(infoUser.DataUser.idNumber));
     }
@@ -147,6 +150,7 @@ function Home3G(props) {
 
   useEffect(()=>{
     if (props.dataRent.resevaCancelada) {
+      dispatch(resetVerificaciones());
       dispatch(rentActive(infoUser.DataUser.idNumber))
       dispatch(reserveActive(infoUser.DataUser.idNumber));
     }
@@ -155,6 +159,7 @@ function Home3G(props) {
   useFocusEffect( 
     React.useCallback(() => {
       if (!props.dataRent.saliendo_mod) {
+        dispatch(resetVerificaciones());
         dispatch(rentActive(infoUser.DataUser.idNumber))
         dispatch(reserveActive(infoUser.DataUser.idNumber));
       }
@@ -203,82 +208,89 @@ function Home3G(props) {
 
 
           {
-            props.dataRent.reservaSave && !props.dataRent.resevaCancelada ?
-            <>
-            {   
-              (props.dataRent.reservaVencida === false) ?
-              <>
-              <Text style={styles.titleSelect}>Reserva Activa</Text>
-              <View style={styles.cajaCuentaRegresiva}>  
-                  {/*<View style={styles.subcajaCuentaRegresiva}>
-                      <Text style={styles.numeroCuentaRegrasiva}>
-                          {(diaRestante < 10) ? '0'+diaRestante: diaRestante}
-                      </Text>
-                      <Text style={styles.subtextoCuentaR}>días</Text>
-                  </View>
-                  <Text>:</Text>*/}
-                  <View style={styles.subcajaCuentaRegresiva}>
-                      <Text style={styles.numeroCuentaRegrasiva}>
-                          {(horas < 10) ? '0'+horas: horas}
-                      </Text>
-                      <Text style={styles.subtextoCuentaR}>horas</Text>
-                  </View>
-                  <Text>:</Text>
-                  <View style={styles.subcajaCuentaRegresiva}>
-                      <Text style={styles.numeroCuentaRegrasiva}>
-                          {(minutos < 10) ? '0'+minutos: minutos}
-                      </Text>
-                      <Text style={styles.subtextoCuentaR}>minutos</Text>
-                  </View>
-                  <Text>:</Text>
-                  <View style={styles.subcajaCuentaRegresiva}>
-                      <Text style={styles.numeroCuentaRegrasiva}>
-                          {(segundos < 10) ? '0'+segundos: segundos}
-                      </Text>
-                      <Text style={styles.subtextoCuentaR}>segundos</Text>
-                  </View>
-                  
-              </View>
-              
-              </>
-              :
-              <>
-              <Text>La reserva se venció</Text>
-              </>
-            }
-            </>
+            (!props.dataRent.dataRentaVerificada || !props.dataRent.dataReservaVerificada) ?
+            <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 30 }}>
+              <ActivityIndicator size="large" color={Colors.$blanco} />
+              <Text style={{ fontFamily: Fonts.$poppinsregular, color: Colors.$blanco, marginTop: 10 }}>Verificando viajes...</Text>
+            </View>
             :
             <>
             {
-              Env.modo === 'tablet' || 
-              props.perfil.dataempresa[0]._3G === 'ACTIVO-RESERVAS' ?
+              props.dataRent.reservaSave && !props.dataRent.resevaCancelada ?
+              <>
+              {   
+                (props.dataRent.reservaVencida === false) ?
+                <>
+                <Text style={styles.titleSelect}>Reserva Activa</Text>
+                <View style={styles.cajaCuentaRegresiva}>  
+                    {/*<View style={styles.subcajaCuentaRegresiva}>
+                        <Text style={styles.numeroCuentaRegrasiva}>
+                            {(diaRestante < 10) ? '0'+diaRestante: diaRestante}
+                        </Text>
+                        <Text style={styles.subtextoCuentaR}>días</Text>
+                    </View>
+                    <Text>:</Text>*/}
+                    <View style={styles.subcajaCuentaRegresiva}>
+                        <Text style={styles.numeroCuentaRegrasiva}>
+                            {(horas < 10) ? '0'+horas: horas}
+                        </Text>
+                        <Text style={styles.subtextoCuentaR}>horas</Text>
+                    </View>
+                    <Text>:</Text>
+                    <View style={styles.subcajaCuentaRegresiva}>
+                        <Text style={styles.numeroCuentaRegrasiva}>
+                            {(minutos < 10) ? '0'+minutos: minutos}
+                        </Text>
+                        <Text style={styles.subtextoCuentaR}>minutos</Text>
+                    </View>
+                    <Text>:</Text>
+                    <View style={styles.subcajaCuentaRegresiva}>
+                        <Text style={styles.numeroCuentaRegrasiva}>
+                            {(segundos < 10) ? '0'+segundos: segundos}
+                        </Text>
+                        <Text style={styles.subtextoCuentaR}>segundos</Text>
+                    </View>
+                    
+                </View>
+                
+                </>
+                :
+                <>
+                <Text>La reserva se venció</Text>
+                </>
+              }
+              </>
+              :
+              <>
+              {
+                Env.modo === 'tablet' || 
+                props.perfil.dataempresa[0]._3G === 'ACTIVO-RESERVAS' ?
+                <></>
+                :
+                <View style={styles.containerButtons}>
+                  <Pressable 
+                    onPress={() => { reservar() }} 
+                    style={styles.button}>
+                    <Text style={styles.textButton}>Reservar</Text>
+                  </Pressable>
+                </View>
+              }
+              </>
+             
+            }
+            {
+              props.dataRent.prestamoSave ? 
               <></>
               :
               <View style={styles.containerButtons}>
                 <Pressable 
-                  onPress={() => { reservar() }} 
-                  style={styles.button}>
-                  <Text style={styles.textButton}>Reservar</Text>
-                </Pressable>
-              </View>
-            }
-            </>
-           
-          }
-          {
-            props.dataRent.prestamoSave ? 
-            <></>
-            :
-            <View style={styles.containerButtons}>
-              {
-                props.dataRent.dataRentaVerificada ?
-                <Pressable 
                   onPress={() => { rentar() }} 
                   style={styles.button}>
                   <Text style={styles.textButton}>Rentar</Text>
-                </Pressable>:null
-              }
-            </View>         
+                </Pressable>
+              </View>         
+            }
+            </>
           }
           
         </>

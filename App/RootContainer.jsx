@@ -190,11 +190,11 @@ function RootContainer(props) {
   }, [props.dataCarpooling.promedioCargado])
 
   useEffect(() => {
-    if (props.dataRent.prestamoActivo) {
-      console.log('TIENE PP', props.dataRent.prestamo)
+    if (props.dataRent.prestamoActivoPP) {
+      console.log('TIENE PP', props.dataRent.prestamoPP)
       set_prestamo_personalizado(true);
     }
-  }, [props.dataRent.prestamoActivo])
+  }, [props.dataRent.prestamoActivoPP])
 
   useEffect(() => {
     if (props.perfil.empresaCargadas) {

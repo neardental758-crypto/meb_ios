@@ -67,7 +67,8 @@ import {
   SAVE_REGISTRO_PP,
   RESET_PP,
   RESET_BICICLETA_YA_PRESTADA,
-  VALIDATE_BIKE_AVAILABILITY
+  VALIDATE_BIKE_AVAILABILITY,
+  RESET_VERIFICACIONES
 } from '../types/G3types';
 
 export function saveRegisterExt(dataRex) {
@@ -562,5 +563,11 @@ export const validateBikeAvailability = (bicicletaId) => {
   return {
     type: VALIDATE_BIKE_AVAILABILITY,
     bicicletaId: bicicletaId
+  }
+}
+
+export const resetVerificaciones = () => {
+  return {
+    type: RESET_VERIFICACIONES
   }
 }
