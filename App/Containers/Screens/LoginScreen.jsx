@@ -30,9 +30,9 @@ function LoginScreen (props){
   }
     return(
       <SafeAreaView style={{flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
-        <ScrollView>
+        <View style={{flex: 1}}>
             <LoginComponent userLogged={()=> routingAfterLogin()} goRegister={()=>{props.navigationProp.navigate('RegisterScreen')}} />
-        </ScrollView>
+        </View>
       </SafeAreaView>
     );
 }

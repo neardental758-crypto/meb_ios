@@ -969,57 +969,67 @@ const postMysql = async (urlApi, dataInfo) => {
 
 const validationUserDocument = async (tabla, cc) => {
     try {
-        const url = URL + "users/login";
-        const request = {
+        const urlLogin = URLMysql + "bc_usuarios/login_app";
+        const loginRequest = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ "user": "admin-bc@gmail.com", "password": "5555" })
+            body: JSON.stringify({ email: "admin-bc@gmail.com", password: "5555" })
         };
-        let response = await fetch(url, request);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        const tokenToUse = data.token;
-        if (tokenToUse) {
-            try {
-                let urlValidateUser = URLMysql + tabla + '/id/' + cc;
-                console.log(urlValidateUser);
-                const requestSendUser = {
-                    method: 'GET',
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8",
-                        Authorization: `Bearer ${tokenToUse}`
-                    }
-                };
 
-                return fetch(urlValidateUser, requestSendUser)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const user = data.data; // Accede al objeto user
-                        const extended = data.dataRegisterExtended; // Accede al objeto extended
-                        if (user === null && extended === null) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    })
-                    .catch(err => {
-                        console.log("error: " + JSON.stringify(err));
-                    });
-            } catch (error) {
-                return JSON.stringify(error);
+
+
+        const loginResponse = await fetch(urlLogin, loginRequest);
+        if (!loginResponse.ok) {
+            console.error('Error en el login de validación de usuario');
+            return false;
+        }
+
+        const loginData = await loginResponse.json();
+        const tokenToUse = loginData.token;
+
+        if (tokenToUse) {
+            const urlValidateUser = `${URLMysql}${tabla}/id/${cc}`;
+            console.log('Validando usuario en:', urlValidateUser);
+
+            const requestSendUser = {
+                method: 'GET',
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8",
+                    Authorization: `Bearer ${tokenToUse}`
+                }
+            };
+
+            const validateResponse = await fetch(urlValidateUser, requestSendUser);
+            console.log('Respuesta de validación recibida:', validateResponse.status);
+            if (!validateResponse.ok) {
+                console.error('Error en la respuesta de validación');
+                return false;
             }
+
+            const data = await validateResponse.json();
+            console.log('Datos de validación JSON:', data);
+            const user = data.data; // Accede al objeto user
+            const extended = data.dataRegisterExtended; // Accede al objeto extended
+            const rol = data.dataRol; // Accede al objeto rol (añadido recientemente)
+
+            // Si todos son null, el usuario NO existe (puede registrarse) -> true
+            if (user === null && extended === null && rol === null) {
+                console.log('Usuario no existe en ninguna tabla, validación exitosa');
+                return true;
+            } else {
+                console.log('Usuario ya existe o tiene registros huérfanos, validación fallida', { user, extended, rol });
+                return false;
+            }
+
+        } else {
+            console.error('No se obtuvo token de validación');
+            return false;
         }
     } catch (error) {
-        return JSON.stringify(error);
+        console.error("Error en validationUserDocument:", error);
+        return false;
     }
 }
 

@@ -1,4 +1,4 @@
-import { Animated, Easing, ActivityIndicator, Image, Modal, Text, TextInput, TouchableWithoutFeedback, View, StyleSheet, Pressable, Dimensions, ImageBackground } from 'react-native';
+import { Animated, Easing, ActivityIndicator, Image, Modal, Text, TextInput, TouchableWithoutFeedback, View, StyleSheet, Pressable, Dimensions, ImageBackground, ScrollView, Platform } from 'react-native';
 import Colors from '../Themes/Colors';
 import Fonts from '../Themes/Fonts';
 import Images from '../Themes/Images';
@@ -140,112 +140,114 @@ function LoginComponent(props) {
             </Animated.View>
           </Pressable>
           <KeyboardAwareScrollView enableOnAndroid contentContainerStyle={estilos.keyboardAwareScrollView}>
-            <View style={{ flexDirection: 'column', backgroundColor: 'white', height: height / 2, borderTopLeftRadius: 35, borderTopRightRadius: 35 }}>
-              <View style={{ backgroundColor: 'transparent', paddingEnd: horizontalScale(40), paddingStart: horizontalScale(40), marginTop: moderateScale(30) }}>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                  <Image style={estilos.imageLeft} source={Images.userLogin} />
-                  <Text style={estilos.inputsLogin}>Email</Text>
-                </View>
-                {props.doingLogin || props.authenticated ?
-                  <ActivityIndicator style={{ alignSelf: 'center' }} size="large" color={Colors.$yellow} /> :
-                  <View>
-                    {!props.authenticated ?
-                      <View>
-                        <View style={estilos.inputWithIcon}>
-                          <TextInput
-                            placeholder='Ingresa tu email corporativo'
-                            autoCompleteType={'email'}
-                            style={estilos.loginInput}
-                            keyboardType={'email-address'}
-                            placeholderTextColor={Colors.$secundario}
-                            value={state.email}
-                            onChangeText={objectEmail => setState({
-                              ...state,
-                              email: objectEmail.toLowerCase().trim()
-                            })}
-                          />
-                        </View>
-                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline' }}>
-                          <Image style={estilos.imageLeft} source={Images.lockLogin} />
-                          <Text style={estilos.inputsLogin}>Contraseña</Text>
-                        </View>
-                        <View style={estilos.inputWithIcon}>
-                          <TextInput
-                            maxLength={4}
-                            keyboardType="numeric"
-                            placeholder='Ingresar contraseña'
-                            placeholderTextColor={Colors.$secundario}
-                            autoCompleteType={'password'}
-                            style={estilos.loginInput}
-                            secureTextEntry={!passwordVisible}
-                            placeholderTextWeight='700'
-                            onChangeText={password => setState({ ...state, password: password })}
-                          />
-                          <TouchableWithoutFeedback
-                            onPressIn={() => setPasswordVisible(true)}
-                            onPressOut={() => setPasswordVisible(false)}
-                          >
-                            <Image
-                              style={estilos.imageLeft}
-                              source={passwordVisible ? Images.showPass : Images.passHidden}
+            <View style={{ flexDirection: 'column', backgroundColor: 'white', width: (Dimensions.get('window').width >= 600 || (Platform.OS === 'ios' && Platform.isPad)) ? '75%' : '100%', alignSelf: 'center', height: (Dimensions.get('window').width >= 600 || (Platform.OS === 'ios' && Platform.isPad)) ? (height * 0.55) : undefined, minHeight: height / 2, paddingBottom: verticalScale(10), borderTopLeftRadius: 35, borderTopRightRadius: 35, overflow: 'hidden' }}>
+              <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={{ flexGrow: 1, paddingBottom: verticalScale(40) }}>
+                <View style={{ backgroundColor: 'transparent', paddingEnd: horizontalScale(40), paddingStart: horizontalScale(40), marginTop: moderateScale(30) }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                    <Image style={estilos.imageLeft} source={Images.userLogin} />
+                    <Text style={estilos.inputsLogin}>Email</Text>
+                  </View>
+                  {props.doingLogin || props.authenticated ?
+                    <ActivityIndicator style={{ alignSelf: 'center' }} size="large" color={Colors.$yellow} /> :
+                    <View>
+                      {!props.authenticated ?
+                        <View>
+                          <View style={estilos.inputWithIcon}>
+                            <TextInput
+                              placeholder='Ingresa tu email corporativo'
+                              autoCompleteType={'email'}
+                              style={estilos.loginInput}
+                              keyboardType={'email-address'}
+                              placeholderTextColor={Colors.$secundario}
+                              value={state.email}
+                              onChangeText={objectEmail => setState({
+                                ...state,
+                                email: objectEmail.toLowerCase().trim()
+                              })}
                             />
-                          </TouchableWithoutFeedback>
-                        </View>
+                          </View>
+                          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline' }}>
+                            <Image style={estilos.imageLeft} source={Images.lockLogin} />
+                            <Text style={estilos.inputsLogin}>Contraseña</Text>
+                          </View>
+                          <View style={estilos.inputWithIcon}>
+                            <TextInput
+                              maxLength={4}
+                              keyboardType="numeric"
+                              placeholder='Ingresar contraseña'
+                              placeholderTextColor={Colors.$secundario}
+                              autoCompleteType={'password'}
+                              style={estilos.loginInput}
+                              secureTextEntry={!passwordVisible}
+                              placeholderTextWeight='700'
+                              onChangeText={password => setState({ ...state, password: password })}
+                            />
+                            <TouchableWithoutFeedback
+                              onPressIn={() => setPasswordVisible(true)}
+                              onPressOut={() => setPasswordVisible(false)}
+                            >
+                              <Image
+                                style={estilos.imageLeft}
+                                source={passwordVisible ? Images.showPass : Images.passHidden}
+                              />
+                            </TouchableWithoutFeedback>
+                          </View>
+                          <Pressable
+                            onPress={() => openModal()}
+                            style={estilos.forgotLink}
+                          >
+                            <Text style={estilos.passForgot}>¿Olvidaste tu contraseña?</Text>
+                          </Pressable>
+                        </View> : <View></View>
+                      }
+                    </View>
+                  }
+                  <Overlay
+                    containerStyle={styles.overlay}
+                    visible={state.modalVisible}
+                    childrenWrapperStyle={styles.modalsContainer}
+                    onClose={closeModal}
+                    closeOnTouchOutside>
+                    <ModalForgotPassword onClosePress={closeModal} />
+                  </Overlay>
+                </View>
+                <View>
+                  <View style={estilos.centeredItems}>
+                    <View style={[estilos.loginButton, estilos.inputWithIcon2]}>
+                      {props.doingLogin ?
+                        <ActivityIndicator
+                          style={{ alignSelf: 'center' }}
+                          size="large"
+                          color={Colors.$texto} />
+                        :
                         <Pressable
-                          onPress={() => openModal()}
-                          style={estilos.forgotLink}
+                          onPress={() => login()}
+                          style={estilos.botonItem}
                         >
-                          <Text style={estilos.passForgot}>¿Olvidaste tu contraseña?</Text>
+                          <Text style={estilos.textBoton}>Iniciar sesión</Text>
                         </Pressable>
-                      </View> : <View></View>
-                    }
+                      }
+                    </View>
                   </View>
-                }
-                <Overlay
-                  containerStyle={styles.overlay}
-                  visible={state.modalVisible}
-                  childrenWrapperStyle={styles.modalsContainer}
-                  onClose={closeModal}
-                  closeOnTouchOutside>
-                  <ModalForgotPassword onClosePress={closeModal} />
-                </Overlay>
-              </View>
-              <View>
-                <View style={estilos.centeredItems}>
-                  <View style={[estilos.loginButton, estilos.inputWithIcon2]}>
-                    {props.doingLogin ?
-                      <ActivityIndicator
-                        style={{ alignSelf: 'center' }}
-                        size="large"
-                        color={Colors.$texto} />
-                      :
+                  <View style={estilos.account}>
+                    <Text style={[estilos.titleRegister]}>¿No tienes una cuenta?</Text>
+                    <View style={[estilos.titleRegister]}>
                       <Pressable
-                        onPress={() => login()}
-                        style={estilos.botonItem}
-                      >
-                        <Text style={estilos.textBoton}>Iniciar sesión</Text>
-                      </Pressable>
-                    }
+                        onPress={() => goRegister()}
+                      ><Text style={[estilos.textBoton1, { color: Colors.$primario }]}> Ingresa aquí</Text></Pressable>
+                    </View>
                   </View>
                 </View>
-                <View style={estilos.account}>
-                  <Text style={[estilos.titleRegister]}>¿No tienes una cuenta?</Text>
-                  <View style={[estilos.titleRegister]}>
-                    <Pressable
-                      onPress={() => goRegister()}
-                    ><Text style={[estilos.textBoton1, { color: Colors.$primario }]}> Ingresa aquí</Text></Pressable>
-                  </View>
+              </ScrollView>
+              <Modal
+                visible={state.modalVisibleChat}
+                animationType="slide"
+                transparent={false}
+                onRequestClose={closeChat}>
+                <View style={{ flex: 1 }}>
+                  <Chatbot_Login onClose={closeChat} />
                 </View>
-                <Modal
-                  visible={state.modalVisibleChat}
-                  animationType="slide"
-                  transparent={false}
-                  onRequestClose={closeChat}>
-                  <View style={{ flex: 1 }}>
-                    <Chatbot_Login onClose={closeChat} />
-                  </View>
-                </Modal>
-              </View>
+              </Modal>
             </View>
           </KeyboardAwareScrollView>
         </ImageBackground>
@@ -386,9 +388,10 @@ const estilos = StyleSheet.create({
     fontSize: moderateScale(18),
   },
   container: {
+    flex: 1,
   },
   backgroundImage: {
-    height: height * .95,
+    flex: 1,
     width: '100%',
   },
   keyboardAwareScrollView: {

@@ -9,7 +9,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Esta app requiere Bluetooth para conectarse a los dispositivos.</string>
+	<string>MejorEnBici requiere acceso a Bluetooth de forma permanente e interactuar en segundo plano para conectarse, desbloquear y asegurar los candados de las bicicletas eléctricas durante tus viajes.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>MejorEnBici requiere conexión Bluetooth para poder interactuar y desbloquear los candados de las bicicletas al iniciar o finalizar un préstamo.</string>
 	<key>CFBundleDisplayName</key>
 	<string>MejorenBici</string>
 	<key>CFBundleExecutable</key>

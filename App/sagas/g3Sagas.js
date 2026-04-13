@@ -8,9 +8,9 @@ import {
 	SAVE_DATA_USER_OK,
 	SAVE_DATA_CRONO_OK,
 	RENT_ACTIVE,
+	FETCH_SUCCESS_RENT,
 	FETCH_SUCCESS_RENT_PP,
 	RENT_ACTIVE_PP,
-	FETCH_SUCCESS_RENT_PP,
 	FETCH_FAILD_RENT_PP,
 	FETCH_NULL_USERR,
 	GET_FALLAS,
@@ -254,7 +254,7 @@ function* viewRentActive3gPP(action) {
 		console.log('RENTA PP:::::::::::::::::::::::::::', rent);
 		if (rent && !rent.error) {
 			if (rent.data.length === 1) {
-				yield put({ type: FETCH_SUCCESS_RENT, payload: rent });
+				yield put({ type: FETCH_SUCCESS_RENT_PP, payload: rent });
 			} else if (rent.data.length > 1) {
 				Alert.alert('Tienes un error en el último viaje, comunícate con soporte.');
 				yield put({ type: FETCH_ERROR_RENT, payload: rent });
@@ -404,10 +404,10 @@ function* viewPenalizations() {
 function* calcularDistanciaCoord(action) {
 	let coor = action.coordenadas;
 	// Convertir todas las coordenadas a radianes
-	lat1 = (coor.lat1);
-	lon1 = (coor.lng1);
-	lat2 = (coor.lat2);
-	lon2 = (coor.lng2);
+	const lat1 = (coor.lat1);
+	const lon1 = (coor.lng1);
+	const lat2 = (coor.lat2);
+	const lon2 = (coor.lng2);
 	// Aplicar fórmula
 
 	const R = 6371; // Radio de la Tierra en km

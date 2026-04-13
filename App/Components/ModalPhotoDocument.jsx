@@ -18,7 +18,9 @@ const options = {
         skipBackup: true,
         path: 'images',
     },
-    quiality: 0.6
+    maxWidth: 1200,
+    maxHeight: 1200,
+    quality: 0.7
 
 };
 function ModalPhotoDocument(props){

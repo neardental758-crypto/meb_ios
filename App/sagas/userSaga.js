@@ -1542,10 +1542,13 @@ function* guardarForm(stateRegister) {
 			// Validando que el documento no este registrado.
 			let cc = stateRegister.formRegister.idNumber;
 			let tabla = 'bc_usuarios'
-			let user = yield api.validationUserDocument(tabla, cc);
-			if (!user) {
+			console.log('Validando usuario en mebIOS (APP_nueva):', cc);
+			let userValid = yield call(api.validationUserDocument, tabla, cc);
+			console.log('Resultado de validación:', userValid);
+
+			if (!userValid) {
 				yield put({ type: GUARDAR_FORM_REGISTER_FAILED });
-				Alert.alert('Advertencia', 'El número de documento ingresado ya está siendo utilizado.');
+				Alert.alert('Advertencia', 'El número de documento ingresado ya está siendo utilizado o tiene registros previos.');
 			} else {
 				console.log('estamos en USerSaga guardarForm y este es el ID de org', stateRegister.formRegister.empresa)
 				const correo_cor = !!stateRegister.formRegister.email ? stateRegister.formRegister.email : 'correo@davivienda.com';
@@ -1709,39 +1712,32 @@ function* postUser(formUser) {
 	};
 
 	try {
-		// Una sola llamada al endpoint MySQL que crea todo en transacción
 		console.log('[REGISTRO] Enviando datos a MySQL...');
 		const result = yield api.registerUserMySQL(userData);
 
 		if (result && result.ok) {
 			console.log('[REGISTRO] Registro completado exitosamente en MySQL');
-
-			// Login automático después del registro
-			yield put({ type: LOGIN_USER, email: formUser.user.formRegister.email.toLowerCase(), password: pass, token: 'token' });
+			yield put({ type: LOGIN_USER, email: userData.usu_email, password: userData.usu_password, token: 'token' });
 			yield put({ type: ROUTING, component: "LoginScreen" });
 			yield put({ type: SAVE_LOADER, loader: false });
+			Alert.alert("¡Registro Exitoso!", "Tu cuenta ha sido creada correctamente. Ya puedes iniciar sesión.");
 		} else {
-			console.error('[REGISTRO] Error al crear usuario en MySQL:', result?.message);
-
-			if (result?.status === 500 && result?.message?.includes('ER_DUP_ENTRY')) {
-				Alert.alert(
-					"Error de Registro",
-					"Este usuario ya existe en el sistema. Por favor verifica tu número de documento."
-				);
-			} else {
-				Alert.alert(
-					"Error de Registro",
-					"Hubo un problema al crear tu cuenta. Por favor intenta nuevamente."
-				);
-			}
-			yield put({ type: SAVE_LOADER, loader: false });
+			console.error('[REGISTRO] Error devuelto por la API:', result?.message);
+			throw new Error(result?.message || 'ERROR_CREATE_ITEM');
 		}
+
 	} catch (error) {
-		console.error('[REGISTRO] Error en el proceso de registro:', error);
+		console.error('[REGISTRO] Error fatal en el proceso:', error);
+		yield delay(100);
+		
+		let detail = error.message || error;
+		if (detail === 'ERROR_CREATE_ITEM') detail = 'Error al crear el registro en la base de datos.';
+		
 		Alert.alert(
-			"Error de Registro",
-			"Hubo un error inesperado. Por favor intenta nuevamente."
+			"Hubo un error en el registro",
+			`Detalle: ${detail}\n\nPor favor intenta nuevamente o contacta a soporte si el problema persiste.`
 		);
+
 		yield put({ type: SAVE_LOADER, loader: false });
 	}
 }
