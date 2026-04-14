@@ -67,7 +67,7 @@ const UpdateChecker = () => {
                 onPress: async () => {
                   const storeUrl = Platform.OS === 'android'
                     ? await VersionCheck.getPlayStoreUrl({ packageName: 'com.mejorenbici2025' })
-                    : await VersionCheck.getAppStoreUrl({ appID: '6468495655' });
+                    : await VersionCheck.getAppStoreUrl({ appID: '6739950184' });
 
                   Linking.openURL(storeUrl);
                 }
