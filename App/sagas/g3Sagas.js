@@ -129,7 +129,9 @@ import {
 	SAVE_REGISTRO_PP_OK,
 	BICICLETA_YA_PRESTADA,
 	VALIDATE_BIKE_AVAILABILITY,
-	VALIDATE_BIKE_AVAILABILITY_OK
+	VALIDATE_BIKE_AVAILABILITY_OK,
+	FINALIZAR_VIAJE_3G,
+	FINALIZAR_VIAJE_3G_OK
 } from '../types/G3types'
 import { all, call, put, select, takeEvery, takeLatest, delay, cancel } from 'redux-saga/effects'
 import { getItem } from '../Services/storage.service';
@@ -759,6 +761,85 @@ function* changeReservaBc3g(action) {
 function* changeReservaBc() {
 	yield takeLatest(CHANGE_ESTADO_RESERVA_BC, changeReservaBc3g);
 }
+////////////////////////////////////////////////////////////////////
+function* finalizarViaje3gSaga(action) {
+	try {
+		const {
+			pre_id,
+			pre_devolucion_fecha,
+			vehiculo,
+			estadoV,
+			historialClaves,
+			comentario,
+			puntos,
+			claveData
+		} = action.data;
+
+		console.log('🏁 Iniciando proceso atómico de finalización 3G para préstamo:', pre_id);
+
+		// 1. Cambiar estado del préstamo
+		const tablaPrestamo = 'bc_prestamos/' + pre_id;
+		const dataPrestamo = {
+			pre_id: pre_id,
+			pre_devolucion_fecha: pre_devolucion_fecha,
+			pre_duracion: '0',
+			pre_estado: 'FINALIZADA',
+			...(action.nuevaEstacion ? { pre_devolucion_estacion: action.nuevaEstacion } : {})
+		};
+		const resPrestamo = yield call(api.patchEstadoPrestamo, tablaPrestamo, dataPrestamo);
+		if (resPrestamo.error) throw new Error('Error al finalizar el préstamo: ' + JSON.stringify(resPrestamo.error));
+
+		// 2. Cambiar estado del vehículo
+		const tablaVehiculo = 'bc_bicicletas/updateEstado';
+		const dataVehiculo = {
+			bic_id: vehiculo,
+			bic_estado: estadoV
+		};
+		const resVehiculo = yield call(api.changeVehiculo, tablaVehiculo, dataVehiculo);
+		if (resVehiculo !== 'ok') throw new Error('Error al actualizar estado del vehículo');
+
+		// 3. Guardar historial de claves (si aplica)
+		if (historialClaves) {
+			const resHist = yield call(api.saveHistorialClaves_, 'bc_historial_claves/registrar', historialClaves);
+			if (resHist.error) throw new Error('Error al guardar historial de claves');
+		}
+
+		// 4. Guardar comentario
+		if (comentario) {
+			const resCom = yield call(api.saveComentarios, 'bc_comentarios_rentas/registrar', comentario);
+			if (resCom.error) throw new Error('Error al guardar comentario');
+		}
+
+		// 5. Guardar puntos
+		if (puntos) {
+			const resPuntos = yield call(api.savePuntos, 'bc_puntos/registrar', puntos);
+			if (resPuntos.error) throw new Error('Error al guardar puntos');
+		}
+
+		// 6. Cambiar clave del bicicletero (Crucial)
+		if (claveData) {
+			const resClave = yield call(api.changeClave, 'bc_bicicleteros/changeKey', claveData);
+			if (resClave.error) throw new Error('Error al cambiar la clave del bicicletero');
+		}
+
+		// Si todo salió bien
+		yield put({ type: FINALIZAR_VIAJE_3G_OK });
+		yield put({ type: CHANGE_ESTADO_PRESTAMO_OK }); // Mantener compatibilidad con reducers actuales
+
+		console.log('✅ Finalización 3G completada exitosamente');
+
+	} catch (error) {
+		console.log('❌ ERROR EN finalizarViaje3gSaga:', error.message);
+		const errorMessage = typeof error === 'string' ? error : error.message;
+		Alert.alert('Error al finalizar viaje', errorMessage || 'Ocurrió un error inesperado. Por favor, intenta de nuevo.');
+		yield put({ type: FETCH_ERROR_RENT, error: errorMessage });
+	}
+}
+
+function* watchFinalizarViaje3g() {
+	yield takeLatest(FINALIZAR_VIAJE_3G, finalizarViaje3gSaga);
+}
+
 ////////////////////////////////////////////////////////////////////
 function* changePrestamoBc3g(action) {
 	let data = action.data;
@@ -1759,6 +1840,7 @@ export const sagas = [
 	changeVehicleResrve(),
 	savePrestamoBC(),
 	changeReservaBc(),
+	watchFinalizarViaje3g(),
 	changePrestamoBc(),
 	changePrestamoRide(),
 	saveHistClavesBc(),

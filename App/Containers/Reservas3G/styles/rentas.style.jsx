@@ -362,7 +362,7 @@ export default {
     textAlign: 'center',
   },
   textVehiculo: {
-    fontSize: moderateScale(20),
+    fontSize: moderateScale(15),
     color: Colors.$texto,
     marginTop: 5,
     marginBottom: 5
@@ -396,8 +396,8 @@ export default {
     justifyContent: 'center',
   },
   iconBici: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
   },
   cajaCuentaRegresiva: {
     height: verticalScale(150),
@@ -636,7 +636,6 @@ export default {
     
   },
   boxPrincipalItems: {
-    flex: 1,
     width: Dimensions.get('window').width,
     minHeight: Dimensions.get('window').height*.6,
     alignItems: 'center',

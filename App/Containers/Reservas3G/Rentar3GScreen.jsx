@@ -13,9 +13,10 @@ import {
     Modal,
     Dimensions,
     ScrollView,
-    PermissionsAndroid
+    PermissionsAndroid,
+    ActivityIndicator
 } from 'react-native';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import LottieView from 'lottie-react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -41,7 +42,8 @@ import {
     resetBicicletaYaPrestada,
     validateBikeAvailability
 } from '../../actions/actions3g';
-import { saveFormPreoperacional } from '../../actions/actionPerfil';
+import { fetch } from '../../Services/refresh.service';
+import { saveFormPreoperacional, reset_preoperacional } from '../../actions/actionPerfil';
 import RNPickerSelect from '@nejlyg/react-native-picker-select';
 import URL_mysql from './functions/url';
 import { apimysql } from './functions/funciones'
@@ -80,6 +82,7 @@ const options = {
 
 function Rentar3GScreen(props) {
     const dispatch = useDispatch();
+    const scrollRef = useRef(null);
     const { logout } = useContext(AuthContext);
     const [state, setState] = useState({
         organizacion: '',
@@ -179,7 +182,7 @@ function Rentar3GScreen(props) {
 
     ///////////// modal ///////////////
     const displayBackgroundInfoModal = (value) => {
-        setState({ ...state, isOpenBackgroundInfoModal: value })
+        setState(prevState => ({ ...prevState, isOpenBackgroundInfoModal: value }))
     }
     const stateModalCancelRent = (value) => {
         setIsModalCancelVisible(value);
@@ -628,7 +631,7 @@ function Rentar3GScreen(props) {
         RootNavigation.navigate('Home');
     }
     const irFInRenta = () => {
-        RootNavigation.navigate('FinalizarViaje')
+        RootNavigation.navigate('Finalizar3GScreen')
     }
 
     const cambiarEstadoPrestamo = () => {
@@ -662,36 +665,95 @@ function Rentar3GScreen(props) {
         crearPenalizacion();
     }
 
+    const checkBikeAvailabilitySync = async (bicicletaId) => {
+        try {
+            const URLMysql = Env.apiUrlMysql;
+            const url = URLMysql + 'bc_prestamos/bicicleta/' + bicicletaId;
+            const response = await fetch(url);
+
+            const loanInfo = typeof response.json === 'function' ? await response.json() : response.body;
+            let data = loanInfo?.data || loanInfo;
+            if (!data) return false;
+
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+
+            const estaOcupada = data.some(prestamo => {
+                const estado = prestamo?.pre_estado?.trim()?.toUpperCase();
+                return estado === 'ACTIVA' ||
+                    estado === 'PRESTAMO PERSONALIZADO' ||
+                    estado === 'PRESTAMO DE EMERGENCIA';
+            });
+
+            return estaOcupada;
+        } catch (error) {
+            console.log('Error validating bike availability:', error);
+            return false;
+        }
+    }
+
     const vehiculoseleccionado = async (data) => {
-        console.log('data', data);
-        console.log('estado', data.bic_estado);
+        const estado = data?.bic_estado?.trim()?.toUpperCase();
+
         if (touchRentar) {
             Alert.alert('Se está procesando un préstamo');
             return;
         }
 
-        if (data.bic_estado === 'DISPONIBLE') {
-            // Validar disponibilidad de la bicicleta antes de seleccionarla
-            dispatch(validateBikeAvailability(data.bic_id));
-            setState({ ...state, ticket: data.bic_id, numVehiculo: data.bic_numero })
-            dispatch(saveStateBicicletero(data.bc_bicicletero.bro_id));
+        if (estado === 'DISPONIBLE') {
+            // Se asume disponibilidad por el estado del mapa. La validación final ocurre al rentar.
+
+            // 1. Validar disponibilidad real en DB antes de abrir el cuestionario
+            const yaPrestada = await checkBikeAvailabilitySync(data.bic_id);
+            if (yaPrestada) {
+                Alert.alert('Vehículo no disponible', 'Este vehículo tiene un préstamo activo en el momento. Por favor selecciona otro vehículo.');
+                return;
+            }
+
+            // Si se selecciona un vehículo diferente, reseteamos el estado preoperacional
+            if (state.ticket !== data.bic_id) {
+                props.reset_preoperacional();
+                setPreoperacionalOK(false);
+            }
+
+            // Usar actualización funcional para evitar estados obsoletos
+            setState(prevState => ({
+                ...prevState,
+                ticket: data.bic_id,
+                numVehiculo: data.bic_numero
+            }));
+
+            // Registro del bicicletero con validación defensiva
+            if (data.bc_bicicletero?.bro_id) {
+                dispatch(saveStateBicicletero(data.bc_bicicletero.bro_id));
+            } else {
+                console.warn('⚠️ Vehículo sin información de bicicletero:', data.bic_id);
+            }
+
+            // Según requerimiento: "aparece el preoperacional" al seleccionar
+            setModalTest(true);
+
+            // Según requerimiento: "al seleccionar se dirija automaticamente top 0"
+            scrollRef.current?.scrollTo({ y: 0, animated: true });
+
         } else {
             setModalError(true);
         }
     }
 
     const viewBicycle = async (value) => {
-        console.log('en viewBicycle', value)
-        console.log('en viewBicycle la estacion', value.est_estacion)
-        setState({
-            ...state,
+        console.log('🔄 Cambiando estación a:', value?.est_estacion);
+        setState(prevState => ({
+            ...prevState,
             estacionSelect: value.est_estacion,
             horarioSelect: Number(value.est_last_conect),
-        })
+            ticket: null, // Resetar selección al cambiar de estación
+            numVehiculo: ''
+        }))
         if (value.est_estacion !== '') {
             await props.viewVehiculo(value.est_estacion);
         }
-        console.log('en viewBicycle el STATE', state);
     }
 
     const cancelarReserva = async () => {
@@ -815,7 +877,7 @@ function Rentar3GScreen(props) {
             "pre_devolucion_fecha": fechaVenceISO,
             "pre_devolucion_hora": timeString,
             "pre_duracion": "null",
-            "pre_dispositivo": Platform.OS + '-' + 'RIDE',
+            "pre_dispositivo": Platform.OS + '-' + 'MEB',
             "pre_estado": "ACTIVA",
             "pre_modulo": "3g"
         }
@@ -859,19 +921,6 @@ function Rentar3GScreen(props) {
         }
     }, [props.dataRent.prestamoSave])
 
-    useEffect(() => {
-        if (props.dataRent.bicicletaYaPrestada) {
-            setTouchRentar(false)
-            Alert.alert(
-                'Bicicleta no disponible',
-                'Esta bicicleta ya tiene un préstamo activo. Por favor selecciona otra.'
-            );
-            // Limpiar el vehículo seleccionado
-            setState({ ...state, ticket: null, numVehiculo: '' });
-            // Reset the flag so user can select another bike
-            dispatch(resetBicicletaYaPrestada());
-        }
-    }, [props.dataRent.bicicletaYaPrestada])
 
     const rentar = async () => {
         await setTouchRentar(true)
@@ -918,19 +967,14 @@ function Rentar3GScreen(props) {
 
     ////////// CHECHLIST rentar /////////////////
     const vehiculoEstado = (estado) => {
-        if (estado === 'SI') {
-            setState({ ...state, vehiculoEstadoOK: estado });
-        } else if (estado === 'falla') {
-            setState({ ...state, vehiculoEstadoOK: estado });
-        } else {
-            setState({ ...state, vehiculoEstadoOK: estado });
+        setState(prevState => ({ ...prevState, vehiculoEstadoOK: estado }));
+        if (estado !== 'SI' && estado !== 'falla') {
             viewBicycle(state.estacionSelect)
         }
-
     }
 
-    const estadoCasco = (estado) => { setState({ ...state, casco: estado }); }
-    const estadoSobrio = (estado) => { setState({ ...state, sobrio: estado }); }
+    const estadoCasco = (estado) => { setState(prevState => ({ ...prevState, casco: estado })); }
+    const estadoSobrio = (estado) => { setState(prevState => ({ ...prevState, sobrio: estado })); }
 
     const otroVehiculo = () => {
         let id = props.dataRent.reservas.data[0].res_bicicleta;
@@ -996,8 +1040,10 @@ function Rentar3GScreen(props) {
 
     useFocusEffect(
         React.useCallback(() => {
+            setTouchRentar(false);
             prestamoActivo(infoUser.DataUser.idNumber);
             getPosition();
+            setState(prevState => ({ ...prevState, ticket: null }));
         }, [])
     );
 
@@ -1008,13 +1054,15 @@ function Rentar3GScreen(props) {
     }, [touchRentar])
 
     useEffect(() => {
-        reservasActivas(infoUser.DataUser.idNumber);
-        setState({
-            ...state,
-            vehiculoEstadoOK: ''
-        })
-        props.reseteoCambioVehiculo();
-    }, [props.dataRent.cambioVehiculo === true])
+        if (props.dataRent.cambioVehiculo === true) {
+            reservasActivas(infoUser.DataUser.idNumber);
+            setState(prevState => ({
+                ...prevState,
+                vehiculoEstadoOK: ''
+            }))
+            props.reseteoCambioVehiculo();
+        }
+    }, [props.dataRent.cambioVehiculo])
 
     useEffect(() => {
         calcularDistancia(); //descomentó
@@ -1166,7 +1214,7 @@ function Rentar3GScreen(props) {
             {modalError ? openModalError() : <></>}
             {modalTest ? openModalTest() : <></>}
 
-            <ScrollView>
+            <ScrollView ref={scrollRef}>
                 {
                     //valor ini <= si la distacia con la estación es menor a 300 metros
                     (props.dataRent.distanciaMt <= distanciaMaxRenta)
@@ -1275,7 +1323,7 @@ function Rentar3GScreen(props) {
                                                                                                 onPress={() => rentar()}
                                                                                                 style={estilos.btnSaveColor}>
                                                                                                 <View style={estilos.btnSaveOK}>
-                                                                                                    <Text style={estilos.btnSaveColor}>Rentar</Text>
+                                                                                                    <Text style={estilos.btnSaveColor}>Rentar {state.numVehiculo}</Text>
                                                                                                 </View>
                                                                                             </Pressable> : null}
                                                                                         </View>
@@ -1283,14 +1331,24 @@ function Rentar3GScreen(props) {
                                                                                         <View style={{
                                                                                             justifyContent: "center",
                                                                                             alignItems: "center",
-                                                                                            width: 200,
-                                                                                            height: 'auto',
+                                                                                            width: Dimensions.get('window').width,
+                                                                                            height: 150,
+                                                                                            backgroundColor: Colors.$blanco,
                                                                                         }}>
-                                                                                            <LottieView source={require('../../Resources/Lotties/bicy_loader.json')} autoPlay loop
-                                                                                                style={{
-                                                                                                    width: 200,
-                                                                                                    height: 150,
-                                                                                                }} />
+                                                                                            <ActivityIndicator size="large" color={Colors.$primario} />
+                                                                                            <Text style={{
+                                                                                                marginTop: 20,
+                                                                                                fontSize: 18,
+                                                                                                fontFamily: Fonts.$poppinsmedium,
+                                                                                                color: Colors.$texto,
+                                                                                                textAlign: 'center'
+                                                                                            }}>Se está generando tu viaje...</Text>
+                                                                                            <Text style={{
+                                                                                                fontSize: 14,
+                                                                                                fontFamily: Fonts.$poppinsregular,
+                                                                                                color: Colors.$texto50,
+                                                                                                textAlign: 'center'
+                                                                                            }}>Esto tomará solo unos segundos</Text>
                                                                                         </View>
                                                                                 }
                                                                             </>
@@ -1399,19 +1457,27 @@ function Rentar3GScreen(props) {
                                                                             <>
                                                                                 {
                                                                                     touchRentar ?
-                                                                                        <View style={styles.centrar_}>
-                                                                                            <View style={{
-                                                                                                justifyContent: "center",
-                                                                                                alignItems: "center",
-                                                                                                width: Dimensions.get('window').width,
-                                                                                                height: 'auto',
-                                                                                            }}>
-                                                                                                <LottieView source={require('../../Resources/Lotties/bicy_loader.json')} autoPlay loop
-                                                                                                    style={{
-                                                                                                        width: Dimensions.get('window').width,
-                                                                                                        height: 150,
-                                                                                                    }} />
-                                                                                            </View>
+                                                                                        <View style={{
+                                                                                            justifyContent: "center",
+                                                                                            alignItems: "center",
+                                                                                            width: Dimensions.get('window').width,
+                                                                                            height: 150,
+                                                                                            backgroundColor: Colors.$blanco,
+                                                                                        }}>
+                                                                                            <ActivityIndicator size="large" color={Colors.$primario} />
+                                                                                            <Text style={{
+                                                                                                marginTop: 20,
+                                                                                                fontSize: 18,
+                                                                                                fontFamily: Fonts.$poppinsmedium,
+                                                                                                color: Colors.$texto,
+                                                                                                textAlign: 'center'
+                                                                                            }}>Se está generando tu viaje...</Text>
+                                                                                            <Text style={{
+                                                                                                fontSize: 14,
+                                                                                                fontFamily: Fonts.$poppinsregular,
+                                                                                                color: Colors.$texto50,
+                                                                                                textAlign: 'center'
+                                                                                            }}>Esto tomará solo unos segundos</Text>
                                                                                         </View>
                                                                                         :
                                                                                         <View style={styles.centrar_}>
@@ -1419,7 +1485,7 @@ function Rentar3GScreen(props) {
                                                                                                 onPress={() => rentar()}
                                                                                                 style={estilos.btnSaveColor}>
                                                                                                 <View style={estilos.btnSaveOK}>
-                                                                                                    <Text style={estilos.btnSaveColor}>Rentar</Text>
+                                                                                                    <Text style={estilos.btnSaveColor}>Rentar {state.numVehiculo}</Text>
                                                                                                 </View>
                                                                                             </Pressable> : null}
                                                                                         </View>
@@ -1449,19 +1515,28 @@ function Rentar3GScreen(props) {
                                                                 </View>
                                                                 {
                                                                     (props.dataRent.bicicletasCargadas === true) ?
-                                                                        <View style={estilos.boxPrincipalItems}>
+                                                                        <View style={{ width: '100%', alignItems: 'center' }}>
                                                                             {
-                                                                                state.ticket === null ?
+                                                                                (state.ticket === null && !touchRentar) ?
                                                                                     <View style={{
                                                                                         justifyContent: "center",
                                                                                         alignItems: "center",
-                                                                                        width: Dimensions.get('window').width,
-                                                                                        height: 'auto',
+                                                                                        width: Dimensions.get('window').width * 0.9,
+                                                                                        height: 120,
+                                                                                        backgroundColor: '#f8f9fa',
+                                                                                        borderRadius: 20,
+                                                                                        alignSelf: 'center',
+                                                                                        marginVertical: 10,
+                                                                                        shadowColor: "#000",
+                                                                                        shadowOffset: { width: 0, height: 2 },
+                                                                                        shadowOpacity: 0.1,
+                                                                                        shadowRadius: 4,
+                                                                                        elevation: 3,
                                                                                     }}>
                                                                                         {
                                                                                             Env.modo === 'tablet' ?
                                                                                                 <Text style={{
-                                                                                                    fontSize: 25,
+                                                                                                    fontSize: 22,
                                                                                                     color: Colors.$texto,
                                                                                                     textAlign: 'center',
                                                                                                     fontFamily: Fonts.$poppinsregular
@@ -1469,56 +1544,59 @@ function Rentar3GScreen(props) {
                                                                                                 :
                                                                                                 <LottieView source={require('../../Resources/Lotties/bicy_onOff.json')} autoPlay loop
                                                                                                     style={{
-                                                                                                        width: Dimensions.get('window').width,
-                                                                                                        height: Dimensions.get('window').width * .5,
+                                                                                                        width: 150,
+                                                                                                        height: 100,
                                                                                                     }} />
                                                                                         }
                                                                                     </View> :
                                                                                     <></>
                                                                             }
 
-                                                                            {
-                                                                                props.dataRent.bicicletas.data.map((data) =>
-                                                                                    <Pressable
-                                                                                        onPress={() => {
-                                                                                            vehiculoseleccionado(data)
-                                                                                        }}
-                                                                                        key={data.bic_id}
-                                                                                        style={
-                                                                                            (state.numVehiculo !== data.bic_numero) ?
-                                                                                                styles.btnVehiculos
-                                                                                                :
-                                                                                                styles.btnVehiculosSelect
-                                                                                        }>
+                                                                            <View style={{ height: 450, width: '100%' }}>
+                                                                                <ScrollView nestedScrollEnabled={true} contentContainerStyle={estilos.boxPrincipalItems}>
+                                                                                    {
+                                                                                        props.dataRent.bicicletas.data.filter(b => b.bic_estado !== 'INACTIVA').map((data) =>
+                                                                                            <Pressable
+                                                                                                onPress={() => {
+                                                                                                    vehiculoseleccionado(data)
+                                                                                                }}
+                                                                                                key={data.bic_id}
+                                                                                                style={
+                                                                                                    (state.numVehiculo !== data.bic_numero) ?
+                                                                                                        styles.btnVehiculos
+                                                                                                        :
+                                                                                                        styles.btnVehiculosSelect
+                                                                                                }>
 
-                                                                                        <View style={getVehicleStyle(data.bic_estado)}>
-                                                                                            {
-                                                                                                data.bic_nombre === 'electrica'
-                                                                                                    ?
-                                                                                                    <Image source={Images.bicycle_Icon} style={[estilos.iconBici, { tintColor: 'black' }]} />
-                                                                                                    :
-                                                                                                    <></>
-                                                                                            }
-                                                                                            {
-                                                                                                data.bic_nombre === 'patineta'
-                                                                                                    ?
-                                                                                                    <Image source={Images.patin_Icon} style={[estilos.iconBici, { tintColor: 'black' }]} />
-                                                                                                    :
-                                                                                                    <></>
-                                                                                            }
-                                                                                            {
-                                                                                                data.bic_nombre === 'mecanica'
-                                                                                                    ?
-                                                                                                    <Image source={Images.cycle_Icon} style={[estilos.iconBici, { tintColor: 'black' }]} />
-                                                                                                    :
-                                                                                                    <></>
-                                                                                            }
-                                                                                            <Text style={estilos.textVehiculo}>{data.bic_numero}</Text>
-                                                                                        </View>
-                                                                                    </Pressable>
-                                                                                )
-                                                                            }
-
+                                                                                                <View style={getVehicleStyle(data.bic_estado)}>
+                                                                                                    {
+                                                                                                        data.bic_nombre === 'electrica'
+                                                                                                            ?
+                                                                                                            <Image source={Images.bicycle_Icon} style={[estilos.iconBici, { tintColor: 'black' }]} />
+                                                                                                            :
+                                                                                                            <></>
+                                                                                                    }
+                                                                                                    {
+                                                                                                        data.bic_nombre === 'patineta'
+                                                                                                            ?
+                                                                                                            <Image source={Images.patin_Icon} style={[estilos.iconBici, { tintColor: 'black' }]} />
+                                                                                                            :
+                                                                                                            <></>
+                                                                                                    }
+                                                                                                    {
+                                                                                                        data.bic_nombre === 'mecanica'
+                                                                                                            ?
+                                                                                                            <Image source={Images.cycle_Icon} style={[estilos.iconBici, { tintColor: 'black' }]} />
+                                                                                                            :
+                                                                                                            <></>
+                                                                                                    }
+                                                                                                    <Text style={estilos.textVehiculo}>{data.bic_numero}</Text>
+                                                                                                </View>
+                                                                                            </Pressable>
+                                                                                        )
+                                                                                    }
+                                                                                </ScrollView>
+                                                                            </View>
                                                                         </View>
                                                                         :
                                                                         <View style={estilos.boxPrincipalItemsReserva}>
@@ -1550,8 +1628,6 @@ function Rentar3GScreen(props) {
                                                             :
                                                             <></>
                                                     }
-
-
                                                 </>
                                                 :
                                                 <>
@@ -2045,7 +2121,8 @@ function mapDispatchToProps(dispatch) {
         savePenalization: (data, vehiculo, reservaId) => dispatch(savePenalization(data, vehiculo, reservaId)),
         cambiarEstadoPrestamo: (data, vehiculo, estadoV) => dispatch(cambiarEstadoPrestamo(data, vehiculo, estadoV)),
         reseteoCambioVehiculo: () => dispatch(reseteoCambioVehiculo()),
-        saveStateBicicletero: (veh, estacion) => dispatch(saveStateBicicletero(veh, estacion))
+        saveStateBicicletero: (veh, estacion) => dispatch(saveStateBicicletero(veh, estacion)),
+        reset_preoperacional: () => dispatch(reset_preoperacional())
     }
 }
 

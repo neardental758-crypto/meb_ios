@@ -32,7 +32,8 @@ import {
     reset_renta,
     saliendo_modulo,
     cancelar__,
-    indicadores_trip
+    indicadores_trip,
+    finalizarViaje3g
 } from '../../actions/actions3g';
 import { changeProgreso, getLogrosProgreso, changeProgresoEstado, saveProgresoLogro, changeProgresoEstadoDesafio, changeProgresoDesafio } from '../../actions/actionPerfil';
 import { saveDocumentUser } from '../../actions/actions';
@@ -221,154 +222,7 @@ function FinalizarViaje(props) {
         )
     }
 
-    const cambiarClave = async () => {
-        let clave = props.dataRent.clave;
-        let digitos = clave.toString().length;
-        if (digitos === 4) {
-            if (props.dataRent.descripcionVehiculo !== 'microsistema') {
-                const data = {
-                    "bro_id": props.dataRent.prestamo.data[0].pre_devolucion_bicicletero,
-                    "bro_clave": state.claveNueva,
-                    "bro_estacion": estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion,
-                }
-                await dispatch(changeClave(data));
-            }
-
-            // microsistema: no se cambia la clave, la bici queda en DISPONIBLE directamente
-            if (props.dataRent.descripcionVehiculo === 'microsistema') {
-                const data = {
-                    "bro_id": props.dataRent.prestamo.data[0].pre_devolucion_bicicletero,
-                    "bro_clave": props.dataRent.clave,
-                    "bro_estacion": estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion,
-                }
-                await dispatch(changeClave(data));
-            }
-        }
-        await dispatch(reset_renta());
-        await dispatch(cancelar__());
-        await clearTrackingData();
-        await setDevolviendo(false);
-        await setModalEnd(true)
-    }
-
-    const guardarPuntos = async () => {
-        let clave = props.dataRent.clave;
-        let digitos = clave.toString().length;
-        let modulo = '';
-        if (digitos === 4) {
-            modulo = '3G';
-        } else {
-            modulo = '4G'
-        }
-        const data = {
-            "pun_id": uuidv4(),
-            "pun_usuario": props.dataRent.prestamo.data[0].pre_usuario,
-            "pun_modulo": modulo,
-            "pun_fecha": state.fecha.toJSON(),
-            "pun_puntos": "10",
-            "pun_motivo": "Devolucion exitosa"
-        }
-        await dispatch(savePuntos(data));
-        await cambiarClave();
-    }
-
-    const guardarComentario = async () => {
-        console.log("la calificacion es :", calificacion)
-
-        const dataComentario = {
-            "com_id": "0",
-            "com_usuario": props.dataRent.prestamo.data[0].pre_usuario,
-            "com_prestamo": props.dataRent.prestamo.data[0].pre_id,
-            "com_fecha": state.fecha.toJSON(),
-            "com_comentario": comentario === '' ? 'sin comentario' : comentario,
-            "com_estado": "ACTIVA",
-            "com_calificacion": calificacion
-        }
-        console.log('la data para guardar comentario :', dataComentario);
-        await dispatch(saveComentario(dataComentario));
-        await guardarPuntos();
-
-    }
-
-    const guardarHistorialClaves = async () => {
-        let clave = props.dataRent.clave;
-        let digitos = clave.toString().length;
-        if (digitos === 4) {
-            if (props.dataRent.descripcionVehiculo !== 'microsistema') {
-                const data = {
-                    "his_id": "0",
-                    "his_usuario": props.dataRent.prestamo.data[0].pre_usuario,
-                    "his_estacion": estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion,
-                    "his_bicicletero": props.dataRent.prestamo.data[0].pre_devolucion_bicicletero,
-                    "his_bicicleta": props.dataRent.prestamo.data[0].pre_bicicleta,
-                    "his_fecha": state.fecha.toJSON(),
-                    "his_clave_old": props.dataRent.clave,
-                    "his_clave_new": state.claveNueva,
-                    "his_estado": "CAMBIAR CLAVE"
-                }
-                await dispatch(saveHistorialClaves(data));
-            }
-        }
-        await guardarComentario();
-    }
-
-    const cambiarEstadoPrestamo = async () => {
-        //se actualizó está función para agregar duración en mínutos y fecha de la devolución 
-        let estadoV = '';
-        let modulo__ = '';
-        let clave = props.dataRent.clave;
-        let digitos = clave.toString().length;
-        let fechaIni = new Date(props.dataRent.prestamo.data[0].pre_retiro_fecha);
-        let fechaFin = new Date();
-        let diferenciaEnMilisegundos = fechaFin.getTime() - fechaIni.getTime();
-        let segundos = Math.floor(diferenciaEnMilisegundos / 1000);
-        let minutos = Math.floor(segundos / 60);
-        let horas = Math.floor(minutos / 60);
-
-        console.log("fechaINI: " + fechaIni);
-        console.log("fechaFIN: " + fechaFin);
-        console.log("Diferencia en diferenciaEnMilisegundos: " + diferenciaEnMilisegundos);
-        console.log("Diferencia en horas: " + horas);
-        console.log("Diferencia en minutos: " + minutos);
-        console.log("Diferencia en segundos: " + segundos);
-
-        const data = {
-            "pre_id": props.dataRent.prestamo.data[0].pre_id,
-            "pre_devolucion_fecha": fechaFin.toJSON(),
-            "pre_devolucion_estacion": estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion,
-            "pre_duracion": '0',
-            "pre_estado": 'FINALIZADA'
-        }
-
-        console.log('la data para el cambio al finalizar el prestamo', data)
-        console.log('DIGITOS', digitos)
-
-        if (digitos === 4) {
-            if (props.dataRent.descripcionVehiculo !== 'microsistema') {
-                estadoV = 'CAMBIAR CLAVE';
-                modulo__ = '3G';
-            } else {
-                estadoV = 'DISPONIBLE';
-                modulo__ = '3G';
-            }
-        } else {
-            estadoV = 'DISPONIBLE';
-            modulo__ = '4G';
-        }
-
-        let vehiculo = props.dataRent.prestamo.data[0].pre_bicicleta;
-        const storedIndicadores = await AsyncStorage.getItem('indicadores');
-        if (storedIndicadores) {
-            await dispatch(indicadores_trip(modulo__, props.dataRent.prestamo.data[0].pre_id, storedIndicadores));
-            console.log('Finalizandooooo el trip viaje')
-        }
-        let otraEstacion = estacionIntercambiable ? newStation : props.dataRent.prestamo.data[0].pre_devolucion_estacion;
-        await dispatch(cambiarEstadoPrestamo_2(data, vehiculo, estadoV, otraEstacion));
-        await guardarHistorialClaves();
-    }
-
     const devolverVehiculo = async () => {
-
         if (estacionIntercambiable && newStation === '') {
             Alert.alert('Debes Seleccionar una estación de devolución');
             return;
@@ -376,8 +230,125 @@ function FinalizarViaje(props) {
 
         try {
             await setDevolviendo(true);
-            await cambiarEstadoPrestamo();
-            //actualizarProgreso(); // esto es para lo de los logros se comento 13 marzo 2025  
+
+            // 1. SAFE DATA EXTRACTION
+            const prestamoData = props.dataRent?.prestamo?.data?.[0];
+            if (!prestamoData) {
+                 Alert.alert('Error', 'No hay datos del préstamo disponibles');
+                 await setDevolviendo(false);
+                 return;
+            }
+
+            let estadoV = '';
+            let modulo__ = '';
+            let clave = props.dataRent.clave?.toString() || "";
+            let digitos = clave.length;
+            let fechaFin = new Date();
+
+            const storedIndicadores = await AsyncStorage.getItem('indicadores');
+
+            if (digitos === 4) {
+                if (props.dataRent.descripcionVehiculo !== 'microsistema') {
+                    estadoV = 'CAMBIAR CLAVE';
+                    modulo__ = '3G';
+                } else {
+                    estadoV = 'DISPONIBLE';
+                    modulo__ = '3G';
+                }
+            } else {
+                estadoV = 'DISPONIBLE';
+                modulo__ = '4G';
+            }
+
+            let vehiculo = prestamoData.pre_bicicleta;
+
+            if (storedIndicadores) {
+                dispatch(indicadores_trip(modulo__, prestamoData.pre_id, storedIndicadores));
+                console.log('Finalizando el trip viaje');
+            }
+
+            // 2. CONSTRUCT ATOMIC SAGA DATA
+            let historialData = null;
+            if (digitos === 4 && props.dataRent.descripcionVehiculo !== 'microsistema') {
+                historialData = {
+                    "his_id": "0",
+                    "his_usuario": prestamoData.pre_usuario,
+                    "his_estacion": estacionIntercambiable ? newStation : prestamoData.pre_devolucion_estacion,
+                    "his_bicicletero": prestamoData.pre_devolucion_bicicletero,
+                    "his_bicicleta": prestamoData.pre_bicicleta,
+                    "his_fecha": state.fecha.toJSON(),
+                    "his_clave_old": props.dataRent.clave,
+                    "his_clave_new": state.claveNueva,
+                    "his_estado": "CAMBIAR CLAVE"
+                };
+            }
+
+            let claveData = null;
+            if (digitos === 4 && props.dataRent.descripcionVehiculo !== 'microsistema') {
+                claveData = {
+                    "bro_id": prestamoData.pre_devolucion_bicicletero,
+                    "bro_clave": state.claveNueva,
+                    "bro_estacion": estacionIntercambiable ? newStation : prestamoData.pre_devolucion_estacion,
+                };
+            } else if (digitos === 4 && props.dataRent.descripcionVehiculo === 'microsistema') {
+                 claveData = {
+                    "bro_id": prestamoData.pre_devolucion_bicicletero,
+                    "bro_clave": props.dataRent.clave,
+                    "bro_estacion": estacionIntercambiable ? newStation : prestamoData.pre_devolucion_estacion,
+                };
+            }
+
+            const dataComentario = {
+                "com_id": "0",
+                "com_usuario": prestamoData.pre_usuario,
+                "com_prestamo": prestamoData.pre_id,
+                "com_fecha": state.fecha.toJSON(),
+                "com_comentario": comentario === '' ? 'sin comentario' : comentario,
+                "com_estado": "ACTIVA",
+                "com_calificacion": calificacion
+            };
+
+            const dataPuntos = {
+                "pun_id": uuidv4(),
+                "pun_usuario": prestamoData.pre_usuario,
+                "pun_modulo": modulo__,
+                "pun_fecha": state.fecha.toJSON(),
+                "pun_puntos": "10",
+                "pun_motivo": "Devolucion exitosa"
+            };
+
+            const sagaData = {
+                pre_id: prestamoData.pre_id,
+                pre_devolucion_fecha: fechaFin.toJSON(),
+                vehiculo: vehiculo,
+                estadoV: estadoV,
+                historialClaves: historialData,
+                comentario: dataComentario,
+                puntos: dataPuntos,
+                claveData: claveData
+            };
+
+            // 3. DISPATCH ATOMIC SAGA
+            let otraEstacion = estacionIntercambiable ? newStation : prestamoData.pre_devolucion_estacion;
+            await dispatch(finalizarViaje3g(sagaData, vehiculo, dataComentario, dataPuntos, null, otraEstacion));
+
+            // NATIVE iOS ONLY CLEANUPS // 
+            if (Env.modo === 'movil') {
+                try {
+                    await ForegroundServiceModule.clearStoredData();
+                } catch (err) {
+                    console.log('Error clearing foreground data:', err);
+                }
+            }
+
+            await dispatch(reset_renta());
+            await dispatch(cancelar__());
+            await clearTrackingData();
+            
+            // 4. FINISH AND SHOW MODAL
+            await setDevolviendo(false);
+            await setModalEnd(true);
+
         } catch (error) {
             console.error('Error al devolver vehículo:', error);
             await setDevolviendo(false);

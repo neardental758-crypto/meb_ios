@@ -78,7 +78,8 @@ import {
   RESET_BICICLETA_YA_PRESTADA,
   VALIDATE_BIKE_AVAILABILITY,
   VALIDATE_BIKE_AVAILABILITY_OK,
-  RESET_VERIFICACIONES
+  RESET_VERIFICACIONES,
+  FINALIZAR_VIAJE_3G_OK
 } from '../types/G3types';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -421,6 +422,7 @@ export default reducer3G = (state = initialState, action) => {
       };
 
     case CHANGE_ESTADO_PRESTAMO_OK:
+    case FINALIZAR_VIAJE_3G_OK:
       return {
         ...state,
         prestamoActivo: false,
@@ -740,7 +742,7 @@ export default reducer3G = (state = initialState, action) => {
       }
     case RESET_APP_OK:
       return {
-        state: undefined // Esto reinicia todo el store
+        ...initialState
       }
     case SAVE_REGISTRO_PP_OK:
       return {

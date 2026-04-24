@@ -67,8 +67,10 @@ import {
   SAVE_REGISTRO_PP,
   RESET_PP,
   RESET_BICICLETA_YA_PRESTADA,
-  VALIDATE_BIKE_AVAILABILITY,
-  RESET_VERIFICACIONES
+  VALIDATE_BIKE_AVAILABILITY_OK,
+  RESET_VERIFICACIONES,
+  FINALIZAR_VIAJE_3G,
+  FINALIZAR_VIAJE_3G_OK
 } from '../types/G3types';
 
 export function saveRegisterExt(dataRex) {
@@ -570,4 +572,16 @@ export const resetVerificaciones = () => {
   return {
     type: RESET_VERIFICACIONES
   }
+}
+
+export function finalizarViaje3g(data, vehiculo, comentarios, puntosAction, navInfo, nuevaEstacion) {
+  return {
+    type: FINALIZAR_VIAJE_3G,
+    data,
+    vehiculo,
+    comentarios,
+    puntosAction,
+    navInfo,
+    nuevaEstacion
+  };
 }
