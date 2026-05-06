@@ -107,11 +107,6 @@ function ViajeActivo (props) {
     const [vehiculoPrestamo, setVehiculoPrestamo] = useState('');
     const [distanciaMaxRenta, setDistanciaMaxRenta] = useState('');
     const [coordenadas, setCoordinadas] = useState([]);
-    const [segundos, setSegundos] = useState(props.dataRent.segundosResta);
-    const [minutos, setMinutos] = useState(props.dataRent.minutosResta);
-    const [horas, setHoras] = useState(props.dataRent.horasResta);
-    const [diaRestante, setDiaRestante] = useState(props.dataRent.diaResta); 
-    const [claveGenerada, setClaveGenerada] = useState(props.dataRent.clave); 
     const [isModalCancelVisible, setIsModalCancelVisible] = useState(false);
     const [touchRentar, setTouchRentar] = useState(false);
     const [position1, setPosition1 ] = useState({lat: '',lng: ''});
@@ -121,35 +116,34 @@ function ViajeActivo (props) {
 
     const goHome3G = () => { RootNavigation.navigate('Home3G') }
     
-    useEffect(()=>{
-        setSegundos(props.dataRent.segundosResta);
-        setMinutos(props.dataRent.minutosResta);
-        setHoras(props.dataRent.horasResta);
-        setDiaRestante(props.dataRent.diaResta); 
-        setClaveGenerada(props.dataRent.clave);
-    },[props.dataRent.segundosResta])
+    const [tiempoTranscurrido, setTiempoTranscurrido] = useState({ h: 0, m: 0, s: 0 });
 
-    useEffect(()=>{
-        const timer = setInterval(() => {
-            if (segundos > 0) {
-                setSegundos(segundos + 1);
-                }else if(segundos == 0 && minutos > 0){
-                setMinutos(minutos + 1);
-                setSegundos(59);
-                }else if(segundos == 0 && minutos == 0 && horas > 0){
-                setHoras(horas + 1);
-                setMinutos(59);
-                setMinutos(59);
-                }else if(segundos == 0 && minutos == 0 && horas == 0 && diaRestante > 0){
-                setDiaRestante(diaRestante + 1);
-                setHoras(23);
-                setMinutos(59);
-                setMinutos(59);
-                }else{
-                }
-        }, 1000);
-        return () => clearInterval(timer);
-    },[segundos])
+    useEffect(() => {
+        let interval = null;
+        const updateTimer = () => {
+            if (props.dataRent.prestamo?.data?.length > 0) {
+                const fechaInicioRenta = props.dataRent.prestamo.data[0].pre_retiro_fecha;
+                const start = new Date(fechaInicioRenta).getTime();
+                const now = new Date().getTime();
+                const diff = Math.max(0, now - start);
+                
+                const h = Math.floor(diff / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                setTiempoTranscurrido({ h, m, s });
+            }
+        };
+
+        if (props.dataRent.prestamoActivo) {
+            updateTimer();
+            interval = setInterval(updateTimer, 1000);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [props.dataRent.prestamoActivo, props.dataRent.prestamo]);
 
     ///////////// modal ///////////////
     const displayBackgroundInfoModal = (value) => {
@@ -494,51 +488,37 @@ function ViajeActivo (props) {
     }
 
     // función que programa la notificación si no está activa
-    /*const programarNotificacion = async (fecha) => {
-    try {
-        console.log('Verificando si ya hay notificación activa...');
+    const programarNotificacion = async (fecha) => {
+        try {
+            console.log('Verificando si ya hay notificación activa...');
+            const activa = await AsyncStorage.getItem('notificacion2HorasActiva');
+            if (activa === 'true') {
+                console.log('⚠️ Ya existe una notificación activa, no se vuelve a programar.');
+                return;
+            }
 
-        // revisamos en el storage si ya está activa
-        const activa = await AsyncStorage.getItem('notificacion2HorasActiva');
+            if (Platform.OS === 'android') {
+                await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+            }
 
-        if (activa === 'true') {
-        console.log('⚠️ Ya existe una notificación activa, no se vuelve a programar.');
-        return;
+            console.log('⏰ Programando notificación de 2 horas antes...');
+            Notificacion2HorasModule.programarNotificacion2Horas(fecha);
+
+            await AsyncStorage.setItem('notificacion2HorasActiva', 'true');
+            console.log('✅ Notificación marcada como activa en AsyncStorage');
+        } catch (error) {
+            console.error('Error programando notificación:', error);
         }
-
-        // pedimos permiso (solo una vez es suficiente)
-        await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-        );
-
-        console.log('⏰ Programando notificación de 2 horas antes...');
-        Notificacion2HorasModule.programarNotificacion2Horas(fecha);
-
-        // guardamos bandera en storage
-        await AsyncStorage.setItem('notificacion2HorasActiva', 'true');
-        console.log('✅ Notificación marcada como activa en AsyncStorage');
-    } catch (error) {
-        console.error('Error programando notificación:', error);
-    }
     };
 
     useEffect(() => {
-    if (props.dataRent.fechaVecimiento) {
-        const fechaString = props.dataRent.fechaVecimiento;
-        console.log('FECHA DE VENCIMIENTO (string)', fechaString);
-
-        // ✅ Convertimos string → Date
-        const fecha = new Date(fechaString);
-
-        // ✅ Obtenemos timestamp en milisegundos
-        const fechaMillis = fecha.getTime();
-
-        console.log('FECHA DE VENCIMIENTO (Date)', fecha);
-        console.log('FECHA DE VENCIMIENTO (millis)', fechaMillis);
-
-        programarNotificacion(fechaMillis);
-    }
-    }, [props.dataRent.fechaVecimiento]);*/ //DESCOMENTAR PARA NOTIFICACIONES  HORAS
+        if (props.dataRent.fechaVecimiento) {
+            const fechaString = props.dataRent.fechaVecimiento;
+            const fecha = new Date(fechaString);
+            const fechaMillis = fecha.getTime();
+            programarNotificacion(fechaMillis);
+        }
+    }, [props.dataRent.fechaVecimiento]);
 
     useEffect(() => {
         if (props.perfil.empresa !== null) {
@@ -643,50 +623,10 @@ function ViajeActivo (props) {
     //const [segundosV, setSegundosV] = useState(props.dataRent.CronometroStorageVP.CronometroStorageVP.segundos ? props.dataRent.CronometroStorageVP.CronometroStorageVP.segundos : 0);
     //const [minutosV, setMinutosV] = useState(props.dataRent.CronometroStorageVP.CronometroStorageVP.minutos ? props.dataRent.CronometroStorageVP.CronometroStorageVP.minutos : 0);
     //const [horasV, setHorasV] = useState(props.dataRent.CronometroStorageVP.CronometroStorageVP.horas ? props.dataRent.CronometroStorageVP.CronometroStorageVP.horas : 0);
-    const [segundosV, setSegundosV] = useState(props.dataRent.segundosRentaTrans);
-    const [minutosV, setMinutosV] = useState(props.dataRent.minutosRentaTrans);
-    const [horasV, setHorasV] = useState(props.dataRent.horasRentaTrans);
-    const [activoV, setActivoV] = useState(false);
-    const [intervaloV, setIntervaloV] = useState(null);
-
-        useEffect(()=>{
-            setSegundosV(props.dataRent.segundosRentaTrans);
-            setMinutosV(props.dataRent.minutosRentaTrans);
-            setHorasV(props.dataRent.horasRentaTrans);
-        },[props.dataRent.segundosRentaTrans])
 
 
-    const cronometroVRenta = () => {   
-        console.log('iniciando cronómetro')
-        if (activoV) {
-          console.log('viaje pausadooooo')
-          clearInterval(intervaloV);
-          setActivoV(false);
-        } else {
-          console.log('iniciando activo')
-          const idIntervaloV = setInterval(() => {
-            setSegundosV(prevSegundosV => prevSegundosV + 1);
-          }, 1000);
-          setIntervaloV(idIntervaloV);
-          setActivoV(true);
-        }
-    };
     
-    useEffect(() => {
-        return () => clearInterval(intervaloV);
-    }, [intervaloV]);
 
-    const incrementarMin = () => {
-        console.log('otro minuto');
-        setSegundosV(0);
-        setMinutosV(minutosV + 1);
-        if (activoV) {
-            getPosition();
-            //guardarsegundosCronometroStorageVP(); 
-        }else{
-            console.log('viaje pausado')
-        }   
-    }
 
     /*const remove = (str, word) => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
@@ -750,6 +690,7 @@ function ViajeActivo (props) {
                                     iniciar={true}
                                     indicadores={indicadores}
                                     modo={Env.modo}
+                                    fechaInicio={props.dataRent.prestamo?.data[0]?.pre_retiro_fecha}
                                 />
 
                                 {
@@ -830,11 +771,9 @@ function ViajeActivo (props) {
                                     <Text style={estilos.textVehiculo2}>TIEMPO</Text>
                                     <View style={estilos.subIndicadores}>
                                         <Text style={estilos.textsubIndicadures}>
-                                        { (horasV < 10 ) ? "0" + horasV:"" + horasV} :  
-                                        { (minutosV < 10) ? " 0" + minutosV:"" + minutosV} : 
-                                        { (segundosV < 10) ? " 0" + segundosV:"" + segundosV}
-
-                                        { (segundosV === 60) ? incrementarMin() : <></>}
+                                        { (tiempoTranscurrido.h < 10 ) ? "0" + tiempoTranscurrido.h:"" + tiempoTranscurrido.h} :  
+                                        { (tiempoTranscurrido.m < 10) ? " 0" + tiempoTranscurrido.m:"" + tiempoTranscurrido.m} : 
+                                        { (tiempoTranscurrido.s < 10) ? " 0" + tiempoTranscurrido.s:"" + tiempoTranscurrido.s}
                                         </Text>
                                     </View>
                                 </View>  

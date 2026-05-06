@@ -66,14 +66,14 @@ function Home4G(props) {
 
   const conectarArduino = async (data) => {
     console.log('la data en conectarArduino', data)
-    console.log('la mac', data.bc_bicicletero.bro_bluetooth)
-    console.log('claveo', data.bc_bicicletero.bro_clave)
+    console.log('la mac', data.bic_bluetooth)
+    console.log('claveo', data.bic_clave)
     console.log('props.dataRent.reservas home', props.dataRent.reservas)
     if (mac !== 'sin mac') {
       setMacCargado(true);
-      setMac(data.bc_bicicletero.bro_bluetooth);
+      setMac(data.bic_bluetooth);
       setclaveHC05Cargada(true);
-      setclaveHC05(data.bc_bicicletero.bro_clave);
+      setclaveHC05(data.bic_clave);
       setNumVehiculo(data.bic_numero);
     }
   }
@@ -448,61 +448,61 @@ function Home4G(props) {
               </View>
               :
               (!props.dataRent.dataRentaVerificada || !props.dataRent.dataReservaVerificada) ?
-              <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 30 }}>
-                <ActivityIndicator size="large" color={Colors.$blanco} />
-                <Text style={{ fontFamily: Fonts.$poppinsregular, color: Colors.$blanco, marginTop: 10 }}>Verificando viajes...</Text>
-              </View>
-              :
-              <View style={{
-                width: '100%',
-                height: 'auto',
-                alignItems: 'center',
-                justifyContent: 'center',
+                <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 30 }}>
+                  <ActivityIndicator size="large" color={Colors.$blanco} />
+                  <Text style={{ fontFamily: Fonts.$poppinsregular, color: Colors.$blanco, marginTop: 10 }}>Verificando viajes...</Text>
+                </View>
+                :
+                <View style={{
+                  width: '100%',
+                  height: 'auto',
+                  alignItems: 'center',
+                  justifyContent: 'center',
 
-              }}>
-                <Text style={styles.titulo}>Movilidad 4G</Text>
-                {
-                  Env.modo === 'tablet' ?
-                    ''
-                    :
-                    <View style={{
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: Dimensions.get('window').width,
-                      height: 'auto',
-                    }}>
-                      <LottieView source={require('../../Resources/Lotties/bicy_03.json')} autoPlay loop
-                        style={{
-                          width: Dimensions.get('window').width,
-                          height: 350
-                        }} />
-                    </View>
-                }
-
-
-
-                {
-                  Env.modo === 'tablet' ?
-                    <></>
-                    :
-                    <View style={styles.containerButtons}>
-                      <Pressable
-                        onPress={() => { reservar() }}
-                        style={styles.button}>
-                        <Text style={styles.textButton}>Reservar</Text>
-                      </Pressable>
-                    </View>
-                }
+                }}>
+                  <Text style={styles.titulo}>Movilidad 4G</Text>
+                  {
+                    Env.modo === 'tablet' ?
+                      ''
+                      :
+                      <View style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: Dimensions.get('window').width,
+                        height: 'auto',
+                      }}>
+                        <LottieView source={require('../../Resources/Lotties/bicy_03.json')} autoPlay loop
+                          style={{
+                            width: Dimensions.get('window').width,
+                            height: 350
+                          }} />
+                      </View>
+                  }
 
 
-                {/*<View style={styles.containerButtons}>
+
+                  {
+                    Env.modo === 'tablet' ?
+                      <></>
+                      :
+                      <View style={styles.containerButtons}>
+                        <Pressable
+                          onPress={() => { reservar() }}
+                          style={styles.button}>
+                          <Text style={styles.textButton}>Reservar</Text>
+                        </Pressable>
+                      </View>
+                  }
+
+
+                  {/*<View style={styles.containerButtons}>
               <Pressable 
                 onPress={() => { vehiculos() }} 
                 style={styles.button}>
                 <Text style={styles.textButton}>Rentar</Text>
               </Pressable>
             </View>*/}
-              </View>
+                </View>
           }
 
         </View>

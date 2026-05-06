@@ -46,8 +46,8 @@ class ForegroundService: NSObject, CLLocationManagerDelegate {
 
     private func createNotification() {
         let content = UNMutableNotificationContent()
-        content.title = "Rastreo Activo"
-        content.body = "La aplicación está registrando tu ubicación"
+        content.title = "Rastreo SP"
+        content.body = "Se ha iniciado el rastreo sp"
         content.sound = .default
 
         let request = UNNotificationRequest(identifier: "ForegroundServiceNotification", content: content, trigger: nil)

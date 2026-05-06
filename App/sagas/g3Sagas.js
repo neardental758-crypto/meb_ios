@@ -226,6 +226,18 @@ function* viewRentActive3g(action) {
 				Alert.alert('Tienes un error en el último viaje, comunícate con soporte.');
 				yield put({ type: FETCH_ERROR_RENT, payload: rent });
 			} else {
+				console.log('🧹 No se encontró viaje activo en el servidor. Limpiando datos locales por seguridad...');
+				yield call([AsyncStorage, AsyncStorage.multiRemove], [
+					'rutaCoordinates',
+					'vehiculoVP',
+					'isTrackingActive',
+					'posicionInicial',
+					'indicadores',
+					'startTime',
+					'tiempoGuardado',
+					'distanciaRecorrida',
+					'notificacion2HorasActiva'
+				]);
 				yield put({ type: FETCH_FAILD_RENT })
 			}
 
@@ -261,6 +273,18 @@ function* viewRentActive3gPP(action) {
 				Alert.alert('Tienes un error en el último viaje, comunícate con soporte.');
 				yield put({ type: FETCH_ERROR_RENT, payload: rent });
 			} else {
+				console.log('🧹 No se encontró viaje activo PP en el servidor. Limpiando datos locales por seguridad...');
+				yield call([AsyncStorage, AsyncStorage.multiRemove], [
+					'rutaCoordinates',
+					'vehiculoVP',
+					'isTrackingActive',
+					'posicionInicial',
+					'indicadores',
+					'startTime',
+					'tiempoGuardado',
+					'distanciaRecorrida',
+					'notificacion2HorasActiva'
+				]);
 				yield put({ type: FETCH_FAILD_RENT })
 			}
 
@@ -642,24 +666,60 @@ function* savePrestamoBC3g(action) {
 			let user = yield getItem('user');
 			let preoperacionales = yield select((state) => state.reducerPerfil.form_preoperacional);
 
-			let tabla = 'bc_prestamos/prestamoActivo'
-			let rentID = yield api.get_tabla_cc_sinid(tabla, user.idNumber);
+			// Obtener el ID del viaje recién creado
+			let idViaje = null;
+			console.log('📦 Cuerpo de respuesta del préstamo:', JSON.stringify(prestamo.body, null, 2));
 
-			console.log('la renta ya guardada', rentID);
-
-			let formPre = {
-				"id": new Date().getTime(),
-				"usuario": user.idNumber,
-				"idViaje": rentID.data[0].pre_id,
-				"modulo": '3G-4G',
-				"respuestas": preoperacionales.respuestas,
-				"comentario": preoperacionales.comentario
+			if (prestamo.body && prestamo.body.data) {
+				idViaje = Array.isArray(prestamo.body.data) ? prestamo.body.data[0]?.pre_id : prestamo.body.data.pre_id;
 			}
-			console.log('ANtes de guardar preoperacional', formPre)
-			//Acá agregamos el registro de preoperacional
-			let preoperacional = yield api.guardandoPreoperacionales('bc_preoperacionales/registrar', formPre);
-			console.log('UUUUU la respuesta de preoperacionales al guaradr', preoperacional)
 
+			// Si no viene en la respuesta o es '0', lo buscamos en la base de datos con reintentos
+			if (!idViaje || idViaje === '0' || idViaje === 0) {
+				console.log('⚠️ ID no encontrado o es "0" en la respuesta. Iniciando reintentos...');
+				let attempts = 0;
+				const maxAttempts = 3;
+				
+				while (attempts < maxAttempts && (!idViaje || idViaje === '0' || idViaje === 0)) {
+					attempts++;
+					console.log(`🔍 Reintento ${attempts} de obtener pre_id...`);
+					yield delay(1500); // Esperar 1.5 segundos entre reintentos
+					
+					let tablaActivo = 'bc_prestamos/prestamoActivo';
+					let rentID = yield api.get_tabla_cc_sinid(tablaActivo, user.idNumber);
+					console.log(`📄 Resultado reintento ${attempts}:`, JSON.stringify(rentID, null, 2));
+
+					if (rentID && rentID.data && rentID.data.length > 0) {
+						idViaje = rentID.data[0].pre_id;
+						if (idViaje && idViaje !== '0' && idViaje !== 0) {
+							console.log('✅ ID encontrado en reintento:', idViaje);
+							break;
+						}
+					}
+				}
+			}
+
+			console.log('🎯 ID FINAL para preoperacional:', idViaje);
+
+			if (idViaje && preoperacionales && preoperacionales.respuestas) {
+				let formPre = {
+					"id": new Date().getTime(),
+					"usuario": user.idNumber,
+					"idViaje": idViaje,
+					"modulo": '3G-4G',
+					"respuestas": preoperacionales.respuestas,
+					"comentario": preoperacionales.comentario || ''
+				}
+				console.log('Antes de guardar preoperacional:', JSON.stringify(formPre, null, 2))
+				// Acá agregamos el registro de preoperacional
+				let preoperacional = yield api.guardandoPreoperacionales('bc_preoperacionales/registrar', formPre);
+				console.log('Respuesta de guardado preoperacional:', preoperacional)
+			} else {
+				console.log('No se pudo guardar el preoperacional: ID de viaje o respuestas faltantes');
+				console.log('ID Viaje:', idViaje);
+				console.log('Preoperacionales:', preoperacionales);
+			}
+			
 			let estacion = action.estacion;
 			let vehiculo = action.vehiculo;
 			let clave = yield api.viewKeyBicicletero('bc_bicicleteros/estacion', estacion, vehiculo);
@@ -764,6 +824,7 @@ function* changeReservaBc() {
 ////////////////////////////////////////////////////////////////////
 function* finalizarViaje3gSaga(action) {
 	try {
+		console.log('📦 Data recibida en finalizarViaje3gSaga:', JSON.stringify(action.data, null, 2));
 		const {
 			pre_id,
 			pre_devolucion_fecha,
@@ -772,7 +833,8 @@ function* finalizarViaje3gSaga(action) {
 			historialClaves,
 			comentario,
 			puntos,
-			claveData
+			claveData,
+			nuevaEstacion
 		} = action.data;
 
 		console.log('🏁 Iniciando proceso atómico de finalización 3G para préstamo:', pre_id);
@@ -784,7 +846,7 @@ function* finalizarViaje3gSaga(action) {
 			pre_devolucion_fecha: pre_devolucion_fecha,
 			pre_duracion: '0',
 			pre_estado: 'FINALIZADA',
-			...(action.nuevaEstacion ? { pre_devolucion_estacion: action.nuevaEstacion } : {})
+			...(nuevaEstacion ? { pre_devolucion_estacion: nuevaEstacion } : {})
 		};
 		const resPrestamo = yield call(api.patchEstadoPrestamo, tablaPrestamo, dataPrestamo);
 		if (resPrestamo.error) throw new Error('Error al finalizar el préstamo: ' + JSON.stringify(resPrestamo.error));
@@ -793,8 +855,15 @@ function* finalizarViaje3gSaga(action) {
 		const tablaVehiculo = 'bc_bicicletas/updateEstado';
 		const dataVehiculo = {
 			bic_id: vehiculo,
-			bic_estado: estadoV
+			bic_estado: estadoV,
+			...(claveData?.bic_clave ? { bic_clave: claveData.bic_clave } : {})
 		};
+
+		// 2.1 Actualizar estación del vehículo si es intercambiable
+		if (nuevaEstacion) {
+			dataVehiculo.bic_estacion = nuevaEstacion;
+		}
+
 		const resVehiculo = yield call(api.changeVehiculo, tablaVehiculo, dataVehiculo);
 		if (resVehiculo !== 'ok') throw new Error('Error al actualizar estado del vehículo');
 
@@ -816,12 +885,6 @@ function* finalizarViaje3gSaga(action) {
 			if (resPuntos.error) throw new Error('Error al guardar puntos');
 		}
 
-		// 6. Cambiar clave del bicicletero (Crucial)
-		if (claveData) {
-			const resClave = yield call(api.changeClave, 'bc_bicicleteros/changeKey', claveData);
-			if (resClave.error) throw new Error('Error al cambiar la clave del bicicletero');
-		}
-
 		// Si todo salió bien
 		yield put({ type: FINALIZAR_VIAJE_3G_OK });
 		yield put({ type: CHANGE_ESTADO_PRESTAMO_OK }); // Mantener compatibilidad con reducers actuales
@@ -835,6 +898,7 @@ function* finalizarViaje3gSaga(action) {
 		yield put({ type: FETCH_ERROR_RENT, error: errorMessage });
 	}
 }
+
 
 function* watchFinalizarViaje3g() {
 	yield takeLatest(FINALIZAR_VIAJE_3G, finalizarViaje3gSaga);

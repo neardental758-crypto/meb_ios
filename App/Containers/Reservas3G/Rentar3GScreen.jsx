@@ -724,12 +724,8 @@ function Rentar3GScreen(props) {
                 numVehiculo: data.bic_numero
             }));
 
-            // Registro del bicicletero con validación defensiva
-            if (data.bc_bicicletero?.bro_id) {
-                dispatch(saveStateBicicletero(data.bc_bicicletero.bro_id));
-            } else {
-                console.warn('⚠️ Vehículo sin información de bicicletero:', data.bic_id);
-            }
+            // Registro del identificador del vehículo (antes bicicletero)
+            dispatch(saveStateBicicletero(data.bic_id));
 
             // Según requerimiento: "aparece el preoperacional" al seleccionar
             setModalTest(true);
@@ -817,7 +813,6 @@ function Rentar3GScreen(props) {
     const guardarPrestamo = async () => {
         let vehiculoPrestamo = '';
         let estacionPrestamo = '';
-        let bicicletero = '';
         let reservaId = '';
         let hoy = new Date();
         let dia = state.dia;
@@ -828,7 +823,6 @@ function Rentar3GScreen(props) {
         if (props.dataRent.reservas === 0) {
             vehiculoPrestamo = state.ticket;
             estacionPrestamo = state.estacionSelect;
-            bicicletero = props.dataRent.idBicicletero;
             reservaId = 'sinreserva';
 
             const horario = Number(state.horarioSelect);
@@ -841,7 +835,6 @@ function Rentar3GScreen(props) {
         } else {
             vehiculoPrestamo = props.dataRent.reservas.data[0].res_bicicleta;
             estacionPrestamo = props.dataRent.reservas.data[0].res_estacion;
-            bicicletero = props.dataRent.dataVehiculoReserva.bc_bicicletero.bro_id;
             reservaId = props.dataRent.reservas.data[0].res_id;
 
             const tiempo = Number(props.dataRent.tiempoRestante);
@@ -869,11 +862,9 @@ function Rentar3GScreen(props) {
             "pre_usuario": infoUser.DataUser.idNumber,
             "pre_bicicleta": vehiculoPrestamo,
             "pre_retiro_estacion": estacionPrestamo,
-            "pre_retiro_bicicletero": bicicletero,
             "pre_retiro_fecha": ahora.toJSON(),
             "pre_retiro_hora": timeString,
             "pre_devolucion_estacion": estacionPrestamo,
-            "pre_devolucion_bicicletero": bicicletero,
             "pre_devolucion_fecha": fechaVenceISO,
             "pre_devolucion_hora": timeString,
             "pre_duracion": "null",

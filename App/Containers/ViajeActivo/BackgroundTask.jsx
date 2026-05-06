@@ -34,7 +34,7 @@ const mapRef = React.createRef();
 const keyMap = Env.key_map_google;
 
 export function BackgroundTask(props) {
-    const { size = 25, terminadoTrip, estacionPrestamo, time, minutes, iniciar, indicadores, modo } = props;
+    const { size = 25, terminadoTrip, estacionPrestamo, time, minutes, iniciar, indicadores, modo, fechaInicio } = props;
     const [isRunning, setIsRunning] = useState(false);
     const [segundos, setSegundos] = useState(0);
     const [minutos, setMinutos] = useState(0);
@@ -58,39 +58,30 @@ export function BackgroundTask(props) {
     const [appState, setAppState] = useState(AppState.currentState);
 
     const startLocationService = () => {
-        if (LocationServiceModule) {
-            LocationServiceModule.startService(false);
+        if (Platform.OS === 'android') {
+            LocationServiceModule.startService(false)
         }
     };
     const stopLocationService = () => {
-        if (LocationServiceModule) {
-            LocationServiceModule.stopService();
+        if (Platform.OS === 'android') {
+            LocationServiceModule.stopService()
         }
     };
 
     const syncCoordinatesDistance = async () => {
         try {
-            // SharedPreferencesModule works on both Android and iOS (reads from UserDefaults on iOS)
-            if (!SharedPreferencesModule) {
-                return;
-            }
             const storedCoordinates = await SharedPreferencesModule.getCoordinates();
             const storedDistance = await SharedPreferencesModule.getDistance();
 
             // Validar que se obtengan datos válidos
-            if (!storedCoordinates || storedDistance === undefined) {
+            if (!storedCoordinates || !storedDistance) {
                 //console.warn('No se encontraron coordenadas o distancia almacenada.');
                 return;
             }
 
             try {
-                // En iOS el bridge suele retornar el objeto directamente, en Android lo retorna como string JSON.
-                let parsedCoordinates;
-                if (typeof storedCoordinates === 'string') {
-                    parsedCoordinates = JSON.parse(storedCoordinates);
-                } else {
-                    parsedCoordinates = storedCoordinates;
-                }
+                // Parsear las coordenadas
+                const parsedCoordinates = JSON.parse(storedCoordinates);
 
                 // Validar que las coordenadas sean un array
                 if (!Array.isArray(parsedCoordinates)) {
@@ -321,10 +312,11 @@ export function BackgroundTask(props) {
 
     const guardarTiempo = async () => {
         try {
-            const tiempoGuardado = await AsyncStorage.getItem('startTime'); // Cambiado a 'startTime' para mayor claridad
+            const tiempoGuardado = await AsyncStorage.getItem('startTime');
             if (!tiempoGuardado) {  // Solo guarda si no existe
                 const tiempo = Date.now(); // Tiempo actual en milisegundos
                 await AsyncStorage.setItem('startTime', JSON.stringify(tiempo)); // Guardar tiempo en milisegundos
+                await AsyncStorage.setItem('totalPauseDuration', '0');
             } else {
                 console.log('El tiempo ya fue guardado en el storage');
             }
@@ -333,47 +325,90 @@ export function BackgroundTask(props) {
         }
     };
 
-    const iniciarCronometro = async () => {
+    const calcularYSetearTiempo = async () => {
         try {
-            const tiempoGuardado = await AsyncStorage.getItem('startTime');
-            if (tiempoGuardado) {
-                const startTime = JSON.parse(tiempoGuardado); // Convertir de string a número
-                const intervalo = setInterval(() => {
-                    const tiempoActual = Date.now();
-                    const tiempoTranscurrido = Math.floor((tiempoActual - startTime) / 1000); // En segundos
+            let startTime;
+            let totalPauseDuration = 0;
 
-                    const lasHoras = Math.floor(tiempoTranscurrido / 3600); // Calcula las horas
-                    const losMinutos = Math.floor((tiempoTranscurrido % 3600) / 60); // Calcula los minutos
-                    const losSegundos = tiempoTranscurrido % 60; // Calcula los segundos
+            if (fechaInicio) {
+                startTime = new Date(fechaInicio).getTime();
+                totalPauseDuration = 0;
+            } else {
+                const startTimeStr = await AsyncStorage.getItem('startTime');
+                const totalPauseStr = await AsyncStorage.getItem('totalPauseDuration');
+                const pauseStartStr = await AsyncStorage.getItem('pauseStartTime');
 
-                    // Formatear con ceros iniciales si el valor es menor a 10
-                    const formatoHoras = lasHoras < 10 ? `0${lasHoras}` : lasHoras;
-                    const formatoMinutos = losMinutos < 10 ? `0${losMinutos}` : losMinutos;
-                    const formatoSegundos = losSegundos < 10 ? `0${losSegundos}` : losSegundos;
+                if (startTimeStr) {
+                    startTime = JSON.parse(startTimeStr);
+                    totalPauseDuration = JSON.parse(totalPauseStr || '0');
 
-                    // Actualizar el cronómetro con formato hh:mm:ss
-                    setTiempoViaje(`${formatoHoras}:${formatoMinutos}:${formatoSegundos}`);
-                    setMinutos(losMinutos); // Puedes eliminar esto si ya no necesitas guardar solo los minutos
-                    setHoras(lasHoras);
-                }, 1000); // Actualiza cada segundo
+                    let tiempoActual = Date.now();
 
-                return () => clearInterval(intervalo); // Limpia el intervalo al desmontar el componente
+                    if (pauseStartStr) {
+                        const pauseStart = JSON.parse(pauseStartStr);
+                        totalPauseDuration += (tiempoActual - pauseStart);
+                    }
+                } else {
+                    return;
+                }
             }
+
+            const tiempoActual = Date.now();
+            const tiempoTranscurrido = Math.max(0, Math.floor((tiempoActual - startTime - totalPauseDuration) / 1000));
+
+            const lasHoras = Math.floor(tiempoTranscurrido / 3600);
+            const losMinutos = Math.floor((tiempoTranscurrido % 3600) / 60);
+            const losSegundos = tiempoTranscurrido % 60;
+
+            const formatoHoras = lasHoras < 10 ? `0${lasHoras}` : lasHoras;
+            const formatoMinutos = losMinutos < 10 ? `0${losMinutos}` : losMinutos;
+            const formatoSegundos = losSegundos < 10 ? `0${losSegundos}` : losSegundos;
+
+            setTiempoViaje(`${formatoHoras}:${formatoMinutos}:${formatoSegundos}`);
+            setMinutos(losMinutos);
+            setHoras(lasHoras);
         } catch (error) {
-            console.log('Error al recuperar el tiempo de inicio:', error);
+            console.log('Error al calcular tiempo:', error);
         }
     };
 
     useEffect(() => {
+        let intervalo = null;
         if (viajeActivo) {
-            iniciarCronometro(); // Inicia el cronómetro si el viaje está activo
-            sincronizarDatosNativos(); // Inicia la sincronización de datos nativos 5 seg
+            // Calcular inmediatamente
+            calcularYSetearTiempo();
+
+            // Si está corriendo, actualizamos cada segundo
+            if (isRunning) {
+                intervalo = setInterval(() => {
+                    calcularYSetearTiempo();
+                }, 1000);
+            }
+
+            sincronizarDatosNativos();
         }
-    }, [viajeActivo]);
+        return () => {
+            if (intervalo) clearInterval(intervalo);
+        };
+    }, [viajeActivo, isRunning]);
 
     const startTracking = async () => {
         try {
             console.log('iniciando rastreo nativo')
+
+            // Si estaba pausado, acumulamos la duración de la pausa
+            const pauseStartStr = await AsyncStorage.getItem('pauseStartTime');
+            if (pauseStartStr) {
+                const pauseStart = JSON.parse(pauseStartStr);
+                const totalPauseStr = await AsyncStorage.getItem('totalPauseDuration');
+                let totalPauseDuration = JSON.parse(totalPauseStr || '0');
+
+                totalPauseDuration += (Date.now() - pauseStart);
+
+                await AsyncStorage.setItem('totalPauseDuration', JSON.stringify(totalPauseDuration));
+                await AsyncStorage.removeItem('pauseStartTime');
+            }
+
             await setIsRunning(true)
             await guardarposicionInicial();
             await guardarTiempo();
@@ -393,11 +428,11 @@ export function BackgroundTask(props) {
                 'distanciaRecorrida',
                 'isTrackingActive',
                 'posicionInicial',
-                'startTime'
+                'startTime',
+                'pauseStartTime',
+                'totalPauseDuration'
             ])
-            if (SharedPreferencesModule) {
-                await SharedPreferencesModule.clearCoordinates();
-            }
+            await SharedPreferencesModule.clearCoordinates();
             console.log('Datos de rastreo eliminados');
         } catch (err) {
             console.log('Error al limpiar los datos de rastreo:', err);
@@ -459,6 +494,7 @@ export function BackgroundTask(props) {
         try {
             if (isRunning) {
                 await stopLocationService();
+                await AsyncStorage.setItem('pauseStartTime', JSON.stringify(Date.now()));
                 setIsRunning(false);
             }
         } catch (err) {

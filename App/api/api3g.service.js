@@ -451,30 +451,19 @@ const patchEstadoPrestamo = async (tabla, data) => {
         });
 }*/
 const saveHistorialClaves_ = async (tabla, data) => {
-    const url = URLMysql + tabla;
+    let url = URLMysql + tabla;
     const request = {
         method: 'POST',
-        //headers: { 'Content-Type': 'application/json' }, // Asegúrate de incluir el header correcto
         body: JSON.stringify(data),
     };
-
-    try {
-        const response = await fetch(url, request);
-
-        // Verifica si la respuesta es exitosa
-        if (!response.ok) {
-            return { error: `Error: ${response.status} - ${response.statusText}` };
-        }
-
-        // Analiza la respuesta en formato JSON
-        const result = await response.json();
-        return result; // Retorna el resultado analizado
-    } catch (err) {
-        // Retorna el error como un objeto
-        console.error('Error en saveHistorialClaves_:', err);
-        return { error: err.message || 'Ocurrió un error inesperado' };
-    }
-};
+    return fetch(url, request)
+        .then(response => {
+            return response.body
+        }).catch((err) => {
+            console.log("error" + JSON.stringify(err))
+            return { error: err }
+        });
+}
 
 const saveComentarios = async (tabla, data) => {
     let url = URLMysql + tabla;

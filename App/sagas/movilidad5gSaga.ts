@@ -253,7 +253,6 @@ function* startTrip(action: any): any {
         // bikeInformation.bic_estacion is "Estacion tuempresa"
         // bro_id for "Estacion tuempresa" is 114
         const stationName = bikeInformation?.bic_estacion || "Estacion tuempresa";
-        const bicicleteroId = 114;
 
         const requestBody = {
             pre_id: 0,
@@ -261,11 +260,9 @@ function* startTrip(action: any): any {
             pre_usuario: user.idNumber || user.id || user.usu_documento,
             pre_bicicleta: parsedBikeId,
             pre_retiro_estacion: stationName,
-            pre_retiro_bicicletero: bicicleteroId,
             pre_retiro_fecha: dateString,
             pre_retiro_hora: timeString,
             pre_devolucion_estacion: stationName,
-            pre_devolucion_bicicletero: bicicleteroId,
             pre_devolucion_fecha: dateString,
             pre_devolucion_hora: timeString,
             pre_duracion: "null",
