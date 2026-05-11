@@ -1204,21 +1204,21 @@ PODS:
   - BoringSSL-GRPC/Interface (0.0.37)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
-  - FBAEMKit (18.0.2):
-    - FBSDKCoreKit_Basics (= 18.0.2)
+  - FBAEMKit (18.0.3):
+    - FBSDKCoreKit_Basics (= 18.0.3)
   - FBLazyVector (0.79.2)
-  - FBSDKCoreKit (18.0.2):
-    - FBAEMKit (= 18.0.2)
-    - FBSDKCoreKit_Basics (= 18.0.2)
-  - FBSDKCoreKit_Basics (18.0.2)
-  - FBSDKGamingServicesKit (18.0.2):
-    - FBSDKCoreKit (= 18.0.2)
-    - FBSDKCoreKit_Basics (= 18.0.2)
-    - FBSDKShareKit (= 18.0.2)
-  - FBSDKLoginKit (18.0.2):
-    - FBSDKCoreKit (= 18.0.2)
-  - FBSDKShareKit (18.0.2):
-    - FBSDKCoreKit (= 18.0.2)
+  - FBSDKCoreKit (18.0.3):
+    - FBAEMKit (= 18.0.3)
+    - FBSDKCoreKit_Basics (= 18.0.3)
+  - FBSDKCoreKit_Basics (18.0.3)
+  - FBSDKGamingServicesKit (18.0.3):
+    - FBSDKCoreKit (= 18.0.3)
+    - FBSDKCoreKit_Basics (= 18.0.3)
+    - FBSDKShareKit (= 18.0.3)
+  - FBSDKLoginKit (18.0.3):
+    - FBSDKCoreKit (= 18.0.3)
+  - FBSDKShareKit (18.0.3):
+    - FBSDKCoreKit (= 18.0.3)
   - Firebase/CoreOnly (12.8.0):
     - FirebaseCore (~> 12.8.0)
   - Firebase/Firestore (12.8.0):
@@ -4299,13 +4299,13 @@ SPEC CHECKSUMS:
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
-  FBAEMKit: 56a4f5a9607957b547b6458b17a98c5bb2736367
+  FBAEMKit: 2a6b529993713c185b02bc36f8c91129bf78dfb0
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
-  FBSDKCoreKit: 54f1240567e16862ab71c53c33dc347db5c524c5
-  FBSDKCoreKit_Basics: eb530cd6a79030dbb11df460aafb2767bcad9028
-  FBSDKGamingServicesKit: a967e47b5cbf759fb3e42a87f11a999aa7c36b24
-  FBSDKLoginKit: 6a70798793e499335a98fab1a758d7da34af196e
-  FBSDKShareKit: e52c6b1584c77c708bcb4001c9a48223c115cbd9
+  FBSDKCoreKit: 65d7f7a7d6fcc3aa6eb6e093ec737a4184fc6049
+  FBSDKCoreKit_Basics: 7bc9d8fde8f70985fba2ed7c1d07e319f969a991
+  FBSDKGamingServicesKit: fbf065fa50428f30d05417009d6c7ef76352110a
+  FBSDKLoginKit: 66d20fcb7afcafc0c420477662f96845cd1a5179
+  FBSDKShareKit: 837e908192dd6dc8f34aea673e62bb9570f75a99
   Firebase: 9a58fdbc9d8655ed7b79a19cf9690bb007d3d46d
   FirebaseAnalytics: f20bbad8cb7f65d8a5eaefeb424ae8800a31bdfc
   FirebaseAppCheckInterop: ba3dc604a89815379e61ec2365101608d365cf7d
@@ -4434,6 +4434,6 @@ SPEC CHECKSUMS:
   toolbar-android: 2a73856e98b750d7e71ce4644d3f41cc98211719
   Yoga: 50518ade05048235d91a78b803336dbb5b159d5d
 
-PODFILE CHECKSUM: 7f013177e53bd7350602128d9c082eaeb49f7fed
+PODFILE CHECKSUM: 39e9ece59818986c3398141dc99d9cce6a973efc
 
 COCOAPODS: 1.16.2
