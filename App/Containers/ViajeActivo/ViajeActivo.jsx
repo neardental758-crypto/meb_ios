@@ -121,8 +121,10 @@ function ViajeActivo (props) {
     useEffect(() => {
         let interval = null;
         const updateTimer = () => {
-            if (props.dataRent.prestamo?.data?.length > 0) {
-                const fechaInicioRenta = props.dataRent.prestamo.data[0].pre_retiro_fecha;
+            const prestamoData = props.dataRent.prestamo?.data;
+            const item = Array.isArray(prestamoData) ? prestamoData[0] : prestamoData;
+            if (item?.pre_retiro_fecha) {
+                const fechaInicioRenta = item.pre_retiro_fecha;
                 const start = new Date(fechaInicioRenta).getTime();
                 const now = new Date().getTime();
                 const diff = Math.max(0, now - start);
@@ -324,7 +326,9 @@ function ViajeActivo (props) {
         console.log('la longitud actual', lngActual)
     }
     const verState2 = () => { 
-        console.log('EL STATE PROPS ACT::::: ', props.dataRent.prestamo.data[0].pre_devolucion_fecha) 
+        const prestamoData = props.dataRent.prestamo?.data;
+        const item = Array.isArray(prestamoData) ? prestamoData[0] : prestamoData;
+        console.log('EL STATE PROPS ACT::::: ', item?.pre_devolucion_fecha) 
     }
     const verState3 = () => { 
         console.log('EL STATE PROPS ACT::::: ', props.dataUser) 
@@ -341,11 +345,13 @@ function ViajeActivo (props) {
     }
 
     const cambiarEstadoPrestamo = () => {
+        const prestamoData = props.dataRent.prestamo?.data;
+        const item = Array.isArray(prestamoData) ? prestamoData[0] : prestamoData;
         const data = {
-            "pre_id": props.dataRent.prestamo.data[0].pre_id,	
+            "pre_id": item?.pre_id,	
             "estado": 'VENCIDA'
         }
-        let vehiculo = props.dataRent.prestamo.data[0].pre_bicicleta;
+        let vehiculo = item?.pre_bicicleta;
         props.cambiarEstadoPrestamo(data, vehiculo, 'DISPONIBLE');
     }
 
@@ -690,7 +696,11 @@ function ViajeActivo (props) {
                                     iniciar={true}
                                     indicadores={indicadores}
                                     modo={Env.modo}
-                                    fechaInicio={props.dataRent.prestamo?.data[0]?.pre_retiro_fecha}
+                                    fechaInicio={
+                                        Array.isArray(props.dataRent.prestamo?.data) 
+                                        ? props.dataRent.prestamo?.data[0]?.pre_retiro_fecha 
+                                        : props.dataRent.prestamo?.data?.pre_retiro_fecha
+                                    }
                                 />
 
                                 {

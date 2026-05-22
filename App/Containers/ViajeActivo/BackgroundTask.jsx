@@ -69,6 +69,7 @@ export function BackgroundTask(props) {
     };
 
     const syncCoordinatesDistance = async () => {
+        if (Platform.OS !== 'android') return;
         try {
             const storedCoordinates = await SharedPreferencesModule.getCoordinates();
             const storedDistance = await SharedPreferencesModule.getDistance();
@@ -432,7 +433,9 @@ export function BackgroundTask(props) {
                 'pauseStartTime',
                 'totalPauseDuration'
             ])
-            await SharedPreferencesModule.clearCoordinates();
+            if (Platform.OS === 'android') {
+                await SharedPreferencesModule.clearCoordinates();
+            }
             console.log('Datos de rastreo eliminados');
         } catch (err) {
             console.log('Error al limpiar los datos de rastreo:', err);

@@ -262,8 +262,10 @@ function FinalizarViaje(props) {
         const clave = props.dataRent.clave;
         const digitos = clave.toString().length;
 
+        const isMicrosistema = props.dataRent.descripcionVehiculo && props.dataRent.descripcionVehiculo.toLowerCase().includes('microsistema');
+
         if (digitos === 4) {
-            if (props.dataRent.descripcionVehiculo !== 'microsistema') {
+            if (!isMicrosistema) {
                 estadoV = 'CAMBIAR CLAVE';
                 modulo__ = '3G';
             } else {
@@ -311,7 +313,7 @@ function FinalizarViaje(props) {
         };
 
         // Historial de claves (solo 3G)
-        if (digitos === 4 && props.dataRent.descripcionVehiculo !== 'microsistema') {
+        if (digitos === 4 && !isMicrosistema) {
             finalizationData.historialClaves = {
                 "his_id": "0",
                 "his_usuario": prestamoData.pre_usuario,

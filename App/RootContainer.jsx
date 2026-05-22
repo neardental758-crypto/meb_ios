@@ -59,6 +59,7 @@ import DrawerHomeScreen from './Containers/Screens/DrawerHomeScreen';
 import travelExperienceScreen from './Containers/Screens/travelExperienceScreen';
 import IsLoginScreen from './Containers/Screens/IsLoginScreen';
 import ButtonSignOffComponent from './Components/ButtonSignOffComponent';
+import UpdateChecker from './Components/UpdateChecker';
 import FaqScreen from './Containers/Screens/FaqScreen';
 // Screen integracion 3G
 //import Reservas3GScreen from './Containers/Screens/Reservas3GScreen';
@@ -737,10 +738,12 @@ function RootContainer(props) {
   });
 
   return (
-    <Drawer.Navigator
-      drawerContent={(props) => < MenuItem {...props} />}
-    >
-      {isSignedIn ? (
+    <>
+      <UpdateChecker />
+      <Drawer.Navigator
+        drawerContent={(props) => < MenuItem {...props} />}
+      >
+        {isSignedIn ? (
         <>
           <Drawer.Screen
             name="Home"
@@ -862,7 +865,8 @@ function RootContainer(props) {
           <Drawer.Screen name="RegisterViewScreen_6" component={RegisterViewScreen_6} options={{ headerShown: false }} />
         </>
       )}
-    </Drawer.Navigator>
+      </Drawer.Navigator>
+    </>
   );
 }
 

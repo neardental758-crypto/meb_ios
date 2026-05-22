@@ -888,9 +888,11 @@ function Rentar3GScreen(props) {
 
     const programarNotificacion = async () => {
         console.log('entrando para activar notificacion de 2 horas antes')
-        await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-        );
+        if (Platform.OS === 'android') {
+            await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+            );
+        }
         //const fechaEvento = new Date("2025-08-20T18:20:00"); // ejemplo
         await Notificacion2HorasModule.programarNotificacion2Horas(fechaVencimiento);
         await RootNavigation.navigate('ViajeActivo');
