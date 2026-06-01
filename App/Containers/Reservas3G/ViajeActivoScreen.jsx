@@ -17,6 +17,7 @@ import {
 import Images from '../../Themes/Images';
 //Components
 import React, { useState, useEffect } from 'react';
+import VersionCheck from 'react-native-version-check';
 import { connect } from 'react-redux';
 import Geolocation from 'react-native-geolocation-service';
 import { 
@@ -337,7 +338,7 @@ function ViajeActivoScreen (props) {
             "pre_devolucion_fecha": fechaVence,
             "pre_devolucion_hora": state.horas,
             "pre_duracion": "123",
-            "pre_dispositivo": "android",
+            "pre_dispositivo": Platform.OS + '-' + 'MEB' + '-' + VersionCheck.getCurrentVersion(),
             "pre_estado": "ACTIVA"
         }
         

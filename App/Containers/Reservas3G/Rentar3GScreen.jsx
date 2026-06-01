@@ -17,6 +17,7 @@ import {
     ActivityIndicator
 } from 'react-native';
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import VersionCheck from 'react-native-version-check';
 import { connect, useDispatch } from 'react-redux';
 import LottieView from 'lottie-react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -868,7 +869,7 @@ function Rentar3GScreen(props) {
             "pre_devolucion_fecha": fechaVenceISO,
             "pre_devolucion_hora": timeString,
             "pre_duracion": "null",
-            "pre_dispositivo": Platform.OS + '-' + 'MEB',
+            "pre_dispositivo": Platform.OS + '-' + 'MEB' + '-' + VersionCheck.getCurrentVersion(),
             "pre_estado": "ACTIVA",
             "pre_modulo": "3g"
         }

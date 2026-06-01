@@ -6,6 +6,7 @@
  */
 
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
+import VersionCheck from 'react-native-version-check';
 import { call, delay, put, select, takeLatest, race, take } from 'redux-saga/effects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -266,7 +267,7 @@ function* startTrip(action: any): any {
             pre_devolucion_fecha: dateString,
             pre_devolucion_hora: timeString,
             pre_duracion: "null",
-            pre_dispositivo: Platform.OS + '-' + '5g',
+            pre_dispositivo: Platform.OS + '-' + 'MEB' + '-' + VersionCheck.getCurrentVersion(),
             pre_estado: 'ACTIVA',
             pre_modulo: '5g'
         };

@@ -15,6 +15,7 @@ import {
     ScrollView
 } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
+import VersionCheck from 'react-native-version-check';
 import { connect, useDispatch } from 'react-redux';
 import LottieView from 'lottie-react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -423,7 +424,7 @@ function RentarActivaScreen(props) {
             "pre_devolucion_fecha": fechaVence.toJSON(),
             "pre_devolucion_hora": state.horas,
             "pre_duracion": "null",
-            "pre_dispositivo": Platform.OS,
+            "pre_dispositivo": Platform.OS + '-' + 'MEB' + '-' + VersionCheck.getCurrentVersion(),
             "pre_estado": "ACTIVA",
             "pre_modulo": "3g"
         }
