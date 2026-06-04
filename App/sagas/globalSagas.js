@@ -266,7 +266,7 @@ function* changeForgotPassword(action) {
 
     if (updateUser && updateUser.ok && (updateUser.status === 200 || updateUser.status === 204)) {
       // ✅ Aquí fue exitoso el cambio → ahora llamar fetch para enviar correo
-      yield api.enviar_recuperacion_password('bc_usuarios/correo_password_ride', forgot.email, request.password);
+      yield api.enviar_recuperacion_password('bc_usuarios/correo_password_meb', forgot.email, request.password);
 
       Alert.alert(
         'Alerta',
