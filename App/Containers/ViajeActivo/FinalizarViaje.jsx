@@ -262,10 +262,8 @@ function FinalizarViaje(props) {
         const clave = props.dataRent.clave;
         const digitos = clave.toString().length;
 
-        const isMicrosistema = props.dataRent.descripcionVehiculo && props.dataRent.descripcionVehiculo.toLowerCase().includes('microsistema');
-
         if (digitos === 4) {
-            if (!isMicrosistema) {
+            if (props.dataRent.descripcionVehiculo !== 'microsistema') {
                 estadoV = 'CAMBIAR CLAVE';
                 modulo__ = '3G';
             } else {
@@ -313,27 +311,29 @@ function FinalizarViaje(props) {
         };
 
         // Historial de claves (solo 3G)
-        if (digitos === 4 && !isMicrosistema) {
+        if (digitos === 4 && props.dataRent.descripcionVehiculo !== 'microsistema') {
             finalizationData.historialClaves = {
                 "his_id": "0",
-                "his_usuario": prestamoData.pre_usuario,
-                "his_estacion": estacionIntercambiable ? newStation : prestamoData.pre_retiro_estacion,
-                "his_bicicleta": prestamoData.pre_bicicleta,
-                "his_fecha": state.fecha.toJSON(),
+                "his_usuario": currentUserId,
+                "his_estacion": props.dataRent.prestamo.data[0].pre_retiro_estacion, // Usamos la de retiro ya que no hay intercambio
+                "his_bicicleta": currentBicId,
+                "his_fecha": fechaFin.toISOString(),
                 "his_clave_old": props.dataRent.clave,
                 "his_clave_new": state.claveNueva,
                 "his_estado": "CAMBIAR CLAVE"
             };
 
             finalizationData.claveData = {
-                "bic_id": prestamoData.pre_bicicleta,
+                "bic_id": currentBicId,
                 "bic_clave": state.claveNueva
             };
         }
 
         // Ejecutar proceso atómico
         await dispatch(finalizarViaje3g(finalizationData));
-
+        if (Env.modo === 'movil') {
+            await cancelarNotificacion();
+        }
         await clearTrackingData();
     }
 
