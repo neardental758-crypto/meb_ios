@@ -162,7 +162,7 @@ function Rentar_parqueo(props) {
                               color: Colors.$texto, borderRadius: 30, fontFamily: Fonts.$poppinsregular, textAlign: 'center', marginBottom: 20, paddingBottom: 10, paddingTop: 10, paddingRight: 20, paddingLeft: 20, width: "60%", backgroundColor: Colors.$parqueo_color_texto }}
                           placeholderTextColor={Colors.$parqueo_color_fondo}
                           value={inputQr}
-                          onChangeText={(data) => { setInputQr({data}) }}
+                          onChangeText={(data) => { setInputQr(data) }}
                           keyboardType="phone-pad"
                           numberOfLines={1}
                           fontSize={18}
@@ -607,7 +607,7 @@ function Rentar_parqueo(props) {
                                 <Bluetooth 
                                   mac={props.dataParqueo.lugar_parqueo.bluetooth} 
                                   macCargado={props.dataParqueo.validate_Qr}
-                                  claveHC05={props.dataParqueo.lugar_parqueo.clave}
+                                  claveHC05={props.dataParqueo.lugar_parqueo.clave+(Number(props.dataParqueo.horasSeleccionadas*60))}
                                   claveHC05Cargada={true}
                                   numVehiculo={props.dataParqueo.lugar_parqueo.numero}
                                   dataVehiculo={props.dataRent.vel_select.data}

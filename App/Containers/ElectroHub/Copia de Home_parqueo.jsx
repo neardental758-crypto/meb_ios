@@ -139,7 +139,7 @@ function Home(props) {
                               color: Colors.$texto, borderWidth: 1, borderColor: Colors.$texto50, borderRadius: 30, fontFamily: Fonts.$poppinsregular, textAlign: 'center', marginBottom: 20, paddingBottom: 10, paddingTop: 10, paddingRight: 20, paddingLeft: 20, width: "50%" }}
                           placeholderTextColor={Colors.$texto80}
                           value={inputQr}
-                          onChangeText={(data) => { setInputQr({data}) }}
+                          onChangeText={(data) => { setInputQr(data) }}
                           keyboardType="phone-pad"
                           numberOfLines={1}
                           placeholder="Código QR"></TextInput>

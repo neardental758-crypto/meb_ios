@@ -45,7 +45,7 @@ export function save_vel(id){
 export function validate_qr(qr, tipo, reserva) {
   return {
     type: VALIDATE_QR_PARQUEADEROS,
-    qr: tipo === 'scaner' ? qr : qr.data,
+    qr: qr,
     reserva: reserva
   }
 } 
