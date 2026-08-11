@@ -161,6 +161,8 @@ import Home5G from './Containers/Movilidad5g/Home5G';
 import QrScanScreen5G from './Containers/Movilidad5g/QrScanScreen';
 import TripScreen5G from './Containers/Movilidad5g/TripScreen5G';
 import TravelExperience5G from './Containers/Movilidad5g/TravelExperience5G';
+import IntroduccionMovilidadHome from './Containers/IntroduccionMovilidad/IntroduccionMovilidadHome';
+import IntroduccionModuloDetalle from './Containers/IntroduccionMovilidad/IntroduccionModuloDetalle';
 
 function RootContainer(props) {
 
@@ -177,6 +179,7 @@ function RootContainer(props) {
   const [_carro_compartido, set_carro_compartido] = useState(false);
   const [_ruta_corporativa, set_ruta_corporativa] = useState(false);
   const [_vehiculo_particular, set_vehiculo_particular] = useState(false);
+  const [_introduccion_movilidad, set_introduccion_movilidad] = useState(false);
   const [_prestamo_personalizado, set_prestamo_personalizado] = useState(false);
 
   const [correoInt, setCorreoInt] = useState('');
@@ -218,6 +221,8 @@ function RootContainer(props) {
           props.perfil.dataempresa[0]._carro_compartido === 'ACTIVO+PAGOS' ? true : false);
       set_ruta_corporativa(props.perfil.dataempresa[0]._ruta_corporativa === 'ACTIVO' ? true : false);
       set_vehiculo_particular(props.perfil.dataempresa[0]._vehiculo_particular === 'ACTIVO' ? true : false);
+      const tieneIntroduccion = Array.isArray(props.perfil.dataempresa) && props.perfil.dataempresa.some((emp) => emp._introduccion_movilidad === 'ACTIVO' || emp._introduccion_movilidad === 'ACTIVA');
+      set_introduccion_movilidad(tieneIntroduccion || props.perfil.dataempresa[0]._introduccion_movilidad === 'ACTIVO');
     }
   }, [props.perfil.empresaCargadas])
 
@@ -478,6 +483,16 @@ function RootContainer(props) {
                       <Text style={estilos.textBoton}>Inicio</Text>
                     </Pressable>
 
+                    {_introduccion_movilidad ?
+                      <Pressable
+                        onPress={() => navigation.navigate('IntroduccionMovilidadHome')}
+                        style={estilos.botonItem}
+                      >
+                        <Text style={estilos.textBotonCapacitaciones}>Capacitaciones</Text>
+                      </Pressable>
+                      : null
+                    }
+
                     {
                       _prestamo_personalizado ?
                         <Pressable
@@ -700,6 +715,15 @@ function RootContainer(props) {
       paddingLeft: 10,
       fontFamily: Fonts.$poppinsregular
     },
+    textBotonCapacitaciones: {
+      flex: 1,
+      fontSize: 18,
+      color: Colors.$primario,
+      paddingTop: 5,
+      paddingLeft: 10,
+      fontFamily: Fonts.$poppinsregular,
+      fontWeight: "bold",
+    },
     LineaVer: {
       width: 5,
       height: 40,
@@ -744,127 +768,130 @@ function RootContainer(props) {
         drawerContent={(props) => < MenuItem {...props} />}
       >
         {isSignedIn ? (
-        <>
-          <Drawer.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              headerStyle: {
-                backgroundColor: Colors.$primario,
-              },
-              headerTintColor: '#fff',
-            }}
-          />
-          <Drawer.Screen name="QrCodeScreen" component={QrCodeScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="BluetoothScreen" component={BluetoothScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="Reservar" component={Reservar3GScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="Rentar" component={Rentar3GScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="RentarActiva" component={RentarActivaScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="Home3G" component={Home3G} options={{ headerShown: false }} />
-          {/*<Drawer.Screen name="Finalizar3GScreen" component={Finalizar3GScreen} options={{ headerShown: false }}/>*/}
-          <Drawer.Screen name="Ayuda3GScreen" component={Ayuda3GScreen} options={{ headerShown: false }} />
-          {/*<Drawer.Screen name="Ajustes" component={SettingsScreen} />*/}
-          <Drawer.Screen name="Chatbot" component={Chatbot} options={{ headerShown: false }} />
-          <Drawer.Screen name="Soporte" component={SupportScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="Salir" component={ButtonSignOffComponent} options={{ headerShown: false }} />
-          <Drawer.Screen name="FaqScreen" component={FaqScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="NewTicketScreen" component={NewTicketScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="travelExperienceScreen" component={travelExperienceScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="TripScreen" component={TripScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="TripEndScreen" component={TripEndScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="FinishingScreen" component={FinishingScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="VerificationsScreent" component={VerificationsScreent} options={{ headerShown: false }} />
-          <Drawer.Screen name="MyVehiclesScreen" component={MyVehiclesScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterVehicleScreen" component={RegisterVehicleScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="TransPublicScreen" component={TransPublicScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="AvionScreen" component={AvionScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="StartTripScreen" component={StartTripScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="TestExperienceScreen" component={TestExperienceScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="ValidarQrScreen" component={ValidarQrScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="CargarDataUserVPScreen" component={CargarDataUserVPScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="HistorialScreen" component={HistorialScreen} options={{ headerShown: false }} />
+          <>
+            <Drawer.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                headerStyle: {
+                  backgroundColor: Colors.$primario,
+                },
+                headerTintColor: '#fff',
+              }}
+            />
+            <Drawer.Screen name="QrCodeScreen" component={QrCodeScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="BluetoothScreen" component={BluetoothScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="Reservar" component={Reservar3GScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="Rentar" component={Rentar3GScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="RentarActiva" component={RentarActivaScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="Home3G" component={Home3G} options={{ headerShown: false }} />
+            {/*<Drawer.Screen name="Finalizar3GScreen" component={Finalizar3GScreen} options={{ headerShown: false }}/>*/}
+            <Drawer.Screen name="Ayuda3GScreen" component={Ayuda3GScreen} options={{ headerShown: false }} />
+            {/*<Drawer.Screen name="Ajustes" component={SettingsScreen} />*/}
+            <Drawer.Screen name="Chatbot" component={Chatbot} options={{ headerShown: false }} />
+            <Drawer.Screen name="Soporte" component={SupportScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="Salir" component={ButtonSignOffComponent} options={{ headerShown: false }} />
+            <Drawer.Screen name="FaqScreen" component={FaqScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="NewTicketScreen" component={NewTicketScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="travelExperienceScreen" component={travelExperienceScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="TripScreen" component={TripScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="TripEndScreen" component={TripEndScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="FinishingScreen" component={FinishingScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="VerificationsScreent" component={VerificationsScreent} options={{ headerShown: false }} />
+            <Drawer.Screen name="MyVehiclesScreen" component={MyVehiclesScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterVehicleScreen" component={RegisterVehicleScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="TransPublicScreen" component={TransPublicScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="AvionScreen" component={AvionScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="StartTripScreen" component={StartTripScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="TestExperienceScreen" component={TestExperienceScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="ValidarQrScreen" component={ValidarQrScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="CargarDataUserVPScreen" component={CargarDataUserVPScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="HistorialScreen" component={HistorialScreen} options={{ headerShown: false }} />
 
-          {/* New 5G Module Screens */}
-          <Drawer.Screen name="Home5G" component={Home5G} options={{ headerShown: false }} />
-          <Drawer.Screen name="QrScanScreen5G" component={QrScanScreen5G} options={{ headerShown: false }} />
-          <Drawer.Screen name="TripScreen5G" component={TripScreen5G} options={{ headerShown: false }} />
-          <Drawer.Screen name="TravelExperience5G" component={TravelExperience5G} options={{ headerShown: false }} />
+            {/* New 5G Module Screens */}
+            <Drawer.Screen name="Home5G" component={Home5G} options={{ headerShown: false }} />
+            <Drawer.Screen name="QrScanScreen5G" component={QrScanScreen5G} options={{ headerShown: false }} />
+            <Drawer.Screen name="TripScreen5G" component={TripScreen5G} options={{ headerShown: false }} />
+            <Drawer.Screen name="TravelExperience5G" component={TravelExperience5G} options={{ headerShown: false }} />
 
-          <Drawer.Screen name="CarpoolingHome" component={CarpoolingHome} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingDriverTrips" component={CarpoolingDriverTrips} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingAddTrip" component={CarpoolingAddTrip} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingEditTrip" component={CarpoolingEditTrip} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingMapView" component={CarpoolingMapView} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingRegisterVeh" component={CarpoolingRegisterVeh} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingTripRider" component={CarpoolingTripRider} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingApplication" component={CarpoolingApplication} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingTripInProcess" component={CarpoolingTripInProcess} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingTripInProcessPasajero" component={CarpoolingTripInProcessPasajero} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingDetallesTrip" component={CarpoolingDetallesTrip} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingExperience" component={CarpoolingExperience} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingExperienceRide" component={CarpoolingExperienceRide} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingEndRide" component={CarpoolingEndRide} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingSolicitudesRider" component={CarpoolingSolicitudesRider} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingSolicitudesViaje" component={CarpoolingSolicitudesViaje} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingChat" component={CarpoolingChat} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingPush" component={CarpoolingPush} />
-          <Drawer.Screen name="CarpoolingIndications" component={CarpoolingIndications} options={{ headerShown: false }} />
-          <Drawer.Screen name="CarpoolingSupport" component={CarpoolingSupport} options={{ headerShown: false }} />
-          <Drawer.Screen name="Home_electrohub" component={Home_electrohub} options={{ headerShown: false }} />
-          <Drawer.Screen name="ParqueoActivo" component={ParqueoActivo} options={{ headerShown: false }} />
-          <Drawer.Screen name="MyVEL" component={MyVEL} options={{ headerShown: false }} />
-          <Drawer.Screen name="Horas" component={Horas} options={{ headerShown: false }} />
-          <Drawer.Screen name="Reservar_parqueo" component={Reservar_parqueo} options={{ headerShown: false }} />
-          <Drawer.Screen name="Rentar_parqueo" component={Rentar_parqueo} options={{ headerShown: false }} />
-          <Drawer.Screen name="Calificar_parqueo" component={Calificar_parqueo} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterVEL" component={RegisterVEL} options={{ headerShown: false }} />
-          <Drawer.Screen name="PerfilHome" component={PerfilHome} options={{ headerShown: false }} />
-          <Drawer.Screen name="SupportPerfil" component={SupportPerfil} options={{ headerShown: false }} />
-          <Drawer.Screen name="MisViajes" component={MisViajes} options={{ headerShown: false }} />
-          <Drawer.Screen name="Recompensas" component={Recompensas} options={{ headerShown: false }} />
-          <Drawer.Screen name="Catalogo" component={Catalogo} options={{ headerShown: false }} />
-          <Drawer.Screen name="Referidos" component={Referidos} options={{ headerShown: false }} />
-          <Drawer.Screen name="PrestamoPersonalizado" component={PrestamoPersonalizado} options={{ headerShown: false }} />
-          <Drawer.Screen name="ConfiguracionPerfil" component={ConfiguracionPerfil} options={{ headerShown: false }} />
-          <Drawer.Screen name="Home4G" component={Home4G} options={{ headerShown: false }} />
-          <Drawer.Screen name="Reservar4G" component={Reservar4G} options={{ headerShown: false }} />
-          <Drawer.Screen name="Vehiculos4G" component={Vehiculos4G} options={{ headerShown: false }} />
-          <Drawer.Screen name="IoT" component={IoT} options={{ headerShown: false }} />
-          <Drawer.Screen name="RentaActiva" component={RentaActiva} options={{ headerShown: false }} />
-          {/*<Drawer.Screen name="Finalizar4G" component={Finalizar4G} options={{ headerShown: false }}/>*/}
-          <Drawer.Screen name="ViajeActivo" component={ViajeActivo} options={{ headerShown: false }} />
-          <Drawer.Screen name="FinalizarViaje" component={FinalizarViaje} options={{ headerShown: false }} />
-          <Drawer.Screen name="TheoreticalTest" component={TheoreticalTest} options={{ headerShown: false }} />
-          <Drawer.Screen name="ScheduleTest" component={ScheduleTest} options={{ headerShown: false }} />
-          <Drawer.Screen name="TestResult" component={TestResult} options={{ headerShown: false }} />
-          <Drawer.Screen name="Home_parqueadero" component={Home_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="MyVEL_parqueadero" component={MyVEL_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterVEL_parqueadero" component={RegisterVEL_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="ParqueoActivo_parqueadero" component={ParqueoActivo_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="Reservar_parqueadero" component={Reservar_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="Rentar_parqueadero" component={Rentar_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="Calificar_parqueadero" component={Calificar_parqueadero} options={{ headerShown: false }} />
-          <Drawer.Screen name="TestAutoComplete" component={TestAutoComplete} options={{ headerShown: false }} />
-        </>
-      ) : (
-        <>
-          <Drawer.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="PhotoScreen" component={PhotoScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="PhoneScreen" component={PhoneScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="Catalogo" component={Catalogo} options={{ headerShown: false }} />
-          <Drawer.Screen name="TermsScreen" component={TermsScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="IsLoginScreen" component={IsLoginScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="ProfileScreen" component={ProfileScreen} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterUI" component={RegisterUI} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterViewScreen_1" component={RegisterViewScreen_1} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterViewScreen_2" component={RegisterViewScreen_2} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterViewScreen_3" component={RegisterViewScreen_3} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterViewScreen_4" component={RegisterViewScreen_4} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterViewScreen_5" component={RegisterViewScreen_5} options={{ headerShown: false }} />
-          <Drawer.Screen name="RegisterViewScreen_6" component={RegisterViewScreen_6} options={{ headerShown: false }} />
-        </>
-      )}
+            <Drawer.Screen name="IntroduccionMovilidadHome" component={IntroduccionMovilidadHome} options={{ headerShown: false }} />
+            <Drawer.Screen name="IntroduccionModuloDetalle" component={IntroduccionModuloDetalle} options={{ headerShown: false }} />
+
+            <Drawer.Screen name="CarpoolingHome" component={CarpoolingHome} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingDriverTrips" component={CarpoolingDriverTrips} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingAddTrip" component={CarpoolingAddTrip} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingEditTrip" component={CarpoolingEditTrip} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingMapView" component={CarpoolingMapView} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingRegisterVeh" component={CarpoolingRegisterVeh} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingTripRider" component={CarpoolingTripRider} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingApplication" component={CarpoolingApplication} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingTripInProcess" component={CarpoolingTripInProcess} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingTripInProcessPasajero" component={CarpoolingTripInProcessPasajero} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingDetallesTrip" component={CarpoolingDetallesTrip} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingExperience" component={CarpoolingExperience} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingExperienceRide" component={CarpoolingExperienceRide} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingEndRide" component={CarpoolingEndRide} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingSolicitudesRider" component={CarpoolingSolicitudesRider} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingSolicitudesViaje" component={CarpoolingSolicitudesViaje} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingChat" component={CarpoolingChat} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingPush" component={CarpoolingPush} />
+            <Drawer.Screen name="CarpoolingIndications" component={CarpoolingIndications} options={{ headerShown: false }} />
+            <Drawer.Screen name="CarpoolingSupport" component={CarpoolingSupport} options={{ headerShown: false }} />
+            <Drawer.Screen name="Home_electrohub" component={Home_electrohub} options={{ headerShown: false }} />
+            <Drawer.Screen name="ParqueoActivo" component={ParqueoActivo} options={{ headerShown: false }} />
+            <Drawer.Screen name="MyVEL" component={MyVEL} options={{ headerShown: false }} />
+            <Drawer.Screen name="Horas" component={Horas} options={{ headerShown: false }} />
+            <Drawer.Screen name="Reservar_parqueo" component={Reservar_parqueo} options={{ headerShown: false }} />
+            <Drawer.Screen name="Rentar_parqueo" component={Rentar_parqueo} options={{ headerShown: false }} />
+            <Drawer.Screen name="Calificar_parqueo" component={Calificar_parqueo} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterVEL" component={RegisterVEL} options={{ headerShown: false }} />
+            <Drawer.Screen name="PerfilHome" component={PerfilHome} options={{ headerShown: false }} />
+            <Drawer.Screen name="SupportPerfil" component={SupportPerfil} options={{ headerShown: false }} />
+            <Drawer.Screen name="MisViajes" component={MisViajes} options={{ headerShown: false }} />
+            <Drawer.Screen name="Recompensas" component={Recompensas} options={{ headerShown: false }} />
+            <Drawer.Screen name="Catalogo" component={Catalogo} options={{ headerShown: false }} />
+            <Drawer.Screen name="Referidos" component={Referidos} options={{ headerShown: false }} />
+            <Drawer.Screen name="PrestamoPersonalizado" component={PrestamoPersonalizado} options={{ headerShown: false }} />
+            <Drawer.Screen name="ConfiguracionPerfil" component={ConfiguracionPerfil} options={{ headerShown: false }} />
+            <Drawer.Screen name="Home4G" component={Home4G} options={{ headerShown: false }} />
+            <Drawer.Screen name="Reservar4G" component={Reservar4G} options={{ headerShown: false }} />
+            <Drawer.Screen name="Vehiculos4G" component={Vehiculos4G} options={{ headerShown: false }} />
+            <Drawer.Screen name="IoT" component={IoT} options={{ headerShown: false }} />
+            <Drawer.Screen name="RentaActiva" component={RentaActiva} options={{ headerShown: false }} />
+            {/*<Drawer.Screen name="Finalizar4G" component={Finalizar4G} options={{ headerShown: false }}/>*/}
+            <Drawer.Screen name="ViajeActivo" component={ViajeActivo} options={{ headerShown: false }} />
+            <Drawer.Screen name="FinalizarViaje" component={FinalizarViaje} options={{ headerShown: false }} />
+            <Drawer.Screen name="TheoreticalTest" component={TheoreticalTest} options={{ headerShown: false }} />
+            <Drawer.Screen name="ScheduleTest" component={ScheduleTest} options={{ headerShown: false }} />
+            <Drawer.Screen name="TestResult" component={TestResult} options={{ headerShown: false }} />
+            <Drawer.Screen name="Home_parqueadero" component={Home_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="MyVEL_parqueadero" component={MyVEL_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterVEL_parqueadero" component={RegisterVEL_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="ParqueoActivo_parqueadero" component={ParqueoActivo_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="Reservar_parqueadero" component={Reservar_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="Rentar_parqueadero" component={Rentar_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="Calificar_parqueadero" component={Calificar_parqueadero} options={{ headerShown: false }} />
+            <Drawer.Screen name="TestAutoComplete" component={TestAutoComplete} options={{ headerShown: false }} />
+          </>
+        ) : (
+          <>
+            <Drawer.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="PhotoScreen" component={PhotoScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="PhoneScreen" component={PhoneScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="Catalogo" component={Catalogo} options={{ headerShown: false }} />
+            <Drawer.Screen name="TermsScreen" component={TermsScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="IsLoginScreen" component={IsLoginScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="ProfileScreen" component={ProfileScreen} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterUI" component={RegisterUI} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterViewScreen_1" component={RegisterViewScreen_1} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterViewScreen_2" component={RegisterViewScreen_2} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterViewScreen_3" component={RegisterViewScreen_3} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterViewScreen_4" component={RegisterViewScreen_4} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterViewScreen_5" component={RegisterViewScreen_5} options={{ headerShown: false }} />
+            <Drawer.Screen name="RegisterViewScreen_6" component={RegisterViewScreen_6} options={{ headerShown: false }} />
+          </>
+        )}
       </Drawer.Navigator>
     </>
   );
